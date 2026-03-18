@@ -1,0 +1,32 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wpbb/column",
+  "title": "Column (Bootstrap)",
+  "category": "wpbb-layout",
+  "icon": "column",
+  "description": "Bootstrap 5 grid column",
+  "textdomain": "wp-bblocks",
+  "parent": ["wpbb/row"],
+  "attributes": {
+    "xs": { "type": "number", "default": 12 },
+    "sm": { "type": "number", "default": 0 },
+    "md": { "type": "number", "default": 0 },
+    "lg": { "type": "number", "default": 0 },
+    "xl": { "type": "number", "default": 0 },
+    "xxl": { "type": "number", "default": 0 },
+    "equalWidth": { "type": "object", "default": { "xs": false, "sm": false, "md": false, "lg": false, "xl": false, "xxl": false } },
+    "offset": { "type": "object", "default": { "xs": 0, "sm": 0, "md": 0, "lg": 0, "xl": 0, "xxl": 0 } },
+    "order": { "type": "object", "default": { "xs": "", "sm": "", "md": "", "lg": "", "xl": "", "xxl": "" } }
+  },
+  "supports": {
+    "anchor": true,
+    "html": false,
+    "color": { "background": true, "text": true },
+    "spacing": { "padding": true }
+  },
+  "usesContext": ["wpbb/rowIsCssGrid", "wpbb/rowVerticalAlignment"],
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}

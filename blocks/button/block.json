@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "bootstrap/button",
+  "version": "1.0.0",
+  "title": "Bootstrap Button",
+  "category": "bootstrap",
+  "icon": "button",
+  "description": "Bootstrap styled button with admin class management",
+  "keywords": ["bootstrap", "button", "link"],
+  "supports": {
+    "html": false,
+    "customClassName": true,
+    "anchor": true
+  },
+  "attributes": {
+    "text": {
+      "type": "string",
+      "default": "Click Me"
+    },
+    "url": {
+      "type": "string",
+      "default": "#"
+    },
+    "classes": {
+      "type": "array",
+      "default": ["btn", "btn-primary"]
+    },
+    "variant": {
+      "type": "string",
+      "default": "primary"
+    },
+    "size": {
+      "type": "string",
+      "default": ""
+    },
+    "openInNewTab": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "editorScript": "file:./src/edit.js",
+  "editorStyle": "file:./src/editor.css",
+  "style": "file:./style.css",
+  "render": "file:./render.php"
+}

@@ -1,0 +1,51 @@
+/**
+ * Accordion Editor Styles
+ */
+
+.dp-accordion-editor {
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+    padding: 16px;
+    background: #f9f9f9;
+}
+
+.dp-accordion-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.dp-accordion-icon {
+    font-size: 18px;
+}
+
+.dp-accordion-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1e1e1e;
+    flex: 1;
+}
+
+.dp-accordion-count {
+    font-size: 12px;
+    color: #757575;
+    background: #e0e0e0;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+/* Flush style preview */
+.dp-accordion-editor.accordion-flush {
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+}
+
+/* Selected state */
+.dp-accordion-editor.is-selected {
+    border-color: #007cba;
+    border-style: solid;
+}

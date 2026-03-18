@@ -1,0 +1,13 @@
+{
+  "name": "wp-bblocks",
+  "version": "2.0.0",
+  "scripts": {
+    "build": "wp-scripts build",
+    "start": "wp-scripts start",
+    "format": "wp-scripts format"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^26.0.0",
+    "@wordpress/icons": "^9.0.0"
+  }
+}

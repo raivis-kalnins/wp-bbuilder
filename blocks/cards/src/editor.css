@@ -1,0 +1,82 @@
+/**
+ * Cards Grid Editor Styles
+ */
+
+.dp-cards-wrapper {
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+    padding: 16px;
+    background: #f9f9f9;
+}
+
+.dp-cards-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.dp-cards-icon {
+    font-size: 18px;
+}
+
+.dp-cards-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1e1e1e;
+    flex: 1;
+}
+
+.dp-cards-count {
+    font-size: 12px;
+    color: #757575;
+    background: #e0e0e0;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.dp-cards-editor {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+}
+
+.dp-cards-editor > .block-editor-block-list__block {
+    margin: 0;
+}
+
+/* Column sizing for editor preview */
+.dp-cards-editor > * {
+    flex: 0 0 auto;
+}
+
+/* Add card button */
+.dp-cards-add-button {
+    margin-top: 16px;
+    width: 100%;
+    justify-content: center;
+}
+
+/* Selected state */
+.dp-cards-wrapper.is-selected {
+    border-color: #007cba;
+    border-style: solid;
+}
+
+/* Card group preview */
+.dp-cards-editor.card-group .dp-card-editor {
+    border-radius: 0;
+    margin: 0;
+}
+
+.dp-cards-editor.card-group .dp-card-editor:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.dp-cards-editor.card-group .dp-card-editor:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "dp-blocks/tabs",
+  "title": "DP Tabs (Bootstrap)",
+  "category": "design",
+  "icon": "tablet",
+  "description": "Bootstrap tabs with horizontal or vertical navigation",
+  "keywords": ["tabs", "navigation", "bootstrap", "pills"],
+  "supports": {
+    "anchor": true,
+    "align": ["wide", "full"],
+    "html": false,
+    "spacing": {
+      "padding": true,
+      "margin": true
+    }
+  },
+  "attributes": {
+    "tabsId": {
+      "type": "string",
+      "default": ""
+    },
+    "type": {
+      "type": "string",
+      "default": "tabs"
+    },
+    "alignment": {
+      "type": "string",
+      "default": ""
+    },
+    "vertical": {
+      "type": "boolean",
+      "default": false
+    },
+    "fill": {
+      "type": "boolean",
+      "default": false
+    },
+    "justify": {
+      "type": "boolean",
+      "default": false
+    },
+    "fadeEffect": {
+      "type": "boolean",
+      "default": true
+    },
+    "activeTab": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "editorScript": "file:./src/edit.js",
+  "editorStyle": "file:./src/editor.css",
+  "style": "file:./src/style.css",
+  "render": "file:./render.php",
+  "allowedBlocks": ["dp-blocks/tab-item"]
+}

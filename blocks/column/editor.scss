@@ -1,0 +1,28 @@
+.wpbb-column {
+    position: relative;
+    min-height: 50px;
+    padding: 15px;
+    border: 1px dashed #ccc;
+    background: rgba(255,255,255,0.5);
+    
+    &__label {
+        position: absolute;
+        top: -10px;
+        right: 10px;
+        background: #666;
+        color: white;
+        padding: 2px 8px;
+        font-size: 10px;
+        border-radius: 3px;
+    }
+    
+    &:hover {
+        border-color: #666;
+        background: rgba(0,124,186,0.05);
+    }
+    
+    &.is-selected, &.has-child-selected {
+        border-color: #007cba;
+        border-style: solid;
+    }
+}

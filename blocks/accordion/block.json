@@ -1,0 +1,46 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "dp-blocks/accordion",
+  "title": "DP Accordion (Bootstrap)",
+  "category": "design",
+  "icon": "list-view",
+  "description": "Bootstrap accordion with collapsible content panels",
+  "keywords": ["accordion", "collapse", "toggle", "bootstrap"],
+  "supports": {
+    "anchor": true,
+    "align": ["wide", "full"],
+    "html": false,
+    "spacing": {
+      "padding": true,
+      "margin": true
+    }
+  },
+  "attributes": {
+    "accordionId": {
+      "type": "string",
+      "default": ""
+    },
+    "alwaysOpen": {
+      "type": "boolean",
+      "default": false
+    },
+    "flush": {
+      "type": "boolean",
+      "default": false
+    },
+    "firstItemOpen": {
+      "type": "boolean",
+      "default": false
+    },
+    "itemSpacing": {
+      "type": "string",
+      "default": "mb-2"
+    }
+  },
+  "editorScript": "file:./src/edit.js",
+  "editorStyle": "file:./src/editor.css",
+  "style": "file:./src/style.css",
+  "render": "file:./render.php",
+  "allowedBlocks": ["dp-blocks/accordion-item"]
+}

@@ -1,0 +1,86 @@
+/**
+ * Accordion Item Editor Styles
+ */
+
+.dp-accordion-item-editor {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.dp-accordion-item-editor:last-child {
+    margin-bottom: 0;
+}
+
+.dp-accordion-header-editor {
+    margin: 0;
+    padding: 0;
+}
+
+.dp-accordion-button-editor {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #212529;
+    text-align: left;
+    background-color: #f8f9fa;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.dp-accordion-button-editor:hover {
+    background-color: #e9ecef;
+}
+
+.dp-accordion-button-editor.collapsed .dp-accordion-chevron {
+    transform: rotate(-90deg);
+}
+
+.dp-accordion-chevron {
+    font-size: 12px;
+    color: #6c757d;
+    transition: transform 0.2s ease-in-out;
+}
+
+.dp-accordion-collapse-editor {
+    display: none;
+    padding: 16px;
+    background: #fff;
+    border-top: 1px solid #dee2e6;
+}
+
+.dp-accordion-collapse-editor.show {
+    display: block;
+}
+
+.dp-accordion-body-editor {
+    min-height: 60px;
+}
+
+.dp-accordion-body-editor .block-editor-block-list__layout {
+    min-height: 40px;
+}
+
+/* Selected item styling */
+.dp-accordion-item-editor.is-selected {
+    border-color: #007cba;
+    box-shadow: 0 0 0 1px #007cba;
+}
+
+/* Header variations */
+.dp-accordion-header-editor h2,
+.dp-accordion-header-editor h3,
+.dp-accordion-header-editor h4,
+.dp-accordion-header-editor h5,
+.dp-accordion-header-editor h6,
+.dp-accordion-header-editor p {
+    margin: 0;
+    font-size: inherit;
+}

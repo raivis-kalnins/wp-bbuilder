@@ -1,0 +1,66 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "dp-blocks/card",
+  "title": "DP Card",
+  "category": "design",
+  "icon": "index-card",
+  "description": "Bootstrap card with image, header, body, and footer",
+  "parent": ["dp-blocks/cards", "dp-blocks/row", "core/group", "core/column"],
+  "supports": {
+    "html": false,
+    "reusable": true,
+    "spacing": {
+      "padding": true
+    }
+  },
+  "attributes": {
+    "borderColor": {
+      "type": "string",
+      "default": ""
+    },
+    "backgroundColor": {
+      "type": "string",
+      "default": ""
+    },
+    "textColor": {
+      "type": "string",
+      "default": ""
+    },
+    "textAlignment": {
+      "type": "string",
+      "default": "left"
+    },
+    "showImage": {
+      "type": "boolean",
+      "default": true
+    },
+    "showHeader": {
+      "type": "boolean",
+      "default": false
+    },
+    "showFooter": {
+      "type": "boolean",
+      "default": false
+    },
+    "imagePosition": {
+      "type": "string",
+      "default": "top"
+    },
+    "imageUrl": {
+      "type": "string",
+      "default": ""
+    },
+    "imageAlt": {
+      "type": "string",
+      "default": ""
+    },
+    "overlay": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "editorScript": "file:./src/edit.js",
+  "editorStyle": "file:./src/editor.css",
+  "render": "file:./render.php"
+}

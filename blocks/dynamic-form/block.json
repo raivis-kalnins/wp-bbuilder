@@ -1,0 +1,28 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "bblocks/dynamic-form",
+    "title": "Dynamic Form Builder",
+    "description": "Drag and drop form builder with captcha support",
+    "category": "widgets",
+    "icon": "feedback",
+    "keywords": ["form", "contact", "captcha", "acf"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "render.php"
+    },
+    "supports": {
+        "align": ["wide", "full"],
+        "anchor": true,
+        "mode": false,
+        "jsx": false
+    },
+    "style": "file:./style.css",
+    "script": "file:./form-frontend.js",
+    "attributes": {
+        "align": {
+            "type": "string",
+            "default": ""
+        }
+    }
+}

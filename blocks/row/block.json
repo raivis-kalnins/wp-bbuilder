@@ -1,0 +1,34 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "wpbb/row",
+  "title": "Row (Bootstrap)",
+  "category": "wpbb-layout",
+  "icon": "grid-view",
+  "description": "Bootstrap 5 grid row",
+  "textdomain": "wp-bblocks",
+  "attributes": {
+    "template": { "type": "string", "default": "custom" },
+    "noGutters": { "type": "boolean", "default": false },
+    "horizontalGutters": { "type": "string", "default": "gx-4" },
+    "verticalGutters": { "type": "string", "default": "" },
+    "alignment": { "type": "string", "default": "" },
+    "verticalAlignment": { "type": "string", "default": "" },
+    "isCssGrid": { "type": "boolean", "default": false },
+    "gridColumns": { "type": "number", "default": 12 },
+    "editorStackColumns": { "type": "boolean", "default": false }
+  },
+  "supports": {
+    "anchor": true,
+    "align": ["wide", "full"],
+    "html": false,
+    "color": { "background": true, "text": true }
+  },
+  "providesContext": {
+    "wpbb/rowIsCssGrid": "isCssGrid",
+    "wpbb/rowVerticalAlignment": "verticalAlignment"
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./editor.css",
+  "style": "file:./style.css"
+}
