@@ -27,6 +27,18 @@ function wpbb_defaults() {
         'whatsapp_position' => 'bottom-right',
         'whatsapp_bg' => '#25D366',
         'whatsapp_text' => '#ffffff',
+        'cookie_consent_enabled' => 0,
+        'cookie_consent_text' => 'We use cookies to improve your experience.',
+        'cookie_accept_text' => 'Accept',
+        'cookie_reject_text' => 'Reject',
+        'cookie_policy_url' => '',
+        'cookie_position' => 'bottom',
+        'cookie_bg' => '#111827',
+        'cookie_text_color' => '#ffffff',
+        'cookie_button_bg' => '#2563eb',
+        'cookie_button_text' => '#ffffff',
+        'google_analytics_enabled' => 0,
+        'google_analytics_head' => '',
     ];
 }
 function wpbb_get_option($key, $default = null) {

@@ -12,13 +12,13 @@ final class WPBB_Settings {
         $enabled = [];
         foreach (wpbb_get_blocks_list() as $slug) $enabled[$slug] = !empty($input['enabled_blocks'][$slug]) ? 1 : 0;
         $out['enabled_blocks'] = $enabled;
-        foreach (['disable_core_group','disable_core_columns','disable_core_column','disable_core_table','disable_core_embed','disable_core_gallery','disable_core_image','disable_core_cover','disable_core_media_text','disable_core_buttons','disable_core_button','load_bootstrap_css','load_bootstrap_js','save_entries','bootstrap_optimize_frontend','bootstrap_enable_utilities','bootstrap_allow_custom_classes'] as $flag) {
+        foreach (['disable_core_group','disable_core_columns','disable_core_column','disable_core_table','disable_core_embed','disable_core_gallery','disable_core_image','disable_core_cover','disable_core_media_text','disable_core_buttons','disable_core_button','load_bootstrap_css','load_bootstrap_js','save_entries','bootstrap_optimize_frontend','bootstrap_enable_utilities','bootstrap_allow_custom_classes','cookie_consent_enabled','google_analytics_enabled'] as $flag) {
             $out[$flag] = !empty($input[$flag]) ? 1 : 0;
         }
-        foreach (['default_recipient_email','default_success_message','default_error_message','default_validation_text','button_class','form_class','admin_max_width','hcaptcha_site_key','hcaptcha_secret_key','recaptcha_site_key','recaptcha_secret_key','whatsapp_phone','whatsapp_message','whatsapp_position'] as $field) {
+        foreach (['default_recipient_email','default_success_message','default_error_message','default_validation_text','button_class','form_class','admin_max_width','hcaptcha_site_key','hcaptcha_secret_key','recaptcha_site_key','recaptcha_secret_key','whatsapp_phone','whatsapp_message','whatsapp_position','cookie_consent_text','cookie_accept_text','cookie_reject_text','cookie_policy_url','cookie_position','google_analytics_head'] as $field) {
             $out[$field] = sanitize_text_field($input[$field] ?? ($out[$field] ?? ''));
         }
-        foreach (['default_label_color','default_input_border_color','default_button_bg','default_button_text','whatsapp_bg','whatsapp_text'] as $field) {
+        foreach (['default_label_color','default_input_border_color','default_button_bg','default_button_text','whatsapp_bg','whatsapp_text','cookie_bg','cookie_text_color','cookie_button_bg','cookie_button_text'] as $field) {
             $out[$field] = sanitize_hex_color($input[$field] ?? $out[$field]) ?: $out[$field];
         }
         $out['show_entries_menu'] = 0;
