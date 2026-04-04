@@ -150,7 +150,7 @@ final class WPBB_Blocks {
                     'lg' => ['type' => 'number', 'default' => 0],
                     'xl' => ['type' => 'number', 'default' => 0],
                     'xxl' => ['type' => 'number', 'default' => 0],
-                    'orderClass' => ['type' => 'string', 'default' => ''],'visibilityClass' => ['type' => 'string', 'default' => ''],'animationClass' => ['type' => 'string', 'default' => ''],
+                    'orderClass' => ['type' => 'string', 'default' => ''],'visibilityClass' => ['type' => 'string', 'default' => ''],'visibilityXs' => ['type' => 'boolean', 'default' => true],'visibilitySm' => ['type' => 'boolean', 'default' => true],'visibilityMd' => ['type' => 'boolean', 'default' => true],'visibilityLg' => ['type' => 'boolean', 'default' => true],'visibilityXl' => ['type' => 'boolean', 'default' => true],'animationClass' => ['type' => 'string', 'default' => ''],'paddingTop' => ['type' => 'number', 'default' => 0],'paddingTopUnit' => ['type' => 'string', 'default' => 'px'],'paddingRight' => ['type' => 'number', 'default' => 0],'paddingRightUnit' => ['type' => 'string', 'default' => 'px'],'paddingBottom' => ['type' => 'number', 'default' => 0],'paddingBottomUnit' => ['type' => 'string', 'default' => 'px'],'paddingLeft' => ['type' => 'number', 'default' => 0],'paddingLeftUnit' => ['type' => 'string', 'default' => 'px'],'marginTop' => ['type' => 'number', 'default' => 0],'marginTopUnit' => ['type' => 'string', 'default' => 'px'],'marginRight' => ['type' => 'number', 'default' => 0],'marginRightUnit' => ['type' => 'string', 'default' => 'px'],'marginBottom' => ['type' => 'number', 'default' => 0],'marginBottomUnit' => ['type' => 'string', 'default' => 'px'],'marginLeft' => ['type' => 'number', 'default' => 0],'marginLeftUnit' => ['type' => 'string', 'default' => 'px'],
                     'paddingClass' => ['type' => 'string', 'default' => ''],
                     'marginClass' => ['type' => 'string', 'default' => ''],
                     'backgroundClass' => ['type' => 'string', 'default' => ''],
@@ -205,15 +205,15 @@ final class WPBB_Blocks {
                     'className' => ['type' => 'string', 'default' => ''],
                 ];
             case 'cta-card':
-                $title = esc_html($attributes['title'] ?? __('CTA Card', 'wp-bbuilder'));
+                $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('CTA Card', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'h3'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'h3';
                 $text = esc_html($attributes['text'] ?? '');
                 $buttonText = esc_html($attributes['buttonText'] ?? __('Learn more', 'wp-bbuilder'));
                 $buttonUrl = esc_url($attributes['buttonUrl'] ?? '#');
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-cta-card card h-100' . $extra]);
-                $style = ""; if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";"; if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";"; return "<div {$wrapper} style=\"" . esc_attr($style) . "\"><div class=\"card-body\"><h3 class=\"card-title\">{$title}</h3><p class=\"card-text\">{$text}</p><a class=\"btn btn-primary\" href=\"{$buttonUrl}\">{$buttonText}</a></div></div>";
+                $style = ""; if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";"; if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";"; return "<div {$wrapper} style=\"" . esc_attr($style) . "\"><div class=\"card-body\"><{$titleTag} class=\"card-title {$titleTag}\">{$title}</{$titleTag}><p class=\"card-text\">{$text}</p><a class=\"btn btn-primary\" href=\"{$buttonUrl}\">{$buttonText}</a></div></div>";
 
             case 'cta-section':
-                $title = esc_html($attributes['title'] ?? __('CTA Section', 'wp-bbuilder'));
+                $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('CTA Section', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'h2'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'h2';
                 $text = esc_html($attributes['text'] ?? '');
                 $buttonText = esc_html($attributes['buttonText'] ?? __('Get started', 'wp-bbuilder'));
                 $buttonUrl = esc_url($attributes['buttonUrl'] ?? '#');
@@ -228,25 +228,36 @@ final class WPBB_Blocks {
                 $style = !empty($attributes["mapFilter"]) ? "filter:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["mapFilter"]) . ";" : ""; return "<div {$wrapper}><iframe src=\"{$url}\" style=\"width:100%;height:{$height};border:0;{$style}\" loading=\"lazy\" allowfullscreen></iframe></div>";
 
             case 'menu-option':
-                $title = esc_html($attributes['title'] ?? __('Menu Item', 'wp-bbuilder'));
+                $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('Menu Item', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'h4'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'h4';
                 $badge = esc_html($attributes['badge'] ?? '');
                 $text = esc_html($attributes['text'] ?? '');
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-menu-option d-flex justify-content-between align-items-start gap-3 py-2' . $extra]);
-                $style = ""; if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";"; if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";"; return "<div {$wrapper} style=\"" . esc_attr($style) . "\"><div><strong>{$title}</strong><div>{$text}</div></div>" . ($badge ? "<div class=\"badge text-bg-light\">{$badge}</div>" : "") . "</div>";
+                $style = ""; if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";"; if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";"; return "<div {$wrapper} style=\"" . esc_attr($style) . "\"><div><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}><div>{$text}</div></div>" . ($badge ? "<div class=\"badge text-bg-light\">{$badge}</div>" : "") . "</div>";
 
             case 'sitemap':
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-sitemap' . $extra]);
-                $title = esc_html($attributes["title"] ?? __("Sitemap", "wp-bbuilder")); $pages = !empty($attributes["showPages"]) ? wp_list_pages(["echo"=>0,"title_li"=>""]) : ""; $posts = ""; if (!empty($attributes["showPosts"])) { $items = get_posts(["numberposts"=>10,"post_status"=>"publish"]); if ($items) { $posts .= "<ul>"; foreach ($items as $p) $posts .= "<li><a href=\"" . esc_url(get_permalink($p)) . "\">" . esc_html(get_the_title($p)) . "</a></li>"; $posts .= "</ul>"; } } return "<div {$wrapper}><h3>{$title}</h3>" . ($pages ? "<ul>{$pages}</ul>" : "") . $posts . "</div>";
+                $title = esc_html(wpbb_translate_string($attributes["title"] ?? __("Sitemap", "wp-bbuilder"))); $titleTag = in_array(($attributes["titleTag"] ?? "h3"), ["h1","h2","h3","h4","h5","h6","div","p","span"], true) ? $attributes["titleTag"] : "h3"; $pages = !empty($attributes["showPages"]) ? wp_list_pages(["echo"=>0,"title_li"=>""]) : ""; $posts = ""; if (!empty($attributes["showPosts"])) { $items = get_posts(["numberposts"=>10,"post_status"=>"publish"]); if ($items) { $posts .= "<ul>"; foreach ($items as $p) $posts .= "<li><a href=\"" . esc_url(get_permalink($p)) . "\">" . esc_html(get_the_title($p)) . "</a></li>"; $posts .= "</ul>"; } } return "<div {$wrapper}><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>" . ($pages ? "<ul>{$pages}</ul>" : "") . $posts . "</div>";
 
             case 'soc-follow-block':
                 $title = esc_html($attributes['title'] ?? __('Follow Us', 'wp-bbuilder'));
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-soc-follow d-flex gap-2 align-items-center' . $extra]);
-                $facebook = esc_url($attributes["facebook"] ?? ""); $instagram = esc_url($attributes["instagram"] ?? ""); $linkedin = esc_url($attributes["linkedin"] ?? ""); $x = esc_url($attributes["x"] ?? ""); $html = "<div {$wrapper}><strong>{$title}</strong>"; if ($facebook) $html .= "<a class=\"btn btn-outline-secondary btn-sm\" href=\"{$facebook}\">FB</a>"; if ($instagram) $html .= "<a class=\"btn btn-outline-secondary btn-sm\" href=\"{$instagram}\">IG</a>"; if ($linkedin) $html .= "<a class=\"btn btn-outline-secondary btn-sm\" href=\"{$linkedin}\">LI</a>"; if ($x) $html .= "<a class=\"btn btn-outline-secondary btn-sm\" href=\"{$x}\">X</a>"; $html .= "</div>"; return $html;
+                $facebook = esc_url($attributes["facebook"] ?? ""); $instagram = esc_url($attributes["instagram"] ?? ""); $linkedin = esc_url($attributes["linkedin"] ?? ""); $x = esc_url($attributes["x"] ?? ""); $html = "<div {$wrapper}><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>"; if ($facebook) $html .= "<a class=\"wpbb-social-icon\" href=\"{$facebook}\" aria-label=\"Facebook\"><span class=\"wpbb-social-icon__glyph\">f</span></a>"; if ($instagram) $html .= "<a class=\"wpbb-social-icon\" href=\"{$instagram}\" aria-label=\"Instagram\"><span class=\"wpbb-social-icon__glyph\">ig</span></a>"; if ($linkedin) $html .= "<a class=\"wpbb-social-icon\" href=\"{$linkedin}\" aria-label=\"LinkedIn\"><span class=\"wpbb-social-icon__glyph\">in</span></a>"; if ($x) $html .= "<a class=\"wpbb-social-icon\" href=\"{$x}\" aria-label=\"X\"><span class=\"wpbb-social-icon__glyph\">x</span></a>"; $html .= "</div>"; return $html;
 
             case 'soc-share':
-                $title = esc_html($attributes['title'] ?? __('Share', 'wp-bbuilder'));
+                $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('Share', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'span'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'span';
+                $iconStyle = $attributes['iconStyle'] ?? 'buttons';
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-soc-share d-flex gap-2 align-items-center' . $extra]);
-                $title = esc_html($attributes["title"] ?? __("Share", "wp-bbuilder")); $iconStyle = $attributes["iconStyle"] ?? "buttons"; $wrapper = get_block_wrapper_attributes(["class" => "wpbb-soc-share d-flex gap-2 align-items-center" . $extra]); $shareUrl = rawurlencode(get_permalink()); $shareTitle = rawurlencode(get_the_title()); $btnClass = $iconStyle === "icons" ? "btn btn-light btn-sm rounded-circle" : "btn btn-outline-secondary btn-sm"; return "<div {$wrapper}><strong>{$title}</strong><a class=\"{$btnClass}\" target=\"_blank\" rel=\"noopener\" href=\"https://www.facebook.com/sharer/sharer.php?u={$shareUrl}\">FB</a><a class=\"{$btnClass}\" target=\"_blank\" rel=\"noopener\" href=\"https://twitter.com/intent/tweet?url={$shareUrl}&text={$shareTitle}\">X</a><a class=\"{$btnClass}\" target=\"_blank\" rel=\"noopener\" href=\"https://www.linkedin.com/sharing/share-offsite/?url={$shareUrl}\">LI</a></div>";
+                $shareUrl = rawurlencode(get_permalink());
+                $shareTitle = rawurlencode(get_the_title());
+                $iconClass = $iconStyle === 'icons' ? 'wpbb-social-icon' : 'btn btn-outline-secondary btn-sm';
+                $facebookLabel = $iconStyle === 'icons' ? '<span class="wpbb-social-icon__glyph">f</span>' : 'Facebook';
+                $xLabel = $iconStyle === 'icons' ? '<span class="wpbb-social-icon__glyph">x</span>' : 'X';
+                $linkedinLabel = $iconStyle === 'icons' ? '<span class="wpbb-social-icon__glyph">in</span>' : 'LinkedIn';
+                return "<div {$wrapper}><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>"
+                    . "<a class=\"{$iconClass}\" target=\"_blank\" rel=\"noopener\" aria-label=\"Share on Facebook\" href=\"https://www.facebook.com/sharer/sharer.php?u={$shareUrl}\">{$facebookLabel}</a>"
+                    . "<a class=\"{$iconClass}\" target=\"_blank\" rel=\"noopener\" aria-label=\"Share on X\" href=\"https://twitter.com/intent/tweet?url={$shareUrl}&text={$shareTitle}\">{$xLabel}</a>"
+                    . "<a class=\"{$iconClass}\" target=\"_blank\" rel=\"noopener\" aria-label=\"Share on LinkedIn\" href=\"https://www.linkedin.com/sharing/share-offsite/?url={$shareUrl}\">{$linkedinLabel}</a>"
+                    . "</div>";
 
             case 'video':
                 $url = esc_url($attributes['videoUrl'] ?? '');
@@ -296,15 +307,15 @@ final class WPBB_Blocks {
                 ];
 
             case 'cta-card':
-                return ['title'=>['type'=>'string','default'=>'CTA Card'],'text'=>['type'=>'string','default'=>'Call to action text'],'buttonText'=>['type'=>'string','default'=>'Learn more'],'buttonUrl'=>['type'=>'string','default'=>'#'],'bgColor'=>['type'=>'string','default'=>''],'textColor'=>['type'=>'string','default'=>''],'className'=>['type'=>'string','default'=>'']];
+                return ['title'=>['type'=>'string','default'=>'CTA Card'],'titleTag'=>['type'=>'string','default'=>'h3'],'text'=>['type'=>'string','default'=>'Call to action text'],'buttonText'=>['type'=>'string','default'=>'Learn more'],'buttonUrl'=>['type'=>'string','default'=>'#'],'bgColor'=>['type'=>'string','default'=>''],'textColor'=>['type'=>'string','default'=>''],'className'=>['type'=>'string','default'=>'']];
             case 'cta-section':
-                return ['title'=>['type'=>'string','default'=>'CTA Section'],'text'=>['type'=>'string','default'=>'Call to action text'],'buttonText'=>['type'=>'string','default'=>'Get started'],'buttonUrl'=>['type'=>'string','default'=>'#'],'bgColor'=>['type'=>'string','default'=>''],'textColor'=>['type'=>'string','default'=>''],'backgroundImage'=>['type'=>'string','default'=>''],'parallax'=>['type'=>'boolean','default'=>false],'className'=>['type'=>'string','default'=>'']];
+                return ['title'=>['type'=>'string','default'=>'CTA Section'],'titleTag'=>['type'=>'string','default'=>'h2'],'text'=>['type'=>'string','default'=>'Call to action text'],'buttonText'=>['type'=>'string','default'=>'Get started'],'buttonUrl'=>['type'=>'string','default'=>'#'],'bgColor'=>['type'=>'string','default'=>''],'textColor'=>['type'=>'string','default'=>''],'backgroundImage'=>['type'=>'string','default'=>''],'parallax'=>['type'=>'boolean','default'=>false],'className'=>['type'=>'string','default'=>'']];
             case 'google-map':
                 return ['embedUrl'=>['type'=>'string','default'=>''],'height'=>['type'=>'string','default'=>'380px'],'mapFilter'=>['type'=>'string','default'=>''],'className'=>['type'=>'string','default'=>'']];
             case 'menu-option':
                 return ['title'=>['type'=>'string','default'=>'Menu Item'],'price'=>['type'=>'string','default'=>''],'text'=>['type'=>'string','default'=>''],'bgColor'=>['type'=>'string','default'=>''],'textColor'=>['type'=>'string','default'=>''],'className'=>['type'=>'string','default'=>'']];
             case 'sitemap':
-                return ['title'=>['type'=>'string','default'=>'Sitemap'],'showPages'=>['type'=>'boolean','default'=>true],'showPosts'=>['type'=>'boolean','default'=>false],'className'=>['type'=>'string','default'=>'']];
+                return ['title'=>['type'=>'string','default'=>'Sitemap'],'titleTag'=>['type'=>'string','default'=>'h3'],'showPages'=>['type'=>'boolean','default'=>true],'showPosts'=>['type'=>'boolean','default'=>false],'className'=>['type'=>'string','default'=>'']];
             case 'soc-follow-block':
             case 'soc-share':
                 return ['title'=>['type'=>'string','default'=>ucfirst(str_replace('-', ' ', $slug))],'className'=>['type'=>'string','default'=>'']];
@@ -391,7 +402,26 @@ final class WPBB_Blocks {
         return $classes;
     }
 
-    public function filter_allowed_blocks($allowed_blocks, $context) {
+    
+    private function build_breakpoint_visibility_classes($attributes) {
+        $all = [
+            'Xs' => !empty($attributes['visibilityXs']),
+            'Sm' => !empty($attributes['visibilitySm']),
+            'Md' => !empty($attributes['visibilityMd']),
+            'Lg' => !empty($attributes['visibilityLg']),
+            'Xl' => !empty($attributes['visibilityXl']),
+        ];
+        if (array_reduce($all, function($c, $v){ return $c && $v; }, true)) return '';
+        $classes = [];
+        if (empty($attributes['visibilityXs'])) $classes[] = 'd-none';
+        if (!empty($attributes['visibilitySm'])) $classes[] = 'd-sm-block'; else $classes[] = 'd-sm-none';
+        if (!empty($attributes['visibilityMd'])) $classes[] = 'd-md-block'; else $classes[] = 'd-md-none';
+        if (!empty($attributes['visibilityLg'])) $classes[] = 'd-lg-block'; else $classes[] = 'd-lg-none';
+        if (!empty($attributes['visibilityXl'])) $classes[] = 'd-xl-block'; else $classes[] = 'd-xl-none';
+        return implode(' ', $classes);
+    }
+
+public function filter_allowed_blocks($allowed_blocks, $context) {
         $disallowed = [];
         if (wpbb_get_option('disable_core_group', 1)) $disallowed[] = 'core/group';
         if (wpbb_get_option('disable_core_table', 1)) $disallowed[] = 'core/table';
@@ -454,7 +484,7 @@ final class WPBB_Blocks {
                         $classes[] = $bp === 'xs' ? 'col-' . intval($attributes[$bp]) : 'col-' . $bp . '-' . intval($attributes[$bp]);
                     }
                 }
-                $classes = $this->collect_bootstrap_classes($attributes, $classes); if (!empty($attributes['visibilityClass'])) $classes[] = sanitize_html_class($attributes['visibilityClass']); if (!empty($attributes['animationClass'])) $classes[] = sanitize_html_class($attributes['animationClass']);
+                $classes = $this->collect_bootstrap_classes($attributes, $classes); if (!empty($attributes['visibilityClass'])) $classes[] = sanitize_html_class($attributes['visibilityClass']); $bpv = $this->build_breakpoint_visibility_classes($attributes); if ($bpv) { foreach (preg_split('/\s+/', $bpv) as $c) if ($c) $classes[] = sanitize_html_class($c); } if (!empty($attributes['animationClass'])) $classes[] = sanitize_html_class($attributes['animationClass']);
                 if (count($classes) === 1) $classes[] = 'col-12';
                 $style = $this->build_spacing_style($attributes);
                 $wrapper = get_block_wrapper_attributes(['class' => implode(' ', $classes) . $extra, 'style' => $style]);
@@ -494,15 +524,15 @@ final class WPBB_Blocks {
                 return "<div {$wrapper}><h2 class=\"accordion-header\"><button class=\"accordion-button collapsed\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#{$id}\">{$title}</button></h2><div id=\"{$id}\" class=\"accordion-collapse collapse\"><div class=\"accordion-body\">{$content}</div></div></div>";
 
             case 'cta-card':
-                $title = esc_html($attributes['title'] ?? __('CTA Card', 'wp-bbuilder'));
+                $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('CTA Card', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'h3'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'h3';
                 $text = esc_html($attributes['text'] ?? '');
                 $buttonText = esc_html($attributes['buttonText'] ?? __('Learn more', 'wp-bbuilder'));
                 $buttonUrl = esc_url($attributes['buttonUrl'] ?? '#');
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-cta-card card h-100' . $extra]);
-                $style = ""; if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";"; if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";"; return "<div {$wrapper} style=\"" . esc_attr($style) . "\"><div class=\"card-body\"><h3 class=\"card-title\">{$title}</h3><p class=\"card-text\">{$text}</p><a class=\"btn btn-primary\" href=\"{$buttonUrl}\">{$buttonText}</a></div></div>";
+                $style = ""; if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";"; if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";"; return "<div {$wrapper} style=\"" . esc_attr($style) . "\"><div class=\"card-body\"><{$titleTag} class=\"card-title {$titleTag}\">{$title}</{$titleTag}><p class=\"card-text\">{$text}</p><a class=\"btn btn-primary\" href=\"{$buttonUrl}\">{$buttonText}</a></div></div>";
 
             case 'cta-section':
-                $title = esc_html($attributes['title'] ?? __('CTA Section', 'wp-bbuilder'));
+                $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('CTA Section', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'h2'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'h2';
                 $text = esc_html($attributes['text'] ?? '');
                 $buttonText = esc_html($attributes['buttonText'] ?? __('Get started', 'wp-bbuilder'));
                 $buttonUrl = esc_url($attributes['buttonUrl'] ?? '#');
@@ -517,23 +547,23 @@ final class WPBB_Blocks {
                 $style = !empty($attributes["mapFilter"]) ? "filter:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["mapFilter"]) . ";" : ""; return "<div {$wrapper}><iframe src=\"{$url}\" style=\"width:100%;height:{$height};border:0;{$style}\" loading=\"lazy\" allowfullscreen></iframe></div>";
 
             case 'menu-option':
-                $title = esc_html($attributes['title'] ?? __('Menu Item', 'wp-bbuilder'));
+                $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('Menu Item', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'h4'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'h4';
                 $badge = esc_html($attributes['badge'] ?? '');
                 $text = esc_html($attributes['text'] ?? '');
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-menu-option d-flex justify-content-between align-items-start gap-3 py-2' . $extra]);
-                $style = ""; if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";"; if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";"; return "<div {$wrapper} style=\"" . esc_attr($style) . "\"><div><strong>{$title}</strong><div>{$text}</div></div>" . ($badge ? "<div class=\"badge text-bg-light\">{$badge}</div>" : "") . "</div>";
+                $style = ""; if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";"; if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";"; return "<div {$wrapper} style=\"" . esc_attr($style) . "\"><div><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}><div>{$text}</div></div>" . ($badge ? "<div class=\"badge text-bg-light\">{$badge}</div>" : "") . "</div>";
 
             case 'sitemap':
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-sitemap' . $extra]);
-                $title = esc_html($attributes["title"] ?? __("Sitemap", "wp-bbuilder")); $pages = !empty($attributes["showPages"]) ? wp_list_pages(["echo"=>0,"title_li"=>""]) : ""; $posts = ""; if (!empty($attributes["showPosts"])) { $items = get_posts(["numberposts"=>10,"post_status"=>"publish"]); if ($items) { $posts .= "<ul>"; foreach ($items as $p) $posts .= "<li><a href=\"" . esc_url(get_permalink($p)) . "\">" . esc_html(get_the_title($p)) . "</a></li>"; $posts .= "</ul>"; } } return "<div {$wrapper}><h3>{$title}</h3>" . ($pages ? "<ul>{$pages}</ul>" : "") . $posts . "</div>";
+                $title = esc_html(wpbb_translate_string($attributes["title"] ?? __("Sitemap", "wp-bbuilder"))); $titleTag = in_array(($attributes["titleTag"] ?? "h3"), ["h1","h2","h3","h4","h5","h6","div","p","span"], true) ? $attributes["titleTag"] : "h3"; $pages = !empty($attributes["showPages"]) ? wp_list_pages(["echo"=>0,"title_li"=>""]) : ""; $posts = ""; if (!empty($attributes["showPosts"])) { $items = get_posts(["numberposts"=>10,"post_status"=>"publish"]); if ($items) { $posts .= "<ul>"; foreach ($items as $p) $posts .= "<li><a href=\"" . esc_url(get_permalink($p)) . "\">" . esc_html(get_the_title($p)) . "</a></li>"; $posts .= "</ul>"; } } return "<div {$wrapper}><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>" . ($pages ? "<ul>{$pages}</ul>" : "") . $posts . "</div>";
 
             case 'soc-follow-block':
                 $title = esc_html($attributes['title'] ?? __('Follow Us', 'wp-bbuilder'));
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-soc-follow d-flex gap-2 align-items-center' . $extra]);
-                $facebook = esc_url($attributes["facebook"] ?? ""); $instagram = esc_url($attributes["instagram"] ?? ""); $linkedin = esc_url($attributes["linkedin"] ?? ""); $x = esc_url($attributes["x"] ?? ""); $html = "<div {$wrapper}><strong>{$title}</strong>"; if ($facebook) $html .= "<a class=\"btn btn-outline-secondary btn-sm\" href=\"{$facebook}\">FB</a>"; if ($instagram) $html .= "<a class=\"btn btn-outline-secondary btn-sm\" href=\"{$instagram}\">IG</a>"; if ($linkedin) $html .= "<a class=\"btn btn-outline-secondary btn-sm\" href=\"{$linkedin}\">LI</a>"; if ($x) $html .= "<a class=\"btn btn-outline-secondary btn-sm\" href=\"{$x}\">X</a>"; $html .= "</div>"; return $html;
+                $facebook = esc_url($attributes["facebook"] ?? ""); $instagram = esc_url($attributes["instagram"] ?? ""); $linkedin = esc_url($attributes["linkedin"] ?? ""); $x = esc_url($attributes["x"] ?? ""); $html = "<div {$wrapper}><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>"; if ($facebook) $html .= "<a class=\"wpbb-social-icon\" href=\"{$facebook}\" aria-label=\"Facebook\"><span class=\"wpbb-social-icon__glyph\">f</span></a>"; if ($instagram) $html .= "<a class=\"wpbb-social-icon\" href=\"{$instagram}\" aria-label=\"Instagram\"><span class=\"wpbb-social-icon__glyph\">ig</span></a>"; if ($linkedin) $html .= "<a class=\"wpbb-social-icon\" href=\"{$linkedin}\" aria-label=\"LinkedIn\"><span class=\"wpbb-social-icon__glyph\">in</span></a>"; if ($x) $html .= "<a class=\"wpbb-social-icon\" href=\"{$x}\" aria-label=\"X\"><span class=\"wpbb-social-icon__glyph\">x</span></a>"; $html .= "</div>"; return $html;
 
             case 'soc-share':
-                $title = esc_html($attributes['title'] ?? __('Share', 'wp-bbuilder'));
+                $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('Share', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'span'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'span';
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-soc-share d-flex gap-2 align-items-center' . $extra]);
                 $title = esc_html($attributes["title"] ?? __("Share", "wp-bbuilder")); $iconStyle = $attributes["iconStyle"] ?? "buttons"; $wrapper = get_block_wrapper_attributes(["class" => "wpbb-soc-share d-flex gap-2 align-items-center" . $extra]); $shareUrl = rawurlencode(get_permalink()); $shareTitle = rawurlencode(get_the_title()); $btnClass = $iconStyle === "icons" ? "btn btn-light btn-sm rounded-circle" : "btn btn-outline-secondary btn-sm"; return "<div {$wrapper}><strong>{$title}</strong><a class=\"{$btnClass}\" target=\"_blank\" rel=\"noopener\" href=\"https://www.facebook.com/sharer/sharer.php?u={$shareUrl}\">FB</a><a class=\"{$btnClass}\" target=\"_blank\" rel=\"noopener\" href=\"https://twitter.com/intent/tweet?url={$shareUrl}&text={$shareTitle}\">X</a><a class=\"{$btnClass}\" target=\"_blank\" rel=\"noopener\" href=\"https://www.linkedin.com/sharing/share-offsite/?url={$shareUrl}\">LI</a></div>";
 
@@ -596,7 +626,7 @@ final class WPBB_Blocks {
         if (!empty($attributes['responsive'])) {
             $table_html = '<div class="table-responsive">' . $table_html . '</div>';
         }
-        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-table-block']);
+        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-table-block', 'data-datatable' => !empty($attributes['datatable']) ? '1' : '0', 'data-searching' => !empty($attributes['datatableSearch']) ? '1' : '0', 'data-paging' => !empty($attributes['datatablePaging']) ? '1' : '0', 'data-ordering' => !empty($attributes['datatableOrdering']) ? '1' : '0', 'data-info' => !empty($attributes['datatableInfo']) ? '1' : '0', 'data-lengthchange' => !empty($attributes['datatableLengthChange']) ? '1' : '0']);
         return '<div ' . $wrapper . '>' . $table_html . '</div>';
     }
 

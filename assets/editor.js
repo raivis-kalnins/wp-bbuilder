@@ -36,6 +36,51 @@
     ]);
   }
 
+
+  function unitOptions() {
+    return [{ label: 'px', value: 'px' }, { label: '%', value: '%' }, { label: 'em', value: 'em' }];
+  }
+
+  function sideSpacingControls(props, prefix) {
+    function keyName(side) { return prefix + side; }
+    function unitKey(side) { return prefix + side + 'Unit'; }
+    function row(side, shortLabel) {
+      return el('div', { key: prefix + side, className: 'wpbb-inline-grid' }, [
+        el(RangeControl, {
+          key: 'r',
+          label: shortLabel,
+          value: props.attributes[keyName(side)] || 0,
+          min: 0,
+          max: 200,
+          onChange: function(v){ var o={}; o[keyName(side)] = v || 0; props.setAttributes(o); }
+        }),
+        el(SelectControl, {
+          key: 'u',
+          label: 'Unit',
+          value: props.attributes[unitKey(side)] || 'px',
+          options: unitOptions(),
+          onChange: function(v){ var o={}; o[unitKey(side)] = v; props.setAttributes(o); }
+        })
+      ]);
+    }
+    return [
+      row('Top', prefix + ' top'),
+      row('Right', prefix + ' right'),
+      row('Bottom', prefix + ' bottom'),
+      row('Left', prefix + ' left')
+    ];
+  }
+
+  function visibilitySwitches(props) {
+    return el('div', { className: 'wpbb-mini-card', key: 'visibility-switches' }, [
+      el(ToggleControl, { key:'xs', label:'Show XS', checked: props.attributes.visibilityXs !== false, onChange:function(v){ props.setAttributes({ visibilityXs:v }); } }),
+      el(ToggleControl, { key:'sm', label:'Show SM', checked: props.attributes.visibilitySm !== false, onChange:function(v){ props.setAttributes({ visibilitySm:v }); } }),
+      el(ToggleControl, { key:'md', label:'Show MD', checked: props.attributes.visibilityMd !== false, onChange:function(v){ props.setAttributes({ visibilityMd:v }); } }),
+      el(ToggleControl, { key:'lg', label:'Show LG', checked: props.attributes.visibilityLg !== false, onChange:function(v){ props.setAttributes({ visibilityLg:v }); } }),
+      el(ToggleControl, { key:'xl', label:'Show XL', checked: props.attributes.visibilityXl !== false, onChange:function(v){ props.setAttributes({ visibilityXl:v }); } })
+    ]);
+  }
+
   function containerEdit(blockLabel, allowedBlocks, extraControls) {
     return function (props) {
       var blockProps = useBlockProps({ className: 'wpbb-' + props.name.split('/')[1], style: { width: '100%', maxWidth: 'none' } });
@@ -55,7 +100,20 @@
       utilityClasses: { type: 'string', default: '' },
       maxWidth: { type: 'string', default: '' },
       visibilityClass: { type: 'string', default: '' },
+      visibilityXs: { type: 'boolean', default: true },
+      visibilitySm: { type: 'boolean', default: true },
+      visibilityMd: { type: 'boolean', default: true },
+      visibilityLg: { type: 'boolean', default: true },
+      visibilityXl: { type: 'boolean', default: true },
       animationClass: { type: 'string', default: '' },
+      paddingTop: { type: 'number', default: 0 }, paddingTopUnit: { type: 'string', default: 'px' },
+      paddingRight: { type: 'number', default: 0 }, paddingRightUnit: { type: 'string', default: 'px' },
+      paddingBottom: { type: 'number', default: 0 }, paddingBottomUnit: { type: 'string', default: 'px' },
+      paddingLeft: { type: 'number', default: 0 }, paddingLeftUnit: { type: 'string', default: 'px' },
+      marginTop: { type: 'number', default: 0 }, marginTopUnit: { type: 'string', default: 'px' },
+      marginRight: { type: 'number', default: 0 }, marginRightUnit: { type: 'string', default: 'px' },
+      marginBottom: { type: 'number', default: 0 }, marginBottomUnit: { type: 'string', default: 'px' },
+      marginLeft: { type: 'number', default: 0 }, marginLeftUnit: { type: 'string', default: 'px' },
       gutterX: { type: 'string', default: 'gx-2' },
       gutterY: { type: 'string', default: 'gy-2' },
       align: { type: 'string', default: '' }
@@ -73,86 +131,19 @@
           marginRight: props.attributes.maxWidth ? 'auto' : undefined
         }
       });
+      var controls = [
+        el(SelectControl, { key:'containerClass', label:'Bootstrap container', value:props.attributes.containerClass, options:[{label:'None',value:''},{label:'container',value:'container'},{label:'container-fluid',value:'container-fluid'},{label:'container-xl',value:'container-xl'}], onChange:function(v){ props.setAttributes({containerClass:v}); } }),
+        el(TextControl, { key:'utilityClasses', label:'Bootstrap class list', value:props.attributes.utilityClasses, onChange:function(v){ props.setAttributes({utilityClasses:v}); } }),
+        el(TextControl, { key:'maxWidth', label:'Max width', value:props.attributes.maxWidth, onChange:function(v){ props.setAttributes({maxWidth:v}); } }),
+        el(SelectControl, { key:'visibilityClass', label:'Extra visibility class', value:props.attributes.visibilityClass, options:[{label:'None',value:''},{label:'d-none',value:'d-none'},{label:'d-none d-md-block',value:'d-none d-md-block'},{label:'d-md-none',value:'d-md-none'}], onChange:function(v){ props.setAttributes({visibilityClass:v}); } }),
+        visibilitySwitches(props),
+        el(SelectControl, { key:'animationClass', label:'Animation', value:props.attributes.animationClass, options:[{label:'None',value:''},{label:'anim-fade-in',value:'anim-fade-in'},{label:'anim-fade-up',value:'anim-fade-up'},{label:'anim-zoom-in',value:'anim-zoom-in'}], onChange:function(v){ props.setAttributes({animationClass:v}); } }),
+        el(SelectControl, { key:'gutterX', label:'Horizontal gap', value:props.attributes.gutterX, options:[{label:'gx-0',value:'gx-0'},{label:'gx-1',value:'gx-1'},{label:'gx-2',value:'gx-2'},{label:'gx-3',value:'gx-3'},{label:'gx-4',value:'gx-4'}], onChange:function(v){ props.setAttributes({gutterX:v}); } }),
+        el(SelectControl, { key:'gutterY', label:'Vertical gap', value:props.attributes.gutterY, options:[{label:'gy-0',value:'gy-0'},{label:'gy-1',value:'gy-1'},{label:'gy-2',value:'gy-2'},{label:'gy-3',value:'gy-3'},{label:'gy-4',value:'gy-4'}], onChange:function(v){ props.setAttributes({gutterY:v}); } }),
+        el(SelectControl, { key:'align', label:'Alignment', value:props.attributes.align, options:[{label:'Default',value:''},{label:'Start',value:'start'},{label:'Center',value:'center'},{label:'End',value:'end'},{label:'Between',value:'between'}], onChange:function(v){ props.setAttributes({align:v}); } })
+      ].concat(sideSpacingControls(props, 'padding')).concat(sideSpacingControls(props, 'margin'));
       return el(wp.element.Fragment, {},
-        el(InspectorControls, {}, el(PanelBody, { title: 'Row settings', initialOpen: true }, [
-          el(SelectControl, {
-            key: 'containerClass',
-            label: 'Bootstrap container',
-            value: props.attributes.containerClass,
-            options: [
-              { label: 'None', value: '' },
-              { label: 'container', value: 'container' },
-              { label: 'container-fluid', value: 'container-fluid' },
-              { label: 'container-xl', value: 'container-xl' }
-            ],
-            onChange: function (v) { props.setAttributes({ containerClass: v }); }
-          }),
-          el(TextControl, { key: 'utilityClasses', label: 'Bootstrap class list', value: props.attributes.utilityClasses, onChange: function (v) { props.setAttributes({ utilityClasses: v }); } }),
-          el(TextControl, { key: 'maxWidth', label: 'Max width', value: props.attributes.maxWidth, onChange: function (v) { props.setAttributes({ maxWidth: v }); } }),
-          el(SelectControl, {
-            key: 'visibilityClass',
-            label: 'Visibility',
-            value: props.attributes.visibilityClass,
-            options: [
-              { label: 'Always', value: '' },
-              { label: 'd-none', value: 'd-none' },
-              { label: 'd-none d-md-block', value: 'd-none d-md-block' },
-              { label: 'd-md-none', value: 'd-md-none' }
-            ],
-            onChange: function (v) { props.setAttributes({ visibilityClass: v }); }
-          }),
-          el(SelectControl, {
-            key: 'animationClass',
-            label: 'Animation',
-            value: props.attributes.animationClass,
-            options: [
-              { label: 'None', value: '' },
-              { label: 'anim-fade-in', value: 'anim-fade-in' },
-              { label: 'anim-fade-up', value: 'anim-fade-up' },
-              { label: 'anim-zoom-in', value: 'anim-zoom-in' }
-            ],
-            onChange: function (v) { props.setAttributes({ animationClass: v }); }
-          }),
-          el(SelectControl, {
-            key: 'gutterX',
-            label: 'Horizontal gap',
-            value: props.attributes.gutterX,
-            options: [
-              { label: 'gx-0', value: 'gx-0' },
-              { label: 'gx-1', value: 'gx-1' },
-              { label: 'gx-2', value: 'gx-2' },
-              { label: 'gx-3', value: 'gx-3' },
-              { label: 'gx-4', value: 'gx-4' }
-            ],
-            onChange: function (v) { props.setAttributes({ gutterX: v }); }
-          }),
-          el(SelectControl, {
-            key: 'gutterY',
-            label: 'Vertical gap',
-            value: props.attributes.gutterY,
-            options: [
-              { label: 'gy-0', value: 'gy-0' },
-              { label: 'gy-1', value: 'gy-1' },
-              { label: 'gy-2', value: 'gy-2' },
-              { label: 'gy-3', value: 'gy-3' },
-              { label: 'gy-4', value: 'gy-4' }
-            ],
-            onChange: function (v) { props.setAttributes({ gutterY: v }); }
-          }),
-          el(SelectControl, {
-            key: 'align',
-            label: 'Alignment',
-            value: props.attributes.align,
-            options: [
-              { label: 'Default', value: '' },
-              { label: 'Start', value: 'start' },
-              { label: 'Center', value: 'center' },
-              { label: 'End', value: 'end' },
-              { label: 'Between', value: 'between' }
-            ],
-            onChange: function (v) { props.setAttributes({ align: v }); }
-          })
-        ])),
+        el(InspectorControls, {}, el(PanelBody, { title:'Row settings', initialOpen:true }, controls)),
         el('div', blockProps,
           label('ROW'),
           props.attributes.containerClass
@@ -176,7 +167,20 @@
       lg: { type: 'number', default: 0 },
       orderClass: { type: 'string', default: '' },
       visibilityClass: { type: 'string', default: '' },
-      animationClass: { type: 'string', default: '' }
+      visibilityXs: { type: 'boolean', default: true },
+      visibilitySm: { type: 'boolean', default: true },
+      visibilityMd: { type: 'boolean', default: true },
+      visibilityLg: { type: 'boolean', default: true },
+      visibilityXl: { type: 'boolean', default: true },
+      animationClass: { type: 'string', default: '' },
+      paddingTop: { type: 'number', default: 0 }, paddingTopUnit: { type: 'string', default: 'px' },
+      paddingRight: { type: 'number', default: 0 }, paddingRightUnit: { type: 'string', default: 'px' },
+      paddingBottom: { type: 'number', default: 0 }, paddingBottomUnit: { type: 'string', default: 'px' },
+      paddingLeft: { type: 'number', default: 0 }, paddingLeftUnit: { type: 'string', default: 'px' },
+      marginTop: { type: 'number', default: 0 }, marginTopUnit: { type: 'string', default: 'px' },
+      marginRight: { type: 'number', default: 0 }, marginRightUnit: { type: 'string', default: 'px' },
+      marginBottom: { type: 'number', default: 0 }, marginBottomUnit: { type: 'string', default: 'px' },
+      marginLeft: { type: 'number', default: 0 }, marginLeftUnit: { type: 'string', default: 'px' }
     },
     edit: function (props) {
       var cls = ['wpbb-column'];
@@ -187,7 +191,9 @@
       if (props.attributes.orderClass) cls.push(props.attributes.orderClass);
       if (props.attributes.visibilityClass) cls.push(props.attributes.visibilityClass);
       if (props.attributes.animationClass) cls.push(props.attributes.animationClass);
-      var blockProps = useBlockProps({ className: cls.join(' ') });
+      var basis = (props.attributes.md || props.attributes.lg || props.attributes.sm || props.attributes.xs || 12);
+      var pct = Math.max(1, Math.min(12, basis)) / 12 * 100;
+      var blockProps = useBlockProps({ className: cls.join(' '), style: { flex: '0 0 ' + pct + '%', maxWidth: pct + '%', boxSizing: 'border-box' } });
 
       function sizeControl(bp, labelText) {
         return el(RangeControl, {
@@ -201,48 +207,19 @@
         });
       }
 
+      var controls = [
+        sizeControl('xs', 'XS'),
+        sizeControl('sm', 'SM'),
+        sizeControl('md', 'MD'),
+        sizeControl('lg', 'LG'),
+        el(SelectControl, { key:'orderClass', label:'Order', value:props.attributes.orderClass, options:[{label:'Default',value:''},{label:'order-1',value:'order-1'},{label:'order-2',value:'order-2'},{label:'order-3',value:'order-3'},{label:'order-first',value:'order-first'},{label:'order-last',value:'order-last'}], onChange:function(v){ props.setAttributes({orderClass:v}); } }),
+        el(SelectControl, { key:'visibilityClass', label:'Extra visibility class', value:props.attributes.visibilityClass, options:[{label:'None',value:''},{label:'d-none',value:'d-none'},{label:'d-none d-md-block',value:'d-none d-md-block'},{label:'d-md-none',value:'d-md-none'}], onChange:function(v){ props.setAttributes({visibilityClass:v}); } }),
+        visibilitySwitches(props),
+        el(SelectControl, { key:'animationClass', label:'Animation', value:props.attributes.animationClass, options:[{label:'None',value:''},{label:'anim-fade-in',value:'anim-fade-in'},{label:'anim-fade-up',value:'anim-fade-up'},{label:'anim-zoom-in',value:'anim-zoom-in'}], onChange:function(v){ props.setAttributes({animationClass:v}); } })
+      ].concat(sideSpacingControls(props, 'padding')).concat(sideSpacingControls(props, 'margin'));
+
       return el(wp.element.Fragment, {},
-        el(InspectorControls, {}, el(PanelBody, { title: 'Column settings', initialOpen: true }, [
-          sizeControl('xs', 'XS'),
-          sizeControl('sm', 'SM'),
-          sizeControl('md', 'MD'),
-          sizeControl('lg', 'LG'),
-          el(SelectControl, {
-            label: 'Order',
-            value: props.attributes.orderClass,
-            options: [
-              { label: 'Default', value: '' },
-              { label: 'order-1', value: 'order-1' },
-              { label: 'order-2', value: 'order-2' },
-              { label: 'order-3', value: 'order-3' },
-              { label: 'order-first', value: 'order-first' },
-              { label: 'order-last', value: 'order-last' }
-            ],
-            onChange: function (v) { props.setAttributes({ orderClass: v }); }
-          }),
-          el(SelectControl, {
-            label: 'Visibility',
-            value: props.attributes.visibilityClass,
-            options: [
-              { label: 'Always', value: '' },
-              { label: 'd-none', value: 'd-none' },
-              { label: 'd-none d-md-block', value: 'd-none d-md-block' },
-              { label: 'd-md-none', value: 'd-md-none' }
-            ],
-            onChange: function (v) { props.setAttributes({ visibilityClass: v }); }
-          }),
-          el(SelectControl, {
-            label: 'Animation',
-            value: props.attributes.animationClass,
-            options: [
-              { label: 'None', value: '' },
-              { label: 'anim-fade-in', value: 'anim-fade-in' },
-              { label: 'anim-fade-up', value: 'anim-fade-up' },
-              { label: 'anim-zoom-in', value: 'anim-zoom-in' }
-            ],
-            onChange: function (v) { props.setAttributes({ animationClass: v }); }
-          })
-        ])),
+        el(InspectorControls, {}, el(PanelBody, { title: 'Column settings', initialOpen: true }, controls)),
         el('div', blockProps, label('COLUMN'), el(InnerBlocks))
       );
     },
@@ -591,7 +568,12 @@
     edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Social Share settings',initialOpen:true},[
       el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}),
       el(SelectControl,{key:'iconStyle',label:'Icon style',value:props.attributes.iconStyle,options:[{label:'Buttons',value:'buttons'},{label:'Icons',value:'icons'}],onChange:function(v){props.setAttributes({iconStyle:v});}})
-    ])), el('div',useBlockProps({className:'wpbb-soc-share'}),label('SOC SHARE'),props.attributes.title + ' | ' + props.attributes.iconStyle)); },
+    ])), el('div',useBlockProps({className:'wpbb-soc-share'}),label('SOC SHARE'),
+      props.attributes.title + ' ',
+      props.attributes.iconStyle === 'icons'
+        ? el('span',{className:'wpbb-social-preview-icons'},['f ','x ','in'])
+        : 'Facebook X LinkedIn'
+    )); },
     save:function(){ return null; }
   });
 

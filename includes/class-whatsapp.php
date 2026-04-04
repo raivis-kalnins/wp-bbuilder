@@ -29,7 +29,7 @@ final class WPBB_WhatsApp {
 
         echo '<div class="wpbb-global-whatsapp" style="' . esc_attr($pos) . '">';
         echo '<a href="https://wa.me/' . esc_attr($phone) . '?text=' . esc_attr($message) . '" target="_blank" rel="noopener" style="background:' . esc_attr($bg) . ';color:' . esc_attr($text) . ';">';
-        echo esc_html__('WhatsApp Chat', 'wp-bbuilder');
+        echo esc_html__('Talk on WhatsApp', 'wp-bbuilder');
         echo '</a>';
         echo '</div>';
     }

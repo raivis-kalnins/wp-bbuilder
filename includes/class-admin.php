@@ -31,7 +31,7 @@ final class WPBB_Admin {
             <form method="post" action="options.php">
                 <?php settings_fields('wpbb_settings_group'); ?>
                 <div class="wpbb-admin-grid">
-                    <div class="wpbb-card wpbb-card--priority" id="tools">
+                    <div class="wpbb-card wpbb-card--priority wpbb-card--tabs-first" id="tools">
                         <h2><?php esc_html_e('BBuilder tools', 'wp-bbuilder'); ?></h2>
                         <div class="wpbb-settings-tools">
                             <div class="wpbb-settings-tool"><strong><?php esc_html_e('Blocks', 'wp-bbuilder'); ?></strong><div><?php esc_html_e('All BBuilder blocks together.', 'wp-bbuilder'); ?></div></div>
@@ -86,6 +86,11 @@ final class WPBB_Admin {
                         <p><label><?php esc_html_e('Bubble background', 'wp-bbuilder'); ?><br><input type="color" name="wpbb_settings[whatsapp_bg]" value="<?php echo esc_attr($opts['whatsapp_bg']); ?>"></label></p>
                         <p><label><?php esc_html_e('Bubble text color', 'wp-bbuilder'); ?><br><input type="color" name="wpbb_settings[whatsapp_text]" value="<?php echo esc_attr($opts['whatsapp_text']); ?>"></label></p>
                         <p class="description"><?php esc_html_e('For transparent, leave color field as-is and use rgba/transparent in block custom style fields.', 'wp-bbuilder'); ?></p>
+                    </div>
+
+                    <div class="wpbb-card" id="polylang-support">
+                        <h2><?php esc_html_e('Polylang support', 'wp-bbuilder'); ?></h2>
+                        <p class="description"><?php esc_html_e('Blocks use standard WordPress strings and content fields so Polylang can be used for translated pages. Dynamic form labels and ACF block content can be translated per page/language.', 'wp-bbuilder'); ?></p>
                     </div>
 
                     <div class="wpbb-card" id="datatable-options">

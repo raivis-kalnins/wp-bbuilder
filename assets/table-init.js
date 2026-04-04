@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', function () {
         ordering: wrap && wrap.dataset.ordering === '1',
         info: wrap && wrap.dataset.info === '1',
         lengthChange: wrap && wrap.dataset.lengthchange === '1',
-        autoWidth: false
+        autoWidth: false,
+        responsive: true
       });
     } catch (e) {}
   });

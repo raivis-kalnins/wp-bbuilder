@@ -167,3 +167,60 @@
   padding:10px;
   background:#fff;
 }
+
+
+.wp-block[data-type="wpbb/row"] .block-editor-inner-blocks > .block-editor-block-list__layout{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  width:100%;
+}
+.wp-block[data-type="wpbb/column"]{
+  min-width:120px;
+}
+.wpbb-social-preview-icons{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+}
+
+
+.wpbb-inline-grid{
+  display:grid;
+  grid-template-columns:1fr 110px;
+  gap:8px;
+  align-items:end;
+}
+.wpbb-mini-card{
+  padding:10px;
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  margin-bottom:10px;
+  background:#fff;
+}
+.wpbb-social-preview-icons{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+}
+
+.wpbb-inline-grid--compact .components-base-control{
+  margin-bottom:6px !important;
+}
+.wpbb-inline-grid--compact .components-input-control__container input{
+  min-height:30px;
+}
+.wpbb-card--tabs-first{
+  position:relative;
+}
+.wpbb-card--tabs-first::before{
+  content:"BBuilder First";
+  display:inline-block;
+  margin-bottom:8px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#111827;
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+}

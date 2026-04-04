@@ -62,3 +62,11 @@ function wpbb_hex_color($value, $fallback = '#000000') {
     $value = sanitize_hex_color($value);
     return $value ?: $fallback;
 }
+
+
+function wpbb_translate_string($string, $context = 'wp-bbuilder') {
+    if (function_exists('pll__')) {
+        return pll__($string);
+    }
+    return $string;
+}

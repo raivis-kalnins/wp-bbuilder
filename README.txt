@@ -97,3 +97,15 @@ v4.5.2: rebuilt editor.js cleanly to restore Dynamic Form fields and remove brok
 
 
 v4.5.3: added global cookie consent banner + optional Google Analytics head section in admin, both off by default.
+
+
+v4.5.4: improved social share icon mode, improved editor column flex sizing based on chosen column widths, and cleaned mixed preview behavior.
+
+
+v4.5.5: moved ACF blocks into a separate /acf-blocks folder (hero, boot-card, gallery) and updated the ACF loader to register from those folders.
+
+
+v4.5.6: added DataTables asset/init support, restored compact row/column spacing controls with numeric fields + px/%/em units, added breakpoint visibility switches, improved column flex sizing, and fixed the global WhatsApp button label.
+
+
+v4.5.7: compacted unit controls, added title tag selectors (h1-h6/div/p/span) for title-based blocks, improved social icons, clarified optional DataTables, added BBuilder first top-panel styling, and added Polylang-friendly string helper.

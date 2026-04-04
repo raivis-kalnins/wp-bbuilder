@@ -1,8 +1,8 @@
 {
-  "name": "acf/wpbb-hero",
-  "title": "Hero",
+  "name": "acf/wpbb-gallery",
+  "title": "Gallery",
   "category": "wpbb",
-  "icon": "cover-image",
+  "icon": "format-gallery",
   "acf": {
     "mode": "preview",
     "renderTemplate": "render.php"

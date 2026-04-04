@@ -1,8 +1,8 @@
 {
-  "name": "acf/wpbb-hero",
-  "title": "Hero",
+  "name": "acf/wpbb-card",
+  "title": "Boot Card",
   "category": "wpbb",
-  "icon": "cover-image",
+  "icon": "id",
   "acf": {
     "mode": "preview",
     "renderTemplate": "render.php"
