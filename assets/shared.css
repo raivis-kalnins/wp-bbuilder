@@ -160,3 +160,11 @@
   line-height:1;
   text-transform:lowercase;
 }
+
+.wpbb-social-icon{
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.wpbb-social-icon[aria-label="Facebook"]{color:#1877f2}
+.wpbb-social-icon[aria-label="Instagram"]{color:#e1306c}
+.wpbb-social-icon[aria-label="LinkedIn"]{color:#0a66c2}
+.wpbb-social-icon[aria-label="X"]{color:#111827}

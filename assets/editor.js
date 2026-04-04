@@ -299,9 +299,39 @@
   registerBlockType('wpbb/card', { title:'Card', icon:'id', category:'wpbb', edit:containerEdit('CARD'), save:function(){ return el(InnerBlocks.Content); } });
   registerBlockType('wpbb/cards', { title:'Cards', icon:'grid-view', category:'wpbb', edit:containerEdit('CARDS',['wpbb/card']), save:function(){ return el(InnerBlocks.Content); } });
   registerBlockType('wpbb/accordion', { title:'Accordion', icon:'menu', category:'wpbb', edit:containerEdit('ACCORDION',['wpbb/accordion-item']), save:function(){ return el(InnerBlocks.Content); } });
-  registerBlockType('wpbb/accordion-item', { title:'Accordion Item', icon:'excerpt-view', category:'wpbb', parent:['wpbb/accordion'], edit:containerEdit('ACCORDION ITEM'), save:function(){ return el(InnerBlocks.Content); } });
+  registerBlockType('wpbb/accordion-item', {
+    title:'Accordion Item',
+    icon:'excerpt-view',
+    category:'wpbb',
+    parent:['wpbb/accordion'],
+    attributes:{ title:{type:'string',default:'Accordion Item'} },
+    edit:function(props){
+      return el(wp.element.Fragment,{},
+        el(InspectorControls,{},el(PanelBody,{title:'Accordion Item settings',initialOpen:true},[
+          el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}})
+        ])),
+        el('div',useBlockProps({className:'wpbb-accordion-item'}),label('ACCORDION ITEM'), el('div',{className:'wpbb-tab-title'}, props.attributes.title || 'Accordion Item'), el(InnerBlocks))
+      );
+    },
+    save:function(){ return el(InnerBlocks.Content); }
+  });
   registerBlockType('wpbb/tabs', { title:'Tabs', icon:'index-card', category:'wpbb', edit:containerEdit('TABS',['wpbb/tab-item']), save:function(){ return el(InnerBlocks.Content); } });
-  registerBlockType('wpbb/tab-item', { title:'Tab Item', icon:'editor-table', category:'wpbb', parent:['wpbb/tabs'], edit:containerEdit('TAB ITEM'), save:function(){ return el(InnerBlocks.Content); } });
+  registerBlockType('wpbb/tab-item', {
+    title:'Tab Item',
+    icon:'editor-table',
+    category:'wpbb',
+    parent:['wpbb/tabs'],
+    attributes:{ title:{type:'string',default:'Tab Item'} },
+    edit:function(props){
+      return el(wp.element.Fragment,{},
+        el(InspectorControls,{},el(PanelBody,{title:'Tab Item settings',initialOpen:true},[
+          el(TextControl,{key:'title',label:'Tab title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}})
+        ])),
+        el('div',useBlockProps({className:'wpbb-tab-item'}),label('TAB ITEM'), el('div',{className:'wpbb-tab-title'}, props.attributes.title || 'Tab Item'), el(InnerBlocks))
+      );
+    },
+    save:function(){ return el(InnerBlocks.Content); }
+  });
 
   registerBlockType('wpbb/row-section', {
     title:'Row Section',
@@ -510,7 +540,7 @@
       el(ToggleControl,{key:'parallax',label:'Parallax background',checked:!!props.attributes.parallax,onChange:function(v){props.setAttributes({parallax:v});}}),
       colorInput('Background color',props.attributes.bgColor,function(v){props.setAttributes({bgColor:v});},'ctas-bg'),
       colorInput('Text color',props.attributes.textColor,function(v){props.setAttributes({textColor:v});},'ctas-text')
-    ])), el('section',useBlockProps({className:'wpbb-cta-section text-center py-5' + (props.attributes.parallax ? ' parallax-bg' : ''),style:{background:props.attributes.bgColor||undefined,color:props.attributes.textColor||undefined,backgroundImage:props.attributes.backgroundImage ? 'url(' + props.attributes.backgroundImage + ')' : undefined,backgroundSize:'cover',backgroundPosition:'center'}}),label('CTA SECTION'),el('h3',{},props.attributes.title),el('p',{},props.attributes.text),el('span',{className:'btn btn-primary'},props.attributes.buttonText))); },
+    ])), el('section',useBlockProps({className:'wpbb-cta-section text-center py-5' + (props.attributes.parallax ? ' parallax-bg' : ''),style:{background:props.attributes.bgColor||undefined,color:props.attributes.textColor||undefined,backgroundImage:props.attributes.backgroundImage ? 'url(' + props.attributes.backgroundImage + ')' : undefined,backgroundSize:'cover',backgroundPosition:'center'}}),label('CTA SECTION'),el('h3',{},props.attributes.title),el('p',{},props.attributes.text), props.attributes.backgroundImage ? el('img',{src:props.attributes.backgroundImage,alt:'',style:{maxWidth:'160px',height:'auto',display:'block',margin:'8px auto'}}) : null, el('span',{className:'btn btn-primary'},props.attributes.buttonText))); },
     save:function(){ return null; }
   });
 
@@ -531,7 +561,7 @@
     edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Menu Option settings',initialOpen:true},[
       el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}),
       el(TextareaControl,{key:'text',label:'Text',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}}),
-      el(TextControl,{key:'badge',label:'Badge',value:props.attributes.badge,onChange:function(v){props.setAttributes({badge:v});}}),
+      el(TextControl,{key:'badge',label:'Badge',value:props.attributes.badge,onChange:function(v){props.setAttributes({badge:v});}}), el(TextControl,{key:'menuSlug',label:'Menu slug / name',value:props.attributes.menuSlug,onChange:function(v){props.setAttributes({menuSlug:v});}}), el(ToggleControl,{key:'schemaEnable',label:'Enable schema.org MenuItem',checked:!!props.attributes.schemaEnable,onChange:function(v){props.setAttributes({schemaEnable:v});}}), el(TextControl,{key:'price',label:'Optional price',value:props.attributes.price,onChange:function(v){props.setAttributes({price:v});}}),
       colorInput('Background color',props.attributes.bgColor,function(v){props.setAttributes({bgColor:v});},'menu-bg'),
       colorInput('Text color',props.attributes.textColor,function(v){props.setAttributes({textColor:v});},'menu-text')
     ])), el('div',useBlockProps({className:'wpbb-menu-option',style:{background:props.attributes.bgColor||undefined,color:props.attributes.textColor||undefined}}),label('MENU OPTION'),props.attributes.title)); },

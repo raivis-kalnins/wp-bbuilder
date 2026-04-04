@@ -109,3 +109,6 @@ v4.5.6: added DataTables asset/init support, restored compact row/column spacing
 
 
 v4.5.7: compacted unit controls, added title tag selectors (h1-h6/div/p/span) for title-based blocks, improved social icons, clarified optional DataTables, added BBuilder first top-panel styling, and added Polylang-friendly string helper.
+
+
+v4.5.8: restored accordion/tab item title controls, added menu slug/schema/optional price to Menu Option, improved CTA background image preview, tightened unit control widths/fonts further, moved BBuilder menu higher in admin, and improved social icon styling.

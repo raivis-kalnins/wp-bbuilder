@@ -5,7 +5,7 @@ final class WPBB_Admin {
     public static function instance() { if (self::$instance === null) self::$instance = new self(); return self::$instance; }
     private function __construct() { add_action('admin_menu', [$this,'menu']); add_action('admin_enqueue_scripts', [$this,'assets']); }
     public function menu() {
-        add_menu_page(__('BBuilder','wp-bbuilder'), __('BBuilder','wp-bbuilder'), 'manage_options', 'wpbb-settings', [$this,'render'], 'dashicons-screenoptions', 3);
+        add_menu_page(__('BBuilder','wp-bbuilder'), __('BBuilder','wp-bbuilder'), 'manage_options', 'wpbb-settings', [$this,'render'], 'dashicons-screenoptions', 2);
         add_submenu_page('wpbb-settings', __('Settings','wp-bbuilder'), __('Settings','wp-bbuilder'), 'manage_options', 'wpbb-settings', [$this,'render']);
     }
     public function assets($hook) {
