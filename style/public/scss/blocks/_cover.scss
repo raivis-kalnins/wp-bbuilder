@@ -1,0 +1,45 @@
+// Default backgrounds
+.has-white-background-color {
+	background-color: $grey-dark;
+}
+
+.has-black-background-color {
+	background-color: $grey-dark;
+}
+
+.has-caribbean-background-color {
+	background-color: $white;
+}
+
+.has-jam-background-color {
+	background-color: $white;
+}
+
+// Default text colors
+.has-white-color {
+	color: $grey-dark;
+}
+
+.has-black-color {
+	color: $grey-dark;
+}
+
+.has-caribbean-color {
+	color: $white;
+}
+
+.has-jam-color {
+	color: $white;
+}
+
+.wp-block-cover,
+.wp-block-cover-image {
+	min-height: 430px;
+	height: auto;
+	border-radius: 8px;
+	margin-bottom: 16px;
+
+	strong {
+		color: inherit;
+	}
+}

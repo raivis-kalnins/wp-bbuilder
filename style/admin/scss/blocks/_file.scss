@@ -1,0 +1,42 @@
+section.downloads {
+	display: inline-block;
+	width: 100%;
+	padding-left: 16px;
+	margin-bottom: 16px;
+
+	.file-meta {
+		max-height: 50px;
+		overflow: hidden;
+	}
+
+	.base-text {
+		display: none;
+	}
+
+	.file-download {
+		color: $grey-dark;
+		position: relative;
+
+		a {
+			color: $grey-dark;
+			background-color: transparent !important;
+			font-weight: $black;
+
+			&::after {
+				content: "\f019";
+				font-family: "Font Awesome 5 Free";
+				color: $orange-wp;
+				font-weight: 900;
+				background-size: cover;
+				background-repeat: no-repeat;
+				position: relative;
+				display: block;
+				width: 16px;
+				height: 16px;
+				margin-top: 4px;
+				right: -85px;
+				top: -25px;
+			}
+		}
+	}
+}

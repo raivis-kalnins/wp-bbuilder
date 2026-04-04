@@ -1,0 +1,32 @@
+.wp-block-file {
+
+	width: auto;
+    background-color: lightgrey;
+    border-radius: 25px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    padding: 0.5em;
+
+	a:first-child {
+		color: $grey-dark;
+		padding-left: 30px;
+		position: relative;
+
+		&::before {
+			content: "\2794";
+			font-family: "Font Awesome 5 Free";
+			color: $grey-dark;
+			font-weight: 900;
+			position: absolute;
+			margin: 0px -30px;
+			width: 25px;
+			height: 50px;
+			transform: rotate(45deg);
+			font-size: 15px;
+		}
+	}
+
+}
+
+

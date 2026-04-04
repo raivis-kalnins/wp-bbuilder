@@ -1,0 +1,18 @@
+{
+	"name": "acf/acfgallery",
+	"title": "ACF Gallery",
+	"description": "ACF Photo Gallery section",
+	"category": "wp-content",
+	"icon": "id",
+	"keywords": ["Photo Gallery"],
+	"acf": {
+		"mode": "preview",
+		"renderTemplate": "template.php"
+	},
+	"supports": {
+		"align": false,
+		"anchor": true,
+		"mode": false
+	},
+	"version": "2.0.0"
+}

@@ -1,0 +1,25 @@
+.wp-block-quote {
+	padding-left: 16px;
+	position: relative;
+
+	&::before {
+		content: "";
+		display: block;
+		position: absolute;
+		margin-left: calc(8px - 1.5rem);
+		width: 4px;
+		height: 100%;
+		border: solid $grey-dark;
+		border-radius: 2px;
+	}
+
+	cite {
+
+		a {
+			color: $grey-dark;
+			font-weight: 700;
+			text-transform: uppercase;
+			font-style: normal;
+		}
+	}
+}

@@ -1,0 +1,21 @@
+.wp-video {
+    max-width: fit-content;
+    text-align: left;
+    margin: 0 auto;
+
+    &__wrap {
+        display: flex;
+    }
+
+    &--code {
+        font-size: 12px;
+
+        a {
+            color: blue !important;
+        }
+
+        b {
+            color: red !important;
+        }
+    }
+}

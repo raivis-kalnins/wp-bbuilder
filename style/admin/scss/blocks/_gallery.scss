@@ -1,0 +1,19 @@
+.wp-block-gallery {
+
+	.blocks-gallery-grid {
+
+		.blocks-gallery-item {
+
+			&:last-child {
+				flex-grow: inherit;
+			}
+
+			&.active {
+				animation-name: fadeInOpacity;
+				animation-iteration-count: 1;
+				animation-timing-function: ease-in;
+				animation-duration: 1s;
+			}
+		}
+	}
+}

@@ -1,0 +1,89 @@
+
+.wpbb-button-wrap{display:inline-block}
+.wpbb-card-item.card{border-radius:1rem}
+.wpbb-tab-item{padding:1rem;border:1px dashed rgba(0,0,0,.14);border-radius:.75rem}
+.wpbb-tab-title,.wpbb-form-title{font-weight:600;margin-bottom:.75rem}
+.wpbb-dynamic-form-wrap.style-default{padding:1rem;border:1px solid rgba(0,0,0,.08);border-radius:1rem;background:#fff}
+.wpbb-dynamic-form-wrap.style-soft{padding:1.25rem;background:#f8fafc;border-radius:1rem;border:1px solid #e2e8f0}
+.wpbb-dynamic-form-wrap.style-outline{padding:1.25rem;background:#fff;border:2px solid #dee2e6;border-radius:1rem}
+.labels-left .wpbb-field{display:grid;grid-template-columns:180px 1fr;gap:12px;align-items:start}
+.labels-hidden .form-label{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(1px,1px,1px,1px)}
+.wpbb-form-message{min-height:1.5rem}
+.wpbb-hero{background-size:cover;background-position:center}
+.wpbb-hero--dark{color:#fff;background-color:#111827}
+.wpbb-hero--light{color:#111827;background-color:#f8fafc}
+.wpbb-hero__title{margin:.25em 0}
+.wpbb-dynamic-form .form-label{display:block;margin-bottom:8px;font-size:.95rem;font-weight:600;color:var(--wpbb-label-color)}
+.wpbb-dynamic-form .form-control,
+.wpbb-dynamic-form .form-select{border-radius:12px;border:1px solid var(--wpbb-input-border);padding:.75rem .9rem;min-height:48px;box-shadow:none}
+.wpbb-dynamic-form textarea.form-control{min-height:140px;resize:vertical}
+.wpbb-dynamic-form .form-control:focus,
+.wpbb-dynamic-form .form-select:focus{border-color:var(--wpbb-input-border);box-shadow:0 0 0 .2rem rgba(148,163,184,.15)}
+.wpbb-dynamic-form .btn{border-radius:12px;padding:.75rem 1rem;background:var(--wpbb-button-bg);border-color:var(--wpbb-button-bg);color:var(--wpbb-button-text)}
+.wpbb-captcha-note{padding:.75rem 1rem;border:1px dashed #cbd5e1;border-radius:12px;background:#f8fafc;color:#475569}
+
+.wpbb-dynamic-form .row{width:100%}
+.wpbb-dynamic-form .col-12,.wpbb-dynamic-form [class*="col-md-"]{width:100%}
+@media (min-width: 768px){
+  .wpbb-dynamic-form .col-md-1{width:8.333333%}
+  .wpbb-dynamic-form .col-md-2{width:16.666667%}
+  .wpbb-dynamic-form .col-md-3{width:25%}
+  .wpbb-dynamic-form .col-md-4{width:33.333333%}
+  .wpbb-dynamic-form .col-md-5{width:41.666667%}
+  .wpbb-dynamic-form .col-md-6{width:50%}
+  .wpbb-dynamic-form .col-md-7{width:58.333333%}
+  .wpbb-dynamic-form .col-md-8{width:66.666667%}
+  .wpbb-dynamic-form .col-md-9{width:75%}
+  .wpbb-dynamic-form .col-md-10{width:83.333333%}
+  .wpbb-dynamic-form .col-md-11{width:91.666667%}
+  .wpbb-dynamic-form .col-md-12{width:100%}
+}
+.wpbb-tabs,.wpbb-tab-item{width:100%}
+.anim-fade-in{animation:wpbbFadeIn .5s ease both}
+.anim-fade-up{animation:wpbbFadeUp .6s ease both}
+.anim-zoom-in{animation:wpbbZoomIn .45s ease both}
+@keyframes wpbbFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes wpbbFadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes wpbbZoomIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+
+.wpbb-row-section{width:100%}
+.wpbb-table-block table{margin-bottom:0}
+
+.wpbb-empty-note{padding:10px;border:1px dashed #cbd5e1;border-radius:10px;background:#fff;color:#64748b}
+
+.wpbb-cta-section,
+.wpbb-row-section,
+.wpbb-google-map,
+.wpbb-video,
+.wpbb-table-block,
+.wpbb-tabs,
+.wpbb-cards,
+.wpbb-sitemap,
+.wpbb-soc-follow,
+.wpbb-soc-share{
+  width:100%;
+}
+
+.wpbb-whatsapp-chat{width:auto}
+
+.wpbb-global-whatsapp{
+  position:fixed;
+  z-index:9999;
+}
+.wpbb-global-whatsapp a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  padding:12px 16px;
+  box-shadow:0 10px 24px rgba(0,0,0,.14);
+  text-decoration:none;
+  font-weight:600;
+}
+
+.wpbb-global-whatsapp{position:fixed;z-index:9999}
+.wpbb-global-whatsapp a{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:12px 16px;box-shadow:0 10px 24px rgba(0,0,0,.14);text-decoration:none;font-weight:600}
+.wpbb-video iframe{width:100%;height:100%;border:0}
+.wpbb-soc-follow .btn,.wpbb-soc-share .btn{display:inline-flex;align-items:center;justify-content:center}
+.wpbb-sitemap ul{margin:0;padding-left:18px}
+.wpbb-cta-section.parallax-bg{background-attachment:fixed;background-size:cover;background-position:center}

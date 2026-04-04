@@ -1,0 +1,37 @@
+@use 'sass:math';
+
+@function calculateRem($pxValue) {
+	@return math.div($pxValue, 16px) * 1rem; 
+}
+
+// Mixin that will include the fall back px declaration as well as the calculated rem value.
+@mixin remWithFallback($size, $property: 'font-size', $minus: false, $important: false) {
+	
+	$important: if($important !=false, '!important', '');
+
+	@if $minus !=false {
+		#{$property}: $size *-1 #{$important};
+		#{$property}: calculateRem($size) *-1 #{$important};
+	}
+
+	@else {
+		#{$property}: $size #{$important};
+		#{$property}: calculateRem($size) #{$important};
+	}
+}
+
+// For any animation
+@mixin keyframes($name) {
+    @-webkit-keyframes #{$name} {
+        @content;
+    }
+    @-moz-keyframes #{$name} {
+        @content;
+    }
+    @-ms-keyframes #{$name} {
+        @content;
+    }
+    @keyframes #{$name} {
+        @content;
+    }
+}

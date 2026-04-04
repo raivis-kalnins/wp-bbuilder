@@ -1,0 +1,39 @@
+.wp-block-pullquote {
+	background-color: rgba($white, 0.9) !important;
+	border-radius: 8px;
+	margin: 16px;
+	padding: 40px 5rem;
+	display: block;
+	position: relative;
+
+	&::before,
+	&::after {
+		content: "";
+		background-size: cover;
+		mask-repeat: no-repeat;
+		position: absolute;
+		display: block;
+		width: 80px;
+		height: 80px;
+		left: -1rem;
+		top: 50%;
+		margin-top: -40px;
+	}
+
+	&::after {
+		left: inherit;
+		right: -1rem;
+	}
+
+	p {
+		font-size: 16px;
+		line-height: 24px;
+	}
+
+	cite {
+		font-style: normal;
+		font-size: 16px;
+		text-transform: none;
+		font-weight: $black;
+	}
+}

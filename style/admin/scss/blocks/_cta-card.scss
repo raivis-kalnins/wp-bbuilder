@@ -1,0 +1,18 @@
+.block-editor-inner-blocks {
+
+	.btnon {
+		background-color: $grey-dark !important;
+		border-color: $grey-dark !important;
+	}
+
+	.btnoff {
+		display: none;
+	}
+}
+
+.wp-block[data-type='wp/cta-card'] {
+
+	img {
+		max-height: 260px;
+	}
+}

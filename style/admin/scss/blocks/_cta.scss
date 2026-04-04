@@ -1,0 +1,59 @@
+.wp-block-wp-cta-container {
+	display: block;
+	float: left;
+	width: 49%;
+	margin-right: 1%;
+
+	@media ( max-width: 769px ) {
+		width: 100% !important;
+	}
+
+	&.alignfull {
+		width: 100%;
+	}
+
+	.faux-link__element {
+		background-size: cover;
+		background-position: center;
+		margin: 16px 0 16px 0;
+		border-radius: 8px;
+		position: relative;
+		overflow: hidden;
+		padding: 0 !important;
+		background-color: $white;
+
+		.wp-cta-block {
+			display: block;
+			padding: 0.75rem 0 0.75rem 0;
+			background-color: $white;
+
+			.wp-cta-block-wrap.control {
+				position: relative;
+				display: inline-block;
+				width: 100%;
+				height: 30px;
+
+				& > * {
+					position: absolute;
+				}
+
+				.title {
+					font-size: 24px;
+					line-height: 32px;
+					font-weight: 700;
+					color: #fff;
+					left: 16px;
+				}
+
+				.button {
+					background-color: transparent;
+					background-repeat: no-repeat;
+					background-size: 100%;
+					background-position: center;
+					border: 0;
+					right: 12px;
+				}
+			}
+		}
+	}
+}

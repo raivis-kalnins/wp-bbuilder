@@ -1,0 +1,18 @@
+{
+	"name": "acf/menuoption",
+	"title": "Menu Option",
+	"description": "Menu Option - choose menu",
+	"category": "wp-content",
+	"icon": "id",
+	"keywords": ["Menu Option"],
+	"acf": {
+		"mode": "preview",
+		"renderTemplate": "template.php"
+	},
+	"supports": {
+		"align": false,
+		"anchor": true,
+		"mode": false
+	},
+	"version": "2.0.0"
+}

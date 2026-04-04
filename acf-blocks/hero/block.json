@@ -1,0 +1,18 @@
+{
+    "name": "acf/hero",
+    "title": "Hero",
+    "description": "Hero Section - static or SWiper slider",
+    "category": "wp-content",
+    "icon": "id",
+    "keywords": ["hero"],
+    "acf": {
+        "mode": "preview",
+        "renderTemplate": "template.php"
+    },
+    "supports": {
+        "align": false,
+        "anchor": true,
+        "mode": false
+    },
+    "version": "2.0.0"
+}

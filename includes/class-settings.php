@@ -1,0 +1,27 @@
+<?php
+if (!defined('ABSPATH')) exit;
+final class WPBB_Settings {
+    private static $instance = null;
+    public static function instance() { if (self::$instance === null) self::$instance = new self(); return self::$instance; }
+    private function __construct() { add_action('admin_init', [$this, 'register_settings']); }
+    public function register_settings() {
+        register_setting('wpbb_settings_group', 'wpbb_settings', ['type'=>'array','default'=>wpbb_defaults(),'sanitize_callback'=>[$this,'sanitize']]);
+    }
+    public function sanitize($input) {
+        $out = wpbb_defaults();
+        $enabled = [];
+        foreach (wpbb_get_blocks_list() as $slug) $enabled[$slug] = !empty($input['enabled_blocks'][$slug]) ? 1 : 0;
+        $out['enabled_blocks'] = $enabled;
+        foreach (['disable_core_group','disable_core_columns','disable_core_column','disable_core_table','disable_core_embed','disable_core_gallery','disable_core_image','disable_core_cover','disable_core_media_text','disable_core_buttons','disable_core_button','load_bootstrap_css','load_bootstrap_js','save_entries','bootstrap_optimize_frontend','bootstrap_enable_utilities','bootstrap_allow_custom_classes'] as $flag) {
+            $out[$flag] = !empty($input[$flag]) ? 1 : 0;
+        }
+        foreach (['default_recipient_email','default_success_message','default_error_message','default_validation_text','button_class','form_class','admin_max_width','hcaptcha_site_key','hcaptcha_secret_key','recaptcha_site_key','recaptcha_secret_key','whatsapp_phone','whatsapp_message','whatsapp_position'] as $field) {
+            $out[$field] = sanitize_text_field($input[$field] ?? ($out[$field] ?? ''));
+        }
+        foreach (['default_label_color','default_input_border_color','default_button_bg','default_button_text','whatsapp_bg','whatsapp_text'] as $field) {
+            $out[$field] = sanitize_hex_color($input[$field] ?? $out[$field]) ?: $out[$field];
+        }
+        $out['show_entries_menu'] = 0;
+        return $out;
+    }
+}
