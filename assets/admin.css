@@ -49,3 +49,20 @@
   font-size:11px;
   font-weight:700;
 }
+
+
+.wpbb-code-editor{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+.CodeMirror{border:1px solid #1f2937;border-radius:10px;min-height:260px;height:auto;background:#0f172a !important;color:#e5e7eb !important;}
+.CodeMirror-gutters{background:#111827 !important;border-right:1px solid #374151;}
+.CodeMirror-linenumber{color:#94a3b8 !important;}
+.CodeMirror-cursor{border-left:1px solid #e5e7eb !important;}
+.wpbb-build-status{display:inline-block;margin-left:10px;font-weight:600;}
+
+.wpbb-inline-grid,.wpbb-inline-grid--compact{display:grid !important;grid-template-columns:minmax(0,1fr) 56px !important;gap:6px !important;width:100% !important;align-items:start !important}
+.wpbb-inline-grid select,.wpbb-inline-grid--compact select{width:100% !important;max-width:100% !important;min-width:0 !important;font-size:12px !important;padding:0 4px !important}
+.wpbb-inline-grid input,.wpbb-inline-grid--compact input{width:100% !important;max-width:100% !important}
+
+.CodeMirror{border:1px solid #d1d5db !important;border-radius:10px;min-height:260px;height:auto;background:#fff !important;color:#111827 !important}
+.CodeMirror-gutters{background:#f8fafc !important;border-right:1px solid #e5e7eb !important}
+.CodeMirror-linenumber{color:#64748b !important}
+.CodeMirror-cursor{border-left:1px solid #111827 !important}

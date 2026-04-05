@@ -168,3 +168,10 @@
 .wpbb-social-icon[aria-label="Instagram"]{color:#e1306c}
 .wpbb-social-icon[aria-label="LinkedIn"]{color:#0a66c2}
 .wpbb-social-icon[aria-label="X"]{color:#111827}
+
+.wpbb-swiper-block{width:100%}.wpbb-swiper-slide{padding:1rem;border:1px solid rgba(0,0,0,.08);border-radius:1rem;background:#fff;height:100%}.wpbb-swiper-block.cards .wpbb-swiper-slide{box-shadow:0 8px 24px rgba(15,23,42,.06)}.wpbb-swiper-block.minimal .wpbb-swiper-slide{border-radius:.5rem}.wpbb-swiper-editor-track{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}.wpbb-swiper-editor-slide{padding:12px;border:1px solid #dbe2ea;border-radius:12px;background:#fff}
+
+.wpbb-social-icon{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:999px;border:1px solid rgba(15,23,42,.08);text-decoration:none;background:linear-gradient(180deg,#ffffff,#f8fafc);box-shadow:0 3px 8px rgba(15,23,42,.08)}
+.wpbb-social-icon__glyph{font-size:11px;font-weight:800;line-height:1;text-transform:lowercase}
+
+.wpbb-social-icon__glyph{font-size:14px !important}

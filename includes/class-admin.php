@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) exit;
 final class WPBB_Admin {
     private static $instance = null;
     public static function instance() { if (self::$instance === null) self::$instance = new self(); return self::$instance; }
-    private function __construct() { add_action('admin_menu', [$this,'menu']); add_action('admin_enqueue_scripts', [$this,'assets']); }
+    private function __construct() { add_action('admin_menu', [$this,'menu']); add_action('admin_enqueue_scripts', [$this,'assets']); add_action('wp_ajax_wpbb_compile_scss', [$this,'ajax_compile_scss']); }
     public function menu() {
         add_menu_page(__('BBuilder','wp-bbuilder'), __('BBuilder','wp-bbuilder'), 'manage_options', 'wpbb-settings', [$this,'render'], 'dashicons-screenoptions', 2);
         add_submenu_page('wpbb-settings', __('Settings','wp-bbuilder'), __('Settings','wp-bbuilder'), 'manage_options', 'wpbb-settings', [$this,'render']);
@@ -13,6 +13,21 @@ final class WPBB_Admin {
         wp_enqueue_style('wpbb-admin', WPBB_PLUGIN_URL . 'assets/admin.css', [], WPBB_VERSION);
         $width = wpbb_get_option('admin_max_width', '1400px');
         wp_add_inline_style('wpbb-admin', '.wpbb-admin-wrap{max-width:' . esc_attr($width) . ';overflow-x:hidden}.wpbb-admin-wrap input[type=text],.wpbb-admin-wrap input[type=email],.wpbb-admin-wrap input[type=url],.wpbb-admin-wrap input[type=password],.wpbb-admin-wrap input[type=number],.wpbb-admin-wrap textarea,.wpbb-admin-wrap select{width:100%;max-width:100%;box-sizing:border-box}');
+        $scss_settings = wp_enqueue_code_editor(['type' => 'text/x-scss']);
+        $html_settings = wp_enqueue_code_editor(['type' => 'text/html']);
+        $css_settings = wp_enqueue_code_editor(['type' => 'text/css']);
+        wp_enqueue_script('code-editor');
+        wp_enqueue_style('code-editor');
+        wp_enqueue_script('wpbb-admin-builder', WPBB_PLUGIN_URL . 'assets/admin-builder.js', ['jquery', 'code-editor'], WPBB_VERSION, true);
+        wp_localize_script('wpbb-admin-builder', 'wpbbBuilder', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('wpbb_builder_nonce'),
+            'scss' => $scss_settings,
+            'html' => $html_settings,
+            'css' => $css_settings,
+            'compiledText' => __('SCSS compiled successfully.', 'wp-bbuilder'),
+            'errorText' => __('Build failed.', 'wp-bbuilder'),
+        ]);
     }
     public function render() {
         $opts = wp_parse_args(get_option('wpbb_settings', []), wpbb_defaults());
@@ -139,10 +154,75 @@ final class WPBB_Admin {
                         <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[load_bootstrap_js]" value="1" <?php checked(!empty($opts['load_bootstrap_js'])); ?>> Load Bootstrap JS</label>
                         <p><label>Admin max width<br><input type="text" name="wpbb_settings[admin_max_width]" value="<?php echo esc_attr($opts['admin_max_width']); ?>"></label></p>
                     </div>
+
+<div class="wpbb-card" id="scss-builder">
+    <h2><?php esc_html_e('SCSS compiler', 'wp-bbuilder'); ?></h2>
+    <p><?php esc_html_e('General SCSS compiler with AJAX build and minified CSS output.', 'wp-bbuilder'); ?></p>
+    <p><label><?php esc_html_e('General SCSS', 'wp-bbuilder'); ?><br><textarea class="large-text code wpbb-code-editor wpbb-code-editor--scss" rows="16" name="wpbb_settings[custom_scss]"><?php echo esc_textarea($opts['custom_scss'] ?? ''); ?></textarea></label></p>
+    <p><button type="button" class="button button-primary wpbb-build-scss"><?php esc_html_e('Build SCSS', 'wp-bbuilder'); ?></button> <span class="wpbb-build-status"></span></p>
+    <p><label><?php esc_html_e('Compiled CSS', 'wp-bbuilder'); ?><br><textarea class="large-text code wpbb-code-editor wpbb-code-editor--css-output" rows="10" name="wpbb_settings[compiled_css]" readonly><?php echo esc_textarea($opts['compiled_css'] ?? ''); ?></textarea></label></p>
+</div>
+
+<div class="wpbb-card" id="runtime-code">
+    <h2><?php esc_html_e('Meta header code', 'wp-bbuilder'); ?></h2>
+    <p><textarea class="large-text code wpbb-code-editor wpbb-code-editor--html" rows="10" name="wpbb_settings[meta_header_code]"><?php echo esc_textarea($opts['meta_header_code'] ?? ''); ?></textarea></p>
+    <h2><?php esc_html_e('Global footer code', 'wp-bbuilder'); ?></h2>
+    <p><textarea class="large-text code wpbb-code-editor wpbb-code-editor--html" rows="10" name="wpbb_settings[global_footer_code]"><?php echo esc_textarea($opts['global_footer_code'] ?? ''); ?></textarea></p>
+</div>
+
                 </div>
                 <?php submit_button(__('Save settings', 'wp-bbuilder')); ?>
             </form>
         </div>
         <?php
+    }
+    public function ajax_compile_scss() {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => 'Forbidden'], 403);
+        }
+        check_ajax_referer('wpbb_builder_nonce', 'nonce');
+        $scss = isset($_POST['scss']) ? wp_unslash((string) $_POST['scss']) : '';
+        $compiled = $this->simple_compile_scss($scss);
+        $opts = wp_parse_args(get_option('wpbb_settings', []), wpbb_defaults());
+        $opts['custom_scss'] = $scss;
+        $opts['compiled_css'] = $compiled;
+        update_option('wpbb_settings', $opts);
+        wp_send_json_success(['css' => $compiled]);
+    }
+
+    private function simple_compile_scss($scss) {
+        $css = (string) $scss;
+        $vars = [];
+        if (preg_match_all('/\$([a-zA-Z0-9_-]+)\s*:\s*([^;]+);/', $css, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $row) $vars[$row[1]] = trim($row[2]);
+        }
+        $css = preg_replace('/\$[a-zA-Z0-9_-]+\s*:\s*[^;]+;/', '', $css);
+        foreach ($vars as $name => $value) $css = str_replace('$' . $name, $value, $css);
+        $css = preg_replace('!/\*.*?\*/!s', '', $css);
+        $result = '';
+        if (preg_match_all('/([^{}]+)\{((?:[^{}]|\{[^{}]*\})*)\}/s', $css, $blocks, PREG_SET_ORDER)) {
+            foreach ($blocks as $block) {
+                $parent = trim($block[1]);
+                $body = trim($block[2]);
+                if (preg_match_all('/([^{}]+)\{([^{}]*)\}/s', $body, $children, PREG_SET_ORDER)) {
+                    foreach ($children as $child) {
+                        $childSel = trim($child[1]);
+                        $childBody = trim($child[2]);
+                        if ($childSel === '') continue;
+                        $selector = strpos($childSel, '&') !== false ? str_replace('&', $parent, $childSel) : $parent . ' ' . $childSel;
+                        $result .= $selector . '{' . $childBody . '}';
+                    }
+                    $plain = trim(preg_replace('/([^{}]+)\{([^{}]*)\}/s', '', $body));
+                    if ($plain !== '') $result .= $parent . '{' . $plain . '}';
+                } else {
+                    $result .= $parent . '{' . $body . '}';
+                }
+            }
+        } else {
+            $result = $css;
+        }
+        $result = preg_replace('/\s+/', ' ', $result);
+        $result = str_replace([' { ', '; ', ': ', ', ', ' }'], ['{',';',';',',','}'], $result);
+        return trim($result);
     }
 }

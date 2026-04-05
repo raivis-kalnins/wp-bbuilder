@@ -43,19 +43,22 @@ final class WPBB_Blocks {
         ]);
         wp_register_style('wpbb-shared', WPBB_PLUGIN_URL . 'assets/shared.css', [], WPBB_VERSION);
         wp_register_style('wpbb-editor-style', WPBB_PLUGIN_URL . 'assets/editor.css', ['wpbb-shared'], WPBB_VERSION);
+        wp_register_style('wpbb-swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', [], '11.1.4');
+        wp_register_script('wpbb-swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js', [], '11.1.4', true);
+        wp_register_script('wpbb-swiper-init', WPBB_PLUGIN_URL . 'assets/swiper-init.js', ['wpbb-swiper'], WPBB_VERSION, true);
     }
 
     public function register_category($categories) {
-        $categories[] = [
+        array_unshift($categories, [
             'slug' => 'wpbb',
             'title' => __('BBuilder', 'wp-bbuilder'),
             'icon' => null,
-        ];
+        ]);
         return $categories;
     }
 
     public function register_blocks() {
-        foreach (wpbb_get_blocks_list() as $slug) {
+        foreach (array_filter(wpbb_get_blocks_list(), function($s){ return $s !== 'row-section'; }) as $slug) {
             if (!wpbb_is_block_enabled($slug)) continue;
 
             $args = [
@@ -75,6 +78,10 @@ final class WPBB_Blocks {
                 $args['render_callback'] = [$this, 'render_dynamic_form'];
             } elseif ($slug === 'table') {
                 $args['render_callback'] = [$this, 'render_table_block'];
+            } elseif ($slug === 'swiper') {
+                $args['style'] = ['wpbb-shared','wpbb-swiper'];
+                $args['script'] = 'wpbb-swiper-init';
+                $args['render_callback'] = [$this, 'render_swiper_block'];
             } else {
                 $args['render_callback'] = [$this, 'render_generic_block'];
             }
@@ -96,12 +103,12 @@ final class WPBB_Blocks {
             'cards' => 'grid-view',
             'column' => 'columns',
             'dynamic-form' => 'feedback',
-            'row' => 'grid-view','row-section' => 'cover-image','cta-card' => 'megaphone','cta-section' => 'cover-image','google-map' => 'location-alt','menu-option' => 'menu','sitemap' => 'networking','soc-follow-block' => 'share','soc-share' => 'share-alt2',
+            'row' => 'grid-view','cta-card' => 'megaphone','cta-section' => 'cover-image','google-map' => 'location-alt','menu-option' => 'menu','sitemap' => 'networking','soc-follow-block' => 'share','soc-share' => 'share-alt2',
             'tab-item' => 'editor-table',
             'tabs' => 'index-card',
             'table' => 'table-col-after',
-            'row-section' => 'cover-image',
-        ];
+            'swiper' => 'images-alt2',
+                    ];
         return $map[$slug] ?? 'screenoptions';
     }
 
@@ -120,7 +127,7 @@ final class WPBB_Blocks {
                     'textUtilityClass' => ['type' => 'string', 'default' => ''],
                     'roundedClass' => ['type' => 'string', 'default' => ''],
                     'shadowClass' => ['type' => 'string', 'default' => ''],
-                    'bootstrapClasses' => ['type' => 'string', 'default' => ''],
+                    'bootstrapClasses' => ['type' => 'string', 'default' => ''],'uniqueId' => ['type' => 'string', 'default' => ''],'customCss' => ['type' => 'string', 'default' => ''],'customScss' => ['type' => 'string', 'default' => ''],
                     'paddingTop' => ['type' => 'number', 'default' => 0],
                     'paddingTopUnit' => ['type' => 'string', 'default' => 'px'],
                     'paddingRight' => ['type' => 'number', 'default' => 0],
@@ -150,6 +157,9 @@ final class WPBB_Blocks {
                     'lg' => ['type' => 'number', 'default' => 0],
                     'xl' => ['type' => 'number', 'default' => 0],
                     'xxl' => ['type' => 'number', 'default' => 0],
+                    'uniqueId' => ['type' => 'string', 'default' => ''],
+                    'customCss' => ['type' => 'string', 'default' => ''],
+                    'customScss' => ['type' => 'string', 'default' => ''],
                     'orderClass' => ['type' => 'string', 'default' => ''],'visibilityClass' => ['type' => 'string', 'default' => ''],'visibilityXs' => ['type' => 'boolean', 'default' => true],'visibilitySm' => ['type' => 'boolean', 'default' => true],'visibilityMd' => ['type' => 'boolean', 'default' => true],'visibilityLg' => ['type' => 'boolean', 'default' => true],'visibilityXl' => ['type' => 'boolean', 'default' => true],'animationClass' => ['type' => 'string', 'default' => ''],'paddingTop' => ['type' => 'number', 'default' => 0],'paddingTopUnit' => ['type' => 'string', 'default' => 'px'],'paddingRight' => ['type' => 'number', 'default' => 0],'paddingRightUnit' => ['type' => 'string', 'default' => 'px'],'paddingBottom' => ['type' => 'number', 'default' => 0],'paddingBottomUnit' => ['type' => 'string', 'default' => 'px'],'paddingLeft' => ['type' => 'number', 'default' => 0],'paddingLeftUnit' => ['type' => 'string', 'default' => 'px'],'marginTop' => ['type' => 'number', 'default' => 0],'marginTopUnit' => ['type' => 'string', 'default' => 'px'],'marginRight' => ['type' => 'number', 'default' => 0],'marginRightUnit' => ['type' => 'string', 'default' => 'px'],'marginBottom' => ['type' => 'number', 'default' => 0],'marginBottomUnit' => ['type' => 'string', 'default' => 'px'],'marginLeft' => ['type' => 'number', 'default' => 0],'marginLeftUnit' => ['type' => 'string', 'default' => 'px'],
                     'paddingClass' => ['type' => 'string', 'default' => ''],
                     'marginClass' => ['type' => 'string', 'default' => ''],
@@ -198,6 +208,19 @@ final class WPBB_Blocks {
                     'gap' => ['type' => 'number', 'default' => 3],
                     'className' => ['type' => 'string', 'default' => ''],
                 ];
+            case 'swiper':
+                return [
+                    'slidesJson' => ['type' => 'string', 'default' => ''],
+                    'slidesPerView' => ['type' => 'number', 'default' => 1],
+                    'spaceBetween' => ['type' => 'number', 'default' => 20],
+                    'speed' => ['type' => 'number', 'default' => 600],
+                    'loop' => ['type' => 'boolean', 'default' => true],
+                    'autoplay' => ['type' => 'boolean', 'default' => false],
+                    'demoStyle' => ['type' => 'string', 'default' => 'cards'],
+                    'showPagination' => ['type' => 'boolean', 'default' => true],
+                    'showNavigation' => ['type' => 'boolean', 'default' => true],
+                    'className' => ['type' => 'string', 'default' => ''],
+                ];
             case 'accordion-item':
             case 'tab-item':
                 return [
@@ -209,8 +232,10 @@ final class WPBB_Blocks {
                 $text = esc_html($attributes['text'] ?? '');
                 $buttonText = esc_html($attributes['buttonText'] ?? __('Learn more', 'wp-bbuilder'));
                 $buttonUrl = esc_url($attributes['buttonUrl'] ?? '#');
+                $schemaType = !empty($attributes['schemaType']) ? sanitize_html_class($attributes['schemaType']) : 'CreativeWork';
+                $schemaAttr = !empty($attributes['schemaEnable']) ? ' itemscope itemtype="https://schema.org/' . esc_attr($schemaType) . '"' : '';
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-cta-card card h-100' . $extra]);
-                $style = ""; if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";"; if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";"; return "<div {$wrapper} style=\"" . esc_attr($style) . "\"><div class=\"card-body\"><{$titleTag} class=\"card-title {$titleTag}\">{$title}</{$titleTag}><p class=\"card-text\">{$text}</p><a class=\"btn btn-primary\" href=\"{$buttonUrl}\">{$buttonText}</a></div></div>";
+                $style = ""; if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";"; if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";"; return "<div {$wrapper}{$schemaAttr} style=\"" . esc_attr($style) . "\"><div class=\"card-body\"><{$titleTag} class=\"card-title {$titleTag}\">{$title}</{$titleTag}><p class=\"card-text\">{$text}</p><a class=\"btn btn-primary\" href=\"{$buttonUrl}\">{$buttonText}</a></div></div>";
 
             case 'cta-section':
                 $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('CTA Section', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'h2'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'h2';
@@ -241,23 +266,38 @@ final class WPBB_Blocks {
             case 'soc-follow-block':
                 $title = esc_html($attributes['title'] ?? __('Follow Us', 'wp-bbuilder'));
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-soc-follow d-flex gap-2 align-items-center' . $extra]);
-                $facebook = esc_url($attributes["facebook"] ?? ""); $instagram = esc_url($attributes["instagram"] ?? ""); $linkedin = esc_url($attributes["linkedin"] ?? ""); $x = esc_url($attributes["x"] ?? ""); $html = "<div {$wrapper}><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>"; if ($facebook) $html .= "<a class=\"wpbb-social-icon\" href=\"{$facebook}\" aria-label=\"Facebook\"><span class=\"wpbb-social-icon__glyph\">f</span></a>"; if ($instagram) $html .= "<a class=\"wpbb-social-icon\" href=\"{$instagram}\" aria-label=\"Instagram\"><span class=\"wpbb-social-icon__glyph\">ig</span></a>"; if ($linkedin) $html .= "<a class=\"wpbb-social-icon\" href=\"{$linkedin}\" aria-label=\"LinkedIn\"><span class=\"wpbb-social-icon__glyph\">in</span></a>"; if ($x) $html .= "<a class=\"wpbb-social-icon\" href=\"{$x}\" aria-label=\"X\"><span class=\"wpbb-social-icon__glyph\">x</span></a>"; $html .= "</div>"; return $html;
+                $socialStyle = $attributes['socialStyle'] ?? 'icons';
+                $iconClass = $socialStyle === 'normal' ? 'btn btn-outline-secondary btn-sm' : 'wpbb-social-icon';
+                $style = ''; if (!empty($attributes['iconBgColor'])) $style .= 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['iconBgColor']) . ';'; if (!empty($attributes['iconTextColor'])) $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['iconTextColor']) . ';';
+                $items = [
+                    'facebook' => esc_url($attributes['facebook'] ?? ''),
+                    'instagram' => esc_url($attributes['instagram'] ?? ''),
+                    'linkedin' => esc_url($attributes['linkedin'] ?? ''),
+                    'x' => esc_url($attributes['x'] ?? ''),
+                    'youtube' => esc_url($attributes['youtube'] ?? ''),
+                    'whatsapp' => esc_url($attributes['whatsapp'] ?? ''),
+                ];
+                $labels = ['facebook'=>'Facebook','instagram'=>'Instagram','linkedin'=>'LinkedIn','x'=>'X','youtube'=>'YouTube','whatsapp'=>'WhatsApp'];
+                $glyphs = ['facebook'=>'f','instagram'=>'ig','linkedin'=>'in','x'=>'x','youtube'=>'yt','whatsapp'=>'wa'];
+                $html = "<div {$wrapper}><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>";
+                foreach ($items as $key => $url) { if (!$url) continue; $label = $labels[$key]; $content = $socialStyle === 'normal' ? $label : '<span class=\"wpbb-social-icon__glyph\">' . $glyphs[$key] . '</span>'; $html .= "<a class=\"{$iconClass}\" style=\"" . esc_attr($style) . "\" href=\"{$url}\" aria-label=\"{$label}\">{$content}</a>"; }
+                $html .= "</div>"; return $html;
 
             case 'soc-share':
                 $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('Share', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'span'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'span';
-                $iconStyle = $attributes['iconStyle'] ?? 'buttons';
+                $iconStyle = $attributes['iconStyle'] ?? 'icons';
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-soc-share d-flex gap-2 align-items-center' . $extra]);
                 $shareUrl = rawurlencode(get_permalink());
                 $shareTitle = rawurlencode(get_the_title());
                 $iconClass = $iconStyle === 'icons' ? 'wpbb-social-icon' : 'btn btn-outline-secondary btn-sm';
-                $facebookLabel = $iconStyle === 'icons' ? '<span class="wpbb-social-icon__glyph">f</span>' : 'Facebook';
-                $xLabel = $iconStyle === 'icons' ? '<span class="wpbb-social-icon__glyph">x</span>' : 'X';
-                $linkedinLabel = $iconStyle === 'icons' ? '<span class="wpbb-social-icon__glyph">in</span>' : 'LinkedIn';
-                return "<div {$wrapper}><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>"
-                    . "<a class=\"{$iconClass}\" target=\"_blank\" rel=\"noopener\" aria-label=\"Share on Facebook\" href=\"https://www.facebook.com/sharer/sharer.php?u={$shareUrl}\">{$facebookLabel}</a>"
-                    . "<a class=\"{$iconClass}\" target=\"_blank\" rel=\"noopener\" aria-label=\"Share on X\" href=\"https://twitter.com/intent/tweet?url={$shareUrl}&text={$shareTitle}\">{$xLabel}</a>"
-                    . "<a class=\"{$iconClass}\" target=\"_blank\" rel=\"noopener\" aria-label=\"Share on LinkedIn\" href=\"https://www.linkedin.com/sharing/share-offsite/?url={$shareUrl}\">{$linkedinLabel}</a>"
-                    . "</div>";
+                $style = ''; if (!empty($attributes['iconBgColor'])) $style .= 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['iconBgColor']) . ';'; if (!empty($attributes['iconTextColor'])) $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['iconTextColor']) . ';';
+                $html = "<div {$wrapper}><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>";
+                if (!isset($attributes['shareFacebook']) || !empty($attributes['shareFacebook'])) $html .= "<a class=\"{$iconClass}\" style=\"" . esc_attr($style) . "\" target=\"_blank\" rel=\"noopener\" aria-label=\"Facebook\" href=\"https://www.facebook.com/sharer/sharer.php?u={$shareUrl}\">" . ($iconStyle === 'icons' ? '<span class=\"wpbb-social-icon__glyph\">f</span>' : 'Facebook') . "</a>";
+                if (!isset($attributes['shareX']) || !empty($attributes['shareX'])) $html .= "<a class=\"{$iconClass}\" style=\"" . esc_attr($style) . "\" target=\"_blank\" rel=\"noopener\" aria-label=\"X\" href=\"https://twitter.com/intent/tweet?url={$shareUrl}&text={$shareTitle}\">" . ($iconStyle === 'icons' ? '<span class=\"wpbb-social-icon__glyph\">x</span>' : 'X') . "</a>";
+                if (!isset($attributes['shareLinkedIn']) || !empty($attributes['shareLinkedIn'])) $html .= "<a class=\"{$iconClass}\" style=\"" . esc_attr($style) . "\" target=\"_blank\" rel=\"noopener\" aria-label=\"LinkedIn\" href=\"https://www.linkedin.com/sharing/share-offsite/?url={$shareUrl}\">" . ($iconStyle === 'icons' ? '<span class=\"wpbb-social-icon__glyph\">in</span>' : 'LinkedIn') . "</a>";
+                if (!isset($attributes['shareWhatsApp']) || !empty($attributes['shareWhatsApp'])) $html .= "<a class=\"{$iconClass}\" style=\"" . esc_attr($style) . "\" target=\"_blank\" rel=\"noopener\" aria-label=\"WhatsApp\" href=\"https://wa.me/?text={$shareTitle}%20{$shareUrl}\">" . ($iconStyle === 'icons' ? '<span class=\"wpbb-social-icon__glyph\">wa</span>' : 'WhatsApp') . "</a>";
+                if (!isset($attributes['shareEmail']) || !empty($attributes['shareEmail'])) $html .= "<a class=\"{$iconClass}\" style=\"" . esc_attr($style) . "\" target=\"_blank\" rel=\"noopener\" aria-label=\"Email\" href=\"mailto:?subject={$shareTitle}&body={$shareUrl}\">" . ($iconStyle === 'icons' ? '<span class=\"wpbb-social-icon__glyph\">@</span>' : 'Email') . "</a>";
+                $html .= "</div>"; return $html;
 
             case 'video':
                 $url = esc_url($attributes['videoUrl'] ?? '');
@@ -317,255 +357,40 @@ final class WPBB_Blocks {
             case 'sitemap':
                 return ['title'=>['type'=>'string','default'=>'Sitemap'],'titleTag'=>['type'=>'string','default'=>'h3'],'showPages'=>['type'=>'boolean','default'=>true],'showPosts'=>['type'=>'boolean','default'=>false],'className'=>['type'=>'string','default'=>'']];
             case 'soc-follow-block':
-            case 'soc-share':
-                return ['title'=>['type'=>'string','default'=>ucfirst(str_replace('-', ' ', $slug))],'className'=>['type'=>'string','default'=>'']];
-            case 'video':
-                return ['videoUrl'=>['type'=>'string','default'=>''],'ratioClass'=>['type'=>'string','default'=>'ratio ratio-16x9'],'poster'=>['type'=>'string','default'=>''],'className'=>['type'=>'string','default'=>'']];
-
-
-            case 'whatsapp-chat':
-                return [
-                    'label' => ['type' => 'string', 'default' => 'Chat on WhatsApp'],
-                    'phone' => ['type' => 'string', 'default' => ''],
-                    'message' => ['type' => 'string', 'default' => ''],
-                    'position' => ['type' => 'string', 'default' => ''],
-                    'bgColor' => ['type' => 'string', 'default' => ''],
-                    'textColor' => ['type' => 'string', 'default' => ''],
-                    'className' => ['type' => 'string', 'default' => ''],
-                ];
-
-            case 'dynamic-form':
-                return [
-                    'formTitle' => ['type' => 'string', 'default' => 'Contact form'],
-                    'recipient' => ['type' => 'string', 'default' => ''],
-                    'emailSubject' => ['type' => 'string', 'default' => 'New form submission'],
-                    'successMessage' => ['type' => 'string', 'default' => 'Thank you for your submission!'],
-                    'submitText' => ['type' => 'string', 'default' => 'Submit'],
-                    'showTitle' => ['type' => 'boolean', 'default' => true],
-                    'formClass' => ['type' => 'string', 'default' => 'wpbb-form'],
-                    'buttonClass' => ['type' => 'string', 'default' => 'btn btn-primary'],
-                    'stylePreset' => ['type' => 'string', 'default' => 'default'],
-                    'labelPosition' => ['type' => 'string', 'default' => 'top'],
-                    'columnsMd' => ['type' => 'number', 'default' => 2],
-                    'gap' => ['type' => 'number', 'default' => 3],
-                    'fieldsJson' => ['type' => 'string', 'default' => ''],
-                ];
-            default:
-                return ['className' => ['type' => 'string', 'default' => '']];
-        }
-    }
-
-
-    private function build_spacing_style($attributes) {
-        $map = [
-            'paddingTop' => 'padding-top',
-            'paddingRight' => 'padding-right',
-            'paddingBottom' => 'padding-bottom',
-            'paddingLeft' => 'padding-left',
-            'marginTop' => 'margin-top',
-            'marginRight' => 'margin-right',
-            'marginBottom' => 'margin-bottom',
-            'marginLeft' => 'margin-left',
-        ];
-        $styles = [];
-        foreach ($map as $attr => $css) {
-            if (isset($attributes[$attr]) && $attributes[$attr] !== '' && $attributes[$attr] !== null) {
-                $num = is_numeric($attributes[$attr]) ? $attributes[$attr] : '';
-                if ($num !== '') {
-                    $unitKey = $attr . 'Unit';
-                    $unit = !empty($attributes[$unitKey]) ? preg_replace('/[^%a-z]/', '', (string) $attributes[$unitKey]) : 'px';
-                    if (!in_array($unit, ['px','%','em','rem'], true)) $unit = 'px';
-                    $styles[] = $css . ':' . $num . $unit;
-                }
-            }
-        }
-        if (!empty($attributes['backgroundColor'])) $styles[] = 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string) $attributes['backgroundColor']);
-        if (!empty($attributes['textColor'])) $styles[] = 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string) $attributes['textColor']);
-        if (!empty($attributes['customStyle'])) $styles[] = trim((string) $attributes['customStyle']);
-        return implode(';', array_filter($styles));
-    }
-
-    private function collect_bootstrap_classes($attributes, $base = []) {
-        $classes = $base;
-        foreach (['paddingClass','marginClass','backgroundClass','animationClass','displayClass','textUtilityClass','roundedClass','shadowClass','orderClass'] as $field) {
-            if (!empty($attributes[$field])) {
-                foreach (preg_split('/\s+/', trim((string) $attributes[$field])) as $c) {
-                    if ($c !== '') $classes[] = sanitize_html_class($c);
-                }
-            }
-        }
-        if (!empty($attributes['bootstrapClasses'])) {
-            foreach (preg_split('/\s+/', trim((string) $attributes['bootstrapClasses'])) as $c) {
-                if ($c !== '') $classes[] = sanitize_html_class($c);
-            }
-        }
-        return $classes;
-    }
-
-    
-    private function build_breakpoint_visibility_classes($attributes) {
-        $all = [
-            'Xs' => !empty($attributes['visibilityXs']),
-            'Sm' => !empty($attributes['visibilitySm']),
-            'Md' => !empty($attributes['visibilityMd']),
-            'Lg' => !empty($attributes['visibilityLg']),
-            'Xl' => !empty($attributes['visibilityXl']),
-        ];
-        if (array_reduce($all, function($c, $v){ return $c && $v; }, true)) return '';
-        $classes = [];
-        if (empty($attributes['visibilityXs'])) $classes[] = 'd-none';
-        if (!empty($attributes['visibilitySm'])) $classes[] = 'd-sm-block'; else $classes[] = 'd-sm-none';
-        if (!empty($attributes['visibilityMd'])) $classes[] = 'd-md-block'; else $classes[] = 'd-md-none';
-        if (!empty($attributes['visibilityLg'])) $classes[] = 'd-lg-block'; else $classes[] = 'd-lg-none';
-        if (!empty($attributes['visibilityXl'])) $classes[] = 'd-xl-block'; else $classes[] = 'd-xl-none';
-        return implode(' ', $classes);
-    }
-
-public function filter_allowed_blocks($allowed_blocks, $context) {
-        $disallowed = [];
-        if (wpbb_get_option('disable_core_group', 1)) $disallowed[] = 'core/group';
-        if (wpbb_get_option('disable_core_table', 1)) $disallowed[] = 'core/table';
-        if (wpbb_get_option('disable_core_embed', 0)) $disallowed[] = 'core/embed';
-        if (wpbb_get_option('disable_core_gallery', 0)) $disallowed[] = 'core/gallery';
-        if (wpbb_get_option('disable_core_image', 0)) $disallowed[] = 'core/image';
-        if (wpbb_get_option('disable_core_cover', 0)) $disallowed[] = 'core/cover';
-        if (wpbb_get_option('disable_core_media_text', 0)) $disallowed[] = 'core/media-text';
-        if (wpbb_get_option('disable_core_buttons', 0)) $disallowed[] = 'core/buttons';
-        if (wpbb_get_option('disable_core_button', 0)) $disallowed[] = 'core/button';
-        if (wpbb_get_option('disable_core_columns', 1)) $disallowed[] = 'core/columns';
-        if (wpbb_get_option('disable_core_column', 1)) $disallowed[] = 'core/column';
-
-        if ($allowed_blocks === true) {
-            $registry = WP_Block_Type_Registry::get_instance()->get_all_registered();
-            $allowed_blocks = array_keys($registry);
-        }
-        if (!is_array($allowed_blocks)) return $allowed_blocks;
-        return array_values(array_diff($allowed_blocks, $disallowed));
-    }
-
-    public function enqueue_frontend_assets() {
-        wp_enqueue_style('wpbb-shared');
-        if (wpbb_get_option('load_bootstrap_css', 1)) {
-            wp_enqueue_style('wpbb-bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css', [], '5.3.3');
-        }
-        wp_enqueue_style('wpbb-datatables', 'https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css', [], '2.0.8');
-        wp_enqueue_script('wpbb-datatables', 'https://cdn.datatables.net/2.0.8/js/dataTables.js', [], '2.0.8', true);
-        wp_enqueue_script('wpbb-datatables-bs5', 'https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js', ['wpbb-datatables'], '2.0.8', true);
-        wp_enqueue_script('wpbb-table-init', WPBB_PLUGIN_URL . 'assets/table-init.js', ['wpbb-datatables-bs5'], WPBB_VERSION, true);
-        if (wpbb_get_option('load_bootstrap_js', 0)) {
-            wp_enqueue_script('wpbb-bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js', [], '5.3.3', true);
-        }
-
-        $inline = ':root{
-            --wpbb-label-color:' . wpbb_hex_color(wpbb_get_option('default_label_color', '#334155')) . ';
-            --wpbb-input-border:' . wpbb_hex_color(wpbb_get_option('default_input_border_color', '#cbd5e1')) . ';
-            --wpbb-button-bg:' . wpbb_hex_color(wpbb_get_option('default_button_bg', '#2563eb')) . ';
-            --wpbb-button-text:' . wpbb_hex_color(wpbb_get_option('default_button_text', '#ffffff')) . ';
-        }';
-        wp_add_inline_style('wpbb-shared', $inline);
-    }
-
-    public function render_generic_block($attributes, $content, $block) {
-        $name = str_replace('wpbb/', '', $block->name);
-        $extra = !empty($attributes['className']) ? ' ' . sanitize_html_class($attributes['className']) : '';
-
-        switch ($name) {
-            case 'row':
-                $classes = $this->collect_bootstrap_classes($attributes, ['wpbb-row', 'row', sanitize_html_class($attributes['gutterX'] ?? 'gx-3'), sanitize_html_class($attributes['gutterY'] ?? 'gy-3')]);
-                if (!empty($attributes['align'])) $classes[] = 'justify-content-' . sanitize_html_class($attributes['align']);
-                $style = $this->build_spacing_style($attributes); if (!empty($attributes["maxWidth"])) $style .= ";max-width:" . preg_replace('/[^0-9.%a-zA-Z-]/', "", (string)$attributes["maxWidth"]) . ";margin-left:auto;margin-right:auto";
-                $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_filter($classes)) . $extra, 'style' => $style]);
-                if (!empty($attributes['containerClass'])) { return "<div {$wrapper}><div class=\"" . esc_attr($attributes['containerClass']) . "\">{$content}</div></div>"; } return "<div {$wrapper}>{$content}</div>";
-
-            case 'column':
-                $classes = ['wpbb-column'];
-                foreach (['xs','sm','md','lg','xl','xxl'] as $bp) {
-                    if (!empty($attributes[$bp])) {
-                        $classes[] = $bp === 'xs' ? 'col-' . intval($attributes[$bp]) : 'col-' . $bp . '-' . intval($attributes[$bp]);
-                    }
-                }
-                $classes = $this->collect_bootstrap_classes($attributes, $classes); if (!empty($attributes['visibilityClass'])) $classes[] = sanitize_html_class($attributes['visibilityClass']); $bpv = $this->build_breakpoint_visibility_classes($attributes); if ($bpv) { foreach (preg_split('/\s+/', $bpv) as $c) if ($c) $classes[] = sanitize_html_class($c); } if (!empty($attributes['animationClass'])) $classes[] = sanitize_html_class($attributes['animationClass']);
-                if (count($classes) === 1) $classes[] = 'col-12';
-                $style = $this->build_spacing_style($attributes);
-                $wrapper = get_block_wrapper_attributes(['class' => implode(' ', $classes) . $extra, 'style' => $style]);
-                return "<div {$wrapper}>{$content}</div>";
-
-            case 'button':
-                $text = esc_html($attributes['text'] ?? __('Button', 'wp-bbuilder'));
-                $url = esc_url($attributes['url'] ?? '#');
-                $variant = !empty($attributes['variant']) ? sanitize_html_class($attributes['variant']) : 'primary';
-                $size = !empty($attributes['size']) ? ' btn-' . sanitize_html_class($attributes['size']) : '';
-                $full = !empty($attributes['fullWidth']) ? ' w-100' : '';
-                $base_class = !empty($attributes['btnClass']) ? trim((string)$attributes['btnClass']) : ('btn btn-' . $variant . $size . $full);
-                $style = '';
-                if (!empty($attributes['backgroundColor'])) $style .= 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';border-color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';';
-                if (!empty($attributes['textColor'])) $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['textColor']) . ';';
-                $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-button-wrap']);
-                return "<div {$wrapper}><a class=\"" . esc_attr($base_class) . "\" style=\"" . esc_attr($style) . "\" href=\"{$url}\">{$text}</a></div>";
-
-            case 'cards':
-                $cols = max(1, intval($attributes['columnsMd'] ?? 3));
-                $gap = max(0, intval($attributes['gap'] ?? 3));
-                $wrapper = get_block_wrapper_attributes(['class' => "wpbb-cards row row-cols-1 row-cols-md-{$cols} g-{$gap}{$extra}"]);
-                return "<div {$wrapper}>{$content}</div>";
-
-            case 'card':
-                $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-card-item card h-100' . $extra]);
-                return "<div {$wrapper}><div class=\"card-body\">{$content}</div></div>";
-
-            case 'accordion':
-                $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-accordion accordion' . $extra]);
-                return "<div {$wrapper}>{$content}</div>";
-
-            case 'accordion-item':
-                $title = esc_html($attributes['title'] ?? __('Accordion item', 'wp-bbuilder'));
-                $id = 'wpbb-acc-' . wp_unique_id();
-                $wrapper = get_block_wrapper_attributes(['class' => 'accordion-item' . $extra]);
-                return "<div {$wrapper}><h2 class=\"accordion-header\"><button class=\"accordion-button collapsed\" type=\"button\" data-bs-toggle=\"collapse\" data-bs-target=\"#{$id}\">{$title}</button></h2><div id=\"{$id}\" class=\"accordion-collapse collapse\"><div class=\"accordion-body\">{$content}</div></div></div>";
-
-            case 'cta-card':
-                $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('CTA Card', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'h3'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'h3';
-                $text = esc_html($attributes['text'] ?? '');
-                $buttonText = esc_html($attributes['buttonText'] ?? __('Learn more', 'wp-bbuilder'));
-                $buttonUrl = esc_url($attributes['buttonUrl'] ?? '#');
-                $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-cta-card card h-100' . $extra]);
-                $style = ""; if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";"; if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";"; return "<div {$wrapper} style=\"" . esc_attr($style) . "\"><div class=\"card-body\"><{$titleTag} class=\"card-title {$titleTag}\">{$title}</{$titleTag}><p class=\"card-text\">{$text}</p><a class=\"btn btn-primary\" href=\"{$buttonUrl}\">{$buttonText}</a></div></div>";
-
-            case 'cta-section':
-                $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('CTA Section', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'h2'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'h2';
-                $text = esc_html($attributes['text'] ?? '');
-                $buttonText = esc_html($attributes['buttonText'] ?? __('Get started', 'wp-bbuilder'));
-                $buttonUrl = esc_url($attributes['buttonUrl'] ?? '#');
-                $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-cta-section text-center py-5' . $extra]);
-                $style = ""; if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";"; if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";"; return "<section {$wrapper} style=\"" . esc_attr($style) . "\"><div class=\"container-fluid\"><h2>{$title}</h2><p>{$text}</p><a class=\"btn btn-primary\" href=\"{$buttonUrl}\">{$buttonText}</a></div></section>";
-
-            case 'google-map':
-                $url = esc_url($attributes['embedUrl'] ?? '');
-                $height = esc_attr($attributes['height'] ?? '380px');
-                $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-google-map' . $extra]);
-                if (!$url) return "<div {$wrapper}><div class=\"wpbb-empty-note\">" . esc_html__('Add embed URL', 'wp-bbuilder') . "</div></div>";
-                $style = !empty($attributes["mapFilter"]) ? "filter:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["mapFilter"]) . ";" : ""; return "<div {$wrapper}><iframe src=\"{$url}\" style=\"width:100%;height:{$height};border:0;{$style}\" loading=\"lazy\" allowfullscreen></iframe></div>";
-
-            case 'menu-option':
-                $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('Menu Item', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'h4'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? ($attributes['titleTag'] ?: 'h4') : 'h4';
-                $badge = esc_html($attributes['badge'] ?? '');
-                $text = esc_html($attributes['text'] ?? '');
-                $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-menu-option d-flex justify-content-between align-items-start gap-3 py-2' . $extra]);
-                $style = ""; if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";"; if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";"; $menuSlug = sanitize_text_field($attributes["menuSlug"] ?? ""); $schemaEnable = !empty($attributes["schemaEnable"]); $price = esc_html($attributes["price"] ?? ""); $titleHtml = "<{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>"; $menuHtml = ""; if ($menuSlug) { $menuHtml = wp_nav_menu(["menu" => $menuSlug, "echo" => false, "container" => false, "fallback_cb" => false]); } $body = $titleHtml . "<div>{$text}</div>" . ($menuHtml ?: "") . ($price ? "<div class=\"wpbb-menu-price\">{$price}</div>" : ""); if ($schemaEnable) { return "<div {$wrapper} itemscope itemtype=\"https://schema.org/MenuItem\" style=\"" . esc_attr($style) . "\"><div itemprop=\"name\">{$body}</div>" . ($badge ? "<div class=\"badge text-bg-light\">{$badge}</div>" : "") . "</div>"; } return "<div {$wrapper} style=\"" . esc_attr($style) . "\"><div>{$body}</div>" . ($badge ? "<div class=\"badge text-bg-light\">{$badge}</div>" : "") . "</div>";
-
-            case 'sitemap':
-                $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-sitemap' . $extra]);
-                $title = esc_html(wpbb_translate_string($attributes["title"] ?? __("Sitemap", "wp-bbuilder"))); $titleTag = in_array(($attributes["titleTag"] ?? "h3"), ["h1","h2","h3","h4","h5","h6","div","p","span"], true) ? ($attributes["titleTag"] ?: "h3") : "h3"; $pages = !empty($attributes["showPages"]) ? wp_list_pages(["echo"=>0,"title_li"=>""]) : ""; $posts = ""; if (!empty($attributes["showPosts"])) { $items = get_posts(["numberposts"=>10,"post_status"=>"publish"]); if ($items) { $posts .= "<ul>"; foreach ($items as $p) $posts .= "<li><a href=\"" . esc_url(get_permalink($p)) . "\">" . esc_html(get_the_title($p)) . "</a></li>"; $posts .= "</ul>"; } } return "<div {$wrapper}><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>" . ($pages ? "<ul>{$pages}</ul>" : "") . $posts . "</div>";
-
-            case 'soc-follow-block':
                 $title = esc_html($attributes['title'] ?? __('Follow Us', 'wp-bbuilder'));
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-soc-follow d-flex gap-2 align-items-center' . $extra]);
-                $facebook = esc_url($attributes["facebook"] ?? ""); $instagram = esc_url($attributes["instagram"] ?? ""); $linkedin = esc_url($attributes["linkedin"] ?? ""); $x = esc_url($attributes["x"] ?? ""); $html = "<div {$wrapper}><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>"; if ($facebook) $html .= "<a class=\"wpbb-social-icon\" href=\"{$facebook}\" aria-label=\"Facebook\"><span class=\"wpbb-social-icon__glyph\">f</span></a>"; if ($instagram) $html .= "<a class=\"wpbb-social-icon\" href=\"{$instagram}\" aria-label=\"Instagram\"><span class=\"wpbb-social-icon__glyph\">ig</span></a>"; if ($linkedin) $html .= "<a class=\"wpbb-social-icon\" href=\"{$linkedin}\" aria-label=\"LinkedIn\"><span class=\"wpbb-social-icon__glyph\">in</span></a>"; if ($x) $html .= "<a class=\"wpbb-social-icon\" href=\"{$x}\" aria-label=\"X\"><span class=\"wpbb-social-icon__glyph\">x</span></a>"; $html .= "</div>"; return $html;
+                $socialStyle = $attributes['socialStyle'] ?? 'icons';
+                $iconClass = $socialStyle === 'normal' ? 'btn btn-outline-secondary btn-sm' : 'wpbb-social-icon';
+                $style = ''; if (!empty($attributes['iconBgColor'])) $style .= 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['iconBgColor']) . ';'; if (!empty($attributes['iconTextColor'])) $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['iconTextColor']) . ';';
+                $items = [
+                    'facebook' => esc_url($attributes['facebook'] ?? ''),
+                    'instagram' => esc_url($attributes['instagram'] ?? ''),
+                    'linkedin' => esc_url($attributes['linkedin'] ?? ''),
+                    'x' => esc_url($attributes['x'] ?? ''),
+                    'youtube' => esc_url($attributes['youtube'] ?? ''),
+                    'whatsapp' => esc_url($attributes['whatsapp'] ?? ''),
+                ];
+                $labels = ['facebook'=>'Facebook','instagram'=>'Instagram','linkedin'=>'LinkedIn','x'=>'X','youtube'=>'YouTube','whatsapp'=>'WhatsApp'];
+                $glyphs = ['facebook'=>'f','instagram'=>'ig','linkedin'=>'in','x'=>'x','youtube'=>'yt','whatsapp'=>'wa'];
+                $html = "<div {$wrapper}><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>";
+                foreach ($items as $key => $url) { if (!$url) continue; $label = $labels[$key]; $content = $socialStyle === 'normal' ? $label : '<span class=\"wpbb-social-icon__glyph\">' . $glyphs[$key] . '</span>'; $html .= "<a class=\"{$iconClass}\" style=\"" . esc_attr($style) . "\" href=\"{$url}\" aria-label=\"{$label}\">{$content}</a>"; }
+                $html .= "</div>"; return $html;
 
             case 'soc-share':
                 $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('Share', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'span'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'span';
+                $iconStyle = $attributes['iconStyle'] ?? 'icons';
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-soc-share d-flex gap-2 align-items-center' . $extra]);
-                $title = esc_html($attributes["title"] ?? __("Share", "wp-bbuilder")); $iconStyle = $attributes["iconStyle"] ?? "buttons"; $wrapper = get_block_wrapper_attributes(["class" => "wpbb-soc-share d-flex gap-2 align-items-center" . $extra]); $shareUrl = rawurlencode(get_permalink()); $shareTitle = rawurlencode(get_the_title()); $btnClass = $iconStyle === "icons" ? "btn btn-light btn-sm rounded-circle" : "btn btn-outline-secondary btn-sm"; return "<div {$wrapper}><strong>{$title}</strong><a class=\"{$btnClass}\" target=\"_blank\" rel=\"noopener\" href=\"https://www.facebook.com/sharer/sharer.php?u={$shareUrl}\">FB</a><a class=\"{$btnClass}\" target=\"_blank\" rel=\"noopener\" href=\"https://twitter.com/intent/tweet?url={$shareUrl}&text={$shareTitle}\">X</a><a class=\"{$btnClass}\" target=\"_blank\" rel=\"noopener\" href=\"https://www.linkedin.com/sharing/share-offsite/?url={$shareUrl}\">LI</a></div>";
+                $shareUrl = rawurlencode(get_permalink());
+                $shareTitle = rawurlencode(get_the_title());
+                $iconClass = $iconStyle === 'icons' ? 'wpbb-social-icon' : 'btn btn-outline-secondary btn-sm';
+                $style = ''; if (!empty($attributes['iconBgColor'])) $style .= 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['iconBgColor']) . ';'; if (!empty($attributes['iconTextColor'])) $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['iconTextColor']) . ';';
+                $html = "<div {$wrapper}><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>";
+                if (!isset($attributes['shareFacebook']) || !empty($attributes['shareFacebook'])) $html .= "<a class=\"{$iconClass}\" style=\"" . esc_attr($style) . "\" target=\"_blank\" rel=\"noopener\" aria-label=\"Facebook\" href=\"https://www.facebook.com/sharer/sharer.php?u={$shareUrl}\">" . ($iconStyle === 'icons' ? '<span class=\"wpbb-social-icon__glyph\">f</span>' : 'Facebook') . "</a>";
+                if (!isset($attributes['shareX']) || !empty($attributes['shareX'])) $html .= "<a class=\"{$iconClass}\" style=\"" . esc_attr($style) . "\" target=\"_blank\" rel=\"noopener\" aria-label=\"X\" href=\"https://twitter.com/intent/tweet?url={$shareUrl}&text={$shareTitle}\">" . ($iconStyle === 'icons' ? '<span class=\"wpbb-social-icon__glyph\">x</span>' : 'X') . "</a>";
+                if (!isset($attributes['shareLinkedIn']) || !empty($attributes['shareLinkedIn'])) $html .= "<a class=\"{$iconClass}\" style=\"" . esc_attr($style) . "\" target=\"_blank\" rel=\"noopener\" aria-label=\"LinkedIn\" href=\"https://www.linkedin.com/sharing/share-offsite/?url={$shareUrl}\">" . ($iconStyle === 'icons' ? '<span class=\"wpbb-social-icon__glyph\">in</span>' : 'LinkedIn') . "</a>";
+                if (!isset($attributes['shareWhatsApp']) || !empty($attributes['shareWhatsApp'])) $html .= "<a class=\"{$iconClass}\" style=\"" . esc_attr($style) . "\" target=\"_blank\" rel=\"noopener\" aria-label=\"WhatsApp\" href=\"https://wa.me/?text={$shareTitle}%20{$shareUrl}\">" . ($iconStyle === 'icons' ? '<span class=\"wpbb-social-icon__glyph\">wa</span>' : 'WhatsApp') . "</a>";
+                if (!isset($attributes['shareEmail']) || !empty($attributes['shareEmail'])) $html .= "<a class=\"{$iconClass}\" style=\"" . esc_attr($style) . "\" target=\"_blank\" rel=\"noopener\" aria-label=\"Email\" href=\"mailto:?subject={$shareTitle}&body={$shareUrl}\">" . ($iconStyle === 'icons' ? '<span class=\"wpbb-social-icon__glyph\">@</span>' : 'Email') . "</a>";
+                $html .= "</div>"; return $html;
 
             case 'video':
                 $url = esc_url($attributes['videoUrl'] ?? '');
@@ -628,6 +453,55 @@ public function filter_allowed_blocks($allowed_blocks, $context) {
         }
         $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-table-block', 'data-datatable' => !empty($attributes['datatable']) ? '1' : '0', 'data-searching' => !empty($attributes['datatableSearch']) ? '1' : '0', 'data-paging' => !empty($attributes['datatablePaging']) ? '1' : '0', 'data-ordering' => !empty($attributes['datatableOrdering']) ? '1' : '0', 'data-info' => !empty($attributes['datatableInfo']) ? '1' : '0', 'data-lengthchange' => !empty($attributes['datatableLengthChange']) ? '1' : '0']);
         return '<div ' . $wrapper . '>' . $table_html . '</div>';
+    }
+
+
+    public function render_swiper_block($attributes, $content, $block) {
+        wp_enqueue_style('wpbb-swiper');
+        wp_enqueue_script('wpbb-swiper');
+        wp_enqueue_script('wpbb-swiper-init');
+        $slides = wpbb_parse_fields_json($attributes['slidesJson'] ?? '');
+        if (!$slides) {
+            $slides = [
+                ['type' => 'text', 'title' => 'Slide 1', 'text' => 'Demo text'],
+                ['type' => 'card', 'title' => 'Slide 2', 'text' => 'Card content'],
+                ['type' => 'video', 'title' => 'Slide 3', 'video' => '']
+            ];
+        }
+        $wrapper = get_block_wrapper_attributes([
+            'class' => 'wpbb-swiper-block ' . sanitize_html_class($attributes['demoStyle'] ?? 'cards'),
+            'data-swiper' => '1',
+            'data-slides' => (string) intval($attributes['slidesPerView'] ?? 1),
+            'data-space' => (string) intval($attributes['spaceBetween'] ?? 20),
+            'data-speed' => (string) intval($attributes['speed'] ?? 600),
+            'data-loop' => !empty($attributes['loop']) ? '1' : '0',
+            'data-autoplay' => !empty($attributes['autoplay']) ? '1' : '0',
+        ]);
+        $html = '<div ' . $wrapper . '><div class="swiper"><div class="swiper-wrapper">';
+        foreach ($slides as $slide) {
+            $type = $slide['type'] ?? 'text';
+            $title = esc_html($slide['title'] ?? '');
+            $text = wp_kses_post($slide['text'] ?? '');
+            $video = esc_url($slide['video'] ?? '');
+            $html .= '<div class="swiper-slide"><div class="wpbb-swiper-slide wpbb-swiper-slide--' . esc_attr($type) . '">';
+            if ($type === 'video' && $video) {
+                $html .= '<div class="ratio ratio-16x9"><iframe src="' . $video . '" allowfullscreen loading="lazy"></iframe></div>';
+            } elseif ($type === 'card') {
+                $html .= '<div class="card h-100"><div class="card-body">';
+                if ($title) $html .= '<h3 class="card-title">' . $title . '</h3>';
+                if ($text) $html .= '<div class="card-text">' . $text . '</div>';
+                $html .= '</div></div>';
+            } else {
+                if ($title) $html .= '<h3>' . $title . '</h3>';
+                if ($text) $html .= '<div>' . $text . '</div>';
+            }
+            $html .= '</div></div>';
+        }
+        $html .= '</div>';
+        if (!empty($attributes['showPagination'])) $html .= '<div class="swiper-pagination"></div>';
+        if (!empty($attributes['showNavigation'])) $html .= '<div class="swiper-button-prev"></div><div class="swiper-button-next"></div>';
+        $html .= '</div></div>';
+        return $html;
     }
 
     public function render_dynamic_form($attributes, $content, $block) {
@@ -726,4 +600,61 @@ public function filter_allowed_blocks($allowed_blocks, $context) {
         <?php
         return ob_get_clean();
     }
+    public function enqueue_frontend_assets() {
+        if (wp_style_is('wpbb-shared', 'registered')) {
+            wp_enqueue_style('wpbb-shared');
+        }
+        if (wpbb_get_option('load_bootstrap_css', 1)) {
+            wp_enqueue_style('wpbb-bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css', [], '5.3.3');
+        }
+        wp_enqueue_style('wpbb-datatables', 'https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css', [], '2.0.8');
+        wp_enqueue_script('wpbb-datatables', 'https://cdn.datatables.net/2.0.8/js/dataTables.js', [], '2.0.8', true);
+        wp_enqueue_script('wpbb-datatables-bs5', 'https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js', ['wpbb-datatables'], '2.0.8', true);
+        wp_enqueue_script('wpbb-table-init', WPBB_PLUGIN_URL . 'assets/table-init.js', ['wpbb-datatables-bs5'], WPBB_VERSION, true);
+
+        if (wpbb_get_option('load_bootstrap_js', 0)) {
+            wp_enqueue_script('wpbb-bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js', [], '5.3.3', true);
+        }
+
+        $inline = ':root{
+            --wpbb-label-color:' . wpbb_hex_color(wpbb_get_option('default_label_color', '#334155')) . ';
+            --wpbb-input-border:' . wpbb_hex_color(wpbb_get_option('default_input_border_color', '#cbd5e1')) . ';
+            --wpbb-button-bg:' . wpbb_hex_color(wpbb_get_option('default_button_bg', '#2563eb')) . ';
+            --wpbb-button-text:' . wpbb_hex_color(wpbb_get_option('default_button_text', '#ffffff')) . ';
+        }';
+        wp_add_inline_style('wpbb-shared', $inline);
+    }
+
+    public function filter_allowed_blocks($allowed_block_types, $editor_context) {
+        $allowed = [];
+        foreach (wpbb_get_blocks_list() as $slug) {
+            if (wpbb_is_block_enabled($slug) && $slug !== 'row-section') {
+                $allowed[] = 'wpbb/' . $slug;
+            }
+        }
+
+        foreach (wpbb_get_acf_blocks_list() as $acf_block) {
+            $allowed[] = 'acf/' . str_replace('wpbb-', 'wpbb-', $acf_block);
+        }
+
+        $core = [
+            'core/paragraph','core/heading','core/list','core/list-item','core/quote','core/separator','core/spacer',
+            'core/html','core/shortcode','core/code','core/preformatted'
+        ];
+
+        if (!wpbb_get_option('disable_core_group', 1)) $core[] = 'core/group';
+        if (!wpbb_get_option('disable_core_columns', 1)) $core[] = 'core/columns';
+        if (!wpbb_get_option('disable_core_column', 1)) $core[] = 'core/column';
+        if (!wpbb_get_option('disable_core_table', 1)) $core[] = 'core/table';
+        if (!wpbb_get_option('disable_core_embed', 0)) $core[] = 'core/embed';
+        if (!wpbb_get_option('disable_core_gallery', 0)) $core[] = 'core/gallery';
+        if (!wpbb_get_option('disable_core_image', 0)) $core[] = 'core/image';
+        if (!wpbb_get_option('disable_core_cover', 0)) $core[] = 'core/cover';
+        if (!wpbb_get_option('disable_core_media_text', 0)) $core[] = 'core/media-text';
+        if (!wpbb_get_option('disable_core_buttons', 0)) $core[] = 'core/buttons';
+        if (!wpbb_get_option('disable_core_button', 0)) $core[] = 'core/button';
+
+        return array_values(array_unique(array_merge($allowed, $core)));
+    }
+
 }

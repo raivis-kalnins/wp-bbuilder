@@ -116,7 +116,7 @@
       marginLeft: { type: 'number', default: 0 }, marginLeftUnit: { type: 'string', default: 'px' },
       gutterX: { type: 'string', default: 'gx-2' },
       gutterY: { type: 'string', default: 'gy-2' },
-      align: { type: 'string', default: '' }
+      align: { type: 'string', default: '' }, uniqueId:{type:'string',default:''}, customCss:{type:'string',default:''}, customScss:{type:'string',default:''}
     },
     edit: function (props) {
       var className = 'wpbb-row row ' + (props.attributes.gutterX || '') + ' ' + (props.attributes.gutterY || '') + ' ' +
@@ -134,7 +134,7 @@
       var controls = [
         el(SelectControl, { key:'containerClass', label:'Bootstrap container', value:props.attributes.containerClass, options:[{label:'None',value:''},{label:'container',value:'container'},{label:'container-fluid',value:'container-fluid'},{label:'container-xl',value:'container-xl'}], onChange:function(v){ props.setAttributes({containerClass:v}); } }),
         el(TextControl, { key:'utilityClasses', label:'Bootstrap class list', value:props.attributes.utilityClasses, onChange:function(v){ props.setAttributes({utilityClasses:v}); } }),
-        el(TextControl, { key:'maxWidth', label:'Max width', value:props.attributes.maxWidth, onChange:function(v){ props.setAttributes({maxWidth:v}); } }),
+        el(TextControl, { key:'maxWidth', label:'Max width', value:props.attributes.maxWidth, onChange:function(v){ props.setAttributes({maxWidth:v}); } }), el(TextControl,{key:'uniqueId',label:'Unique ID',value:props.attributes.uniqueId||'',onChange:function(v){props.setAttributes({uniqueId:v});}}), el(TextareaControl,{key:'customCss',label:'Custom CSS',value:props.attributes.customCss||'',onChange:function(v){props.setAttributes({customCss:v});}}), el(TextareaControl,{key:'customScss',label:'Custom SCSS',value:props.attributes.customScss||'',onChange:function(v){props.setAttributes({customScss:v});}}),
         el(SelectControl, { key:'visibilityClass', label:'Extra visibility class', value:props.attributes.visibilityClass, options:[{label:'None',value:''},{label:'d-none',value:'d-none'},{label:'d-none d-md-block',value:'d-none d-md-block'},{label:'d-md-none',value:'d-md-none'}], onChange:function(v){ props.setAttributes({visibilityClass:v}); } }),
         visibilitySwitches(props),
         el(SelectControl, { key:'animationClass', label:'Animation', value:props.attributes.animationClass, options:[{label:'None',value:''},{label:'anim-fade-in',value:'anim-fade-in'},{label:'anim-fade-up',value:'anim-fade-up'},{label:'anim-zoom-in',value:'anim-zoom-in'}], onChange:function(v){ props.setAttributes({animationClass:v}); } }),
@@ -145,7 +145,7 @@
       return el(wp.element.Fragment, {},
         el(InspectorControls, {}, el(PanelBody, { title:'Row settings', initialOpen:true }, controls)),
         el('div', blockProps,
-          label('ROW'),
+          label('ROW ' + (props.attributes.uniqueId || '')),
           props.attributes.containerClass
             ? el('div', { className: props.attributes.containerClass }, el(InnerBlocks, { allowedBlocks: ['wpbb/column'], orientation: 'horizontal' }))
             : el(InnerBlocks, { allowedBlocks: ['wpbb/column'], orientation: 'horizontal' })
@@ -164,7 +164,7 @@
       xs: { type: 'number', default: 12 },
       sm: { type: 'number', default: 0 },
       md: { type: 'number', default: 6 },
-      lg: { type: 'number', default: 0 },
+      lg: { type: 'number', default: 0 }, xl: { type: 'number', default: 0 }, uniqueId:{type:'string',default:''}, customCss:{type:'string',default:''}, customScss:{type:'string',default:''},
       orderClass: { type: 'string', default: '' },
       visibilityClass: { type: 'string', default: '' },
       visibilityXs: { type: 'boolean', default: true },
@@ -184,14 +184,14 @@
     },
     edit: function (props) {
       var cls = ['wpbb-column'];
-      ['xs','sm','md','lg'].forEach(function (bp) {
+      ['xs','sm','md','lg','xl'].forEach(function (bp) {
         var val = props.attributes[bp];
         if (val) cls.push(bp === 'xs' ? ('col-' + val) : ('col-' + bp + '-' + val));
       });
       if (props.attributes.orderClass) cls.push(props.attributes.orderClass);
       if (props.attributes.visibilityClass) cls.push(props.attributes.visibilityClass);
       if (props.attributes.animationClass) cls.push(props.attributes.animationClass);
-      var basis = (props.attributes.md || props.attributes.lg || props.attributes.sm || props.attributes.xs || 12);
+      var basis = (props.attributes.xl || props.attributes.lg || props.attributes.md || props.attributes.sm || props.attributes.xs || 12);
       var pct = Math.max(1, Math.min(12, basis)) / 12 * 100;
       var blockProps = useBlockProps({ className: cls.join(' '), style: { flex: '0 0 ' + pct + '%', maxWidth: pct + '%', boxSizing: 'border-box' } });
 
@@ -211,7 +211,7 @@
         sizeControl('xs', 'XS'),
         sizeControl('sm', 'SM'),
         sizeControl('md', 'MD'),
-        sizeControl('lg', 'LG'),
+        sizeControl('lg', 'LG'), sizeControl('xl', 'XL'), el(TextControl,{key:'uniqueId',label:'Unique ID',value:props.attributes.uniqueId||'',onChange:function(v){props.setAttributes({uniqueId:v});}}), el(TextareaControl,{key:'customCss',label:'Custom CSS',value:props.attributes.customCss||'',onChange:function(v){props.setAttributes({customCss:v});}}), el(TextareaControl,{key:'customScss',label:'Custom SCSS',value:props.attributes.customScss||'',onChange:function(v){props.setAttributes({customScss:v});}}),
         el(SelectControl, { key:'orderClass', label:'Order', value:props.attributes.orderClass, options:[{label:'Default',value:''},{label:'order-1',value:'order-1'},{label:'order-2',value:'order-2'},{label:'order-3',value:'order-3'},{label:'order-first',value:'order-first'},{label:'order-last',value:'order-last'}], onChange:function(v){ props.setAttributes({orderClass:v}); } }),
         el(SelectControl, { key:'visibilityClass', label:'Extra visibility class', value:props.attributes.visibilityClass, options:[{label:'None',value:''},{label:'d-none',value:'d-none'},{label:'d-none d-md-block',value:'d-none d-md-block'},{label:'d-md-none',value:'d-md-none'}], onChange:function(v){ props.setAttributes({visibilityClass:v}); } }),
         visibilitySwitches(props),
@@ -220,7 +220,7 @@
 
       return el(wp.element.Fragment, {},
         el(InspectorControls, {}, el(PanelBody, { title: 'Column settings', initialOpen: true }, controls)),
-        el('div', blockProps, label('COLUMN'), el(InnerBlocks))
+        el('div', blockProps, label('COLUMN ' + (props.attributes.uniqueId || '')), el(InnerBlocks))
       );
     },
     save: function () { return el(InnerBlocks.Content); }
@@ -297,7 +297,7 @@
   });
 
   registerBlockType('wpbb/card', { title:'Card', icon:'id', category:'wpbb', edit:containerEdit('CARD'), save:function(){ return el(InnerBlocks.Content); } });
-  registerBlockType('wpbb/cards', { title:'Cards', icon:'grid-view', category:'wpbb', edit:containerEdit('CARDS',['wpbb/card']), save:function(){ return el(InnerBlocks.Content); } });
+  registerBlockType('wpbb/cards', { title:'Cards', icon:'grid-view', category:'wpbb', edit:containerEdit('CARDS',['wpbb/cta-card']), save:function(){ return el(InnerBlocks.Content); } });
   registerBlockType('wpbb/accordion', { title:'Accordion', icon:'menu', category:'wpbb', edit:containerEdit('ACCORDION',['wpbb/accordion-item']), save:function(){ return el(InnerBlocks.Content); } });
   registerBlockType('wpbb/accordion-item', {
     title:'Accordion Item',
@@ -333,33 +333,7 @@
     save:function(){ return el(InnerBlocks.Content); }
   });
 
-  registerBlockType('wpbb/row-section', {
-    title:'Row Section',
-    icon:'cover-image',
-    category:'wpbb',
-    attributes:{ containerClass:{type:'string',default:'container-fluid'}, utilityClasses:{type:'string',default:'py-5'}, maxWidth:{type:'string',default:''}, visibilityClass:{type:'string',default:''}, animationClass:{type:'string',default:''}, backgroundClass:{type:'string',default:''} },
-    edit:function(props){
-      return el(wp.element.Fragment,{},
-        el(InspectorControls,{},el(PanelBody,{title:'Row Section settings',initialOpen:true},[
-          el(SelectControl,{key:'containerClass',label:'Container',value:props.attributes.containerClass,options:[{label:'container-fluid',value:'container-fluid'},{label:'container',value:'container'},{label:'container-xl',value:'container-xl'}],onChange:function(v){props.setAttributes({containerClass:v});}}),
-          el(TextControl,{key:'utilityClasses',label:'Bootstrap class list',value:props.attributes.utilityClasses,onChange:function(v){props.setAttributes({utilityClasses:v});}}),
-          el(TextControl,{key:'maxWidth',label:'Max width',value:props.attributes.maxWidth,onChange:function(v){props.setAttributes({maxWidth:v});}}),
-          el(SelectControl,{key:'visibilityClass',label:'Visibility',value:props.attributes.visibilityClass,options:[{label:'Always',value:''},{label:'d-none',value:'d-none'},{label:'d-none d-md-block',value:'d-none d-md-block'},{label:'d-md-none',value:'d-md-none'}],onChange:function(v){props.setAttributes({visibilityClass:v});}}),
-          el(SelectControl,{key:'animationClass',label:'Animation',value:props.attributes.animationClass,options:[{label:'None',value:''},{label:'anim-fade-in',value:'anim-fade-in'},{label:'anim-fade-up',value:'anim-fade-up'},{label:'anim-zoom-in',value:'anim-zoom-in'}],onChange:function(v){props.setAttributes({animationClass:v});}}),
-          el(TextControl,{key:'backgroundClass',label:'Background classes',value:props.attributes.backgroundClass,onChange:function(v){props.setAttributes({backgroundClass:v});}})
-        ])),
-        el('section', useBlockProps({
-          className:'wpbb-row-section ' + (props.attributes.utilityClasses || '') + ' ' + (props.attributes.backgroundClass || '') + ' ' + (props.attributes.visibilityClass || '') + ' ' + (props.attributes.animationClass || ''),
-          style:{ maxWidth: props.attributes.maxWidth || undefined, marginLeft: props.attributes.maxWidth ? 'auto' : undefined, marginRight: props.attributes.maxWidth ? 'auto' : undefined }
-        }),
-          label('ROW SECTION'),
-          el('div',{className:props.attributes.containerClass || 'container-fluid'}, el(InnerBlocks))
-        )
-      );
-    },
-    save:function(){ return el(InnerBlocks.Content); }
-  });
-
+  
   registerBlockType('wpbb/table', {
     title:'Bootstrap Table',
     icon:'table-col-after',
@@ -516,14 +490,14 @@
 
   registerBlockType('wpbb/cta-card', {
     title:'CTA Card', icon:'megaphone', category:'wpbb',
-    attributes:{ title:{type:'string',default:'CTA Card'}, text:{type:'string',default:'Call to action text'}, buttonText:{type:'string',default:'Learn more'}, buttonUrl:{type:'string',default:'#'}, bgColor:{type:'string',default:''}, textColor:{type:'string',default:''} },
+    attributes:{ title:{type:'string',default:'CTA Card'}, text:{type:'string',default:'Call to action text'}, buttonText:{type:'string',default:'Learn more'}, buttonUrl:{type:'string',default:'#'}, bgColor:{type:'string',default:''}, textColor:{type:'string',default:''}, schemaEnable:{type:'boolean',default:false}, schemaType:{type:'string',default:'CreativeWork'} },
     edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'CTA Card settings',initialOpen:true},[
       el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}),
       el(TextareaControl,{key:'text',label:'Text',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}}),
       el(TextControl,{key:'buttonText',label:'Button text',value:props.attributes.buttonText,onChange:function(v){props.setAttributes({buttonText:v});}}),
       el(TextControl,{key:'buttonUrl',label:'Button URL',value:props.attributes.buttonUrl,onChange:function(v){props.setAttributes({buttonUrl:v});}}),
       colorInput('Background color',props.attributes.bgColor,function(v){props.setAttributes({bgColor:v});},'cta-bg'),
-      colorInput('Text color',props.attributes.textColor,function(v){props.setAttributes({textColor:v});},'cta-text')
+      colorInput('Text color',props.attributes.textColor,function(v){props.setAttributes({textColor:v});},'cta-text'), el(ToggleControl,{key:'schemaEnable',label:'Enable schema',checked:!!props.attributes.schemaEnable,onChange:function(v){props.setAttributes({schemaEnable:v});}}), el(SelectControl,{key:'schemaType',label:'Schema type',value:props.attributes.schemaType||'CreativeWork',options:[{label:'CreativeWork',value:'CreativeWork'},{label:'Product',value:'Product'},{label:'Service',value:'Service'},{label:'Organization',value:'Organization'}],onChange:function(v){props.setAttributes({schemaType:v});}})
     ])), el('div',useBlockProps({className:'wpbb-cta-card card h-100',style:{background:props.attributes.bgColor||undefined,color:props.attributes.textColor||undefined}}),label('CTA CARD'),el('div',{className:'card-body'},[el('strong',{key:'t'},props.attributes.title),el('p',{key:'p'},props.attributes.text),el('span',{key:'b',className:'btn btn-primary'},props.attributes.buttonText)]))); },
     save:function(){ return null; }
   });
@@ -581,28 +555,26 @@
 
   registerBlockType('wpbb/soc-follow-block', {
     title:'Social Follow', icon:'share', category:'wpbb',
-    attributes:{ title:{type:'string',default:'Follow Us'}, facebook:{type:'string',default:''}, instagram:{type:'string',default:''}, linkedin:{type:'string',default:''}, x:{type:'string',default:''} },
+    attributes:{ title:{type:'string',default:'Follow Us'}, facebook:{type:'string',default:''}, instagram:{type:'string',default:''}, linkedin:{type:'string',default:''}, x:{type:'string',default:''}, youtube:{type:'string',default:''}, whatsapp:{type:'string',default:''}, socialStyle:{type:'string',default:'icons'}, iconBgColor:{type:'string',default:''}, iconTextColor:{type:'string',default:''} },
     edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Social Follow settings',initialOpen:true},[
       el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}),
       el(TextControl,{key:'facebook',label:'Facebook URL',value:props.attributes.facebook,onChange:function(v){props.setAttributes({facebook:v});}}),
       el(TextControl,{key:'instagram',label:'Instagram URL',value:props.attributes.instagram,onChange:function(v){props.setAttributes({instagram:v});}}),
       el(TextControl,{key:'linkedin',label:'LinkedIn URL',value:props.attributes.linkedin,onChange:function(v){props.setAttributes({linkedin:v});}}),
-      el(TextControl,{key:'x',label:'X URL',value:props.attributes.x,onChange:function(v){props.setAttributes({x:v});}})
-    ])), el('div',useBlockProps({className:'wpbb-soc-follow'}),label('SOC FOLLOW'),props.attributes.title + ' | FB IG LI X')); },
+      el(TextControl,{key:'x',label:'X URL',value:props.attributes.x,onChange:function(v){props.setAttributes({x:v});}}), el(TextControl,{key:'youtube',label:'YouTube URL',value:props.attributes.youtube||'',onChange:function(v){props.setAttributes({youtube:v});}}), el(TextControl,{key:'whatsapp',label:'WhatsApp URL',value:props.attributes.whatsapp||'',onChange:function(v){props.setAttributes({whatsapp:v});}}), colorInput('Icon background',props.attributes.iconBgColor,function(v){props.setAttributes({iconBgColor:v});},'followbg'), colorInput('Icon color',props.attributes.iconTextColor,function(v){props.setAttributes({iconTextColor:v});},'followtxt'), el(SelectControl,{key:'socialStyle',label:'Style',value:props.attributes.socialStyle||'icons',options:[{label:'Icons',value:'icons'},{label:'Normal',value:'normal'}],onChange:function(v){props.setAttributes({socialStyle:v});}})
+    ])), el('div',useBlockProps({className:'wpbb-soc-follow'}),label('SOC FOLLOW'),props.attributes.title + ' | FB IG LI X YT WA')); },
     save:function(){ return null; }
   });
 
   registerBlockType('wpbb/soc-share', {
     title:'Social Share', icon:'share-alt2', category:'wpbb',
-    attributes:{ title:{type:'string',default:'Share'}, iconStyle:{type:'string',default:'buttons'} },
+    attributes:{ title:{type:'string',default:'Share'}, iconStyle:{type:'string',default:'icons'}, shareFacebook:{type:'boolean',default:true}, shareX:{type:'boolean',default:true}, shareLinkedIn:{type:'boolean',default:true}, shareWhatsApp:{type:'boolean',default:true}, shareEmail:{type:'boolean',default:true}, iconBgColor:{type:'string',default:''}, iconTextColor:{type:'string',default:''} },
     edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Social Share settings',initialOpen:true},[
       el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}),
-      el(SelectControl,{key:'iconStyle',label:'Icon style',value:props.attributes.iconStyle,options:[{label:'Buttons',value:'buttons'},{label:'Icons',value:'icons'}],onChange:function(v){props.setAttributes({iconStyle:v});}})
+      el(SelectControl,{key:'iconStyle',label:'Icon style',value:props.attributes.iconStyle,options:[{label:'Icons',value:'icons'},{label:'Normal',value:'buttons'}],onChange:function(v){props.setAttributes({iconStyle:v});}}), colorInput('Icon background',props.attributes.iconBgColor,function(v){props.setAttributes({iconBgColor:v});},'sharebg'), colorInput('Icon color',props.attributes.iconTextColor,function(v){props.setAttributes({iconTextColor:v});},'sharetxt'), el(ToggleControl,{key:'shareFacebook',label:'Facebook',checked:props.attributes.shareFacebook!==false,onChange:function(v){props.setAttributes({shareFacebook:v});}}), el(ToggleControl,{key:'shareX',label:'X',checked:props.attributes.shareX!==false,onChange:function(v){props.setAttributes({shareX:v});}}), el(ToggleControl,{key:'shareLinkedIn',label:'LinkedIn',checked:props.attributes.shareLinkedIn!==false,onChange:function(v){props.setAttributes({shareLinkedIn:v});}}), el(ToggleControl,{key:'shareWhatsApp',label:'WhatsApp',checked:props.attributes.shareWhatsApp!==false,onChange:function(v){props.setAttributes({shareWhatsApp:v});}}), el(ToggleControl,{key:'shareEmail',label:'Email',checked:props.attributes.shareEmail!==false,onChange:function(v){props.setAttributes({shareEmail:v});}})
     ])), el('div',useBlockProps({className:'wpbb-soc-share'}),label('SOC SHARE'),
       props.attributes.title + ' ',
-      props.attributes.iconStyle === 'icons'
-        ? el('span',{className:'wpbb-social-preview-icons'},['f ','x ','in'])
-        : 'Facebook X LinkedIn'
+      props.attributes.iconStyle === 'icons' ? el('span',{className:'wpbb-social-preview-icons'},['f ','x ','in ','wa ','@']) : 'Facebook X LinkedIn WhatsApp Email'
     )); },
     save:function(){ return null; }
   });
@@ -615,6 +587,49 @@
       el(SelectControl,{key:'ratioClass',label:'Ratio',value:props.attributes.ratioClass,options:[{label:'16:9',value:'ratio ratio-16x9'},{label:'4:3',value:'ratio ratio-4x3'},{label:'1:1',value:'ratio ratio-1x1'}],onChange:function(v){props.setAttributes({ratioClass:v});}}),
       el(TextControl,{key:'poster',label:'Poster URL',value:props.attributes.poster,onChange:function(v){props.setAttributes({poster:v});}})
     ])), el('div',useBlockProps({className:'wpbb-video'}),label('VIDEO'),props.attributes.videoUrl || 'Add video URL')); },
+    save:function(){ return null; }
+  });
+
+
+  registerBlockType('wpbb/swiper', {
+    title:'Swiper', icon:'images-alt2', category:'wpbb',
+    attributes:{ slidesJson:{type:'string',default:''}, slidesPerView:{type:'number',default:1}, spaceBetween:{type:'number',default:20}, speed:{type:'number',default:600}, loop:{type:'boolean',default:true}, autoplay:{type:'boolean',default:false}, demoStyle:{type:'string',default:'cards'}, showPagination:{type:'boolean',default:true}, showNavigation:{type:'boolean',default:true} },
+    edit:function(props){
+      var slides=[]; try{slides=JSON.parse(props.attributes.slidesJson||'[]')}catch(e){slides=[]}
+      if(!slides.length) slides=[{type:'text',title:'Slide 1',text:'Demo text'},{type:'card',title:'Slide 2',text:'Card content'},{type:'video',title:'Slide 3',video:''}];
+      function saveSlides(next){ props.setAttributes({slidesJson:JSON.stringify(next)}); }
+      function updateSlide(i,k,v){ var next=slides.slice(); next[i]=Object.assign({}, next[i], (function(){var o={}; o[k]=v; return o;})()); saveSlides(next); }
+      function addSlide(){ var next=slides.slice(); next.push({type:'text',title:'New slide',text:'',video:''}); saveSlides(next); }
+      function removeSlide(i){ var next=slides.slice(); next.splice(i,1); saveSlides(next); }
+      return el(wp.element.Fragment,{},
+        el(InspectorControls,{},el(PanelBody,{title:'Swiper settings',initialOpen:true},[
+          el(RangeControl,{key:'spv',label:'Slides per view',value:props.attributes.slidesPerView||1,min:1,max:4,onChange:function(v){props.setAttributes({slidesPerView:v||1});}}),
+          el(RangeControl,{key:'space',label:'Space between',value:props.attributes.spaceBetween||20,min:0,max:60,onChange:function(v){props.setAttributes({spaceBetween:v||0});}}),
+          el(RangeControl,{key:'speed',label:'Speed',value:props.attributes.speed||600,min:100,max:3000,step:100,onChange:function(v){props.setAttributes({speed:v||600});}}),
+          el(ToggleControl,{key:'loop',label:'Loop',checked:!!props.attributes.loop,onChange:function(v){props.setAttributes({loop:v});}}),
+          el(ToggleControl,{key:'autoplay',label:'Autoplay',checked:!!props.attributes.autoplay,onChange:function(v){props.setAttributes({autoplay:v});}}),
+          el(ToggleControl,{key:'pag',label:'Pagination',checked:!!props.attributes.showPagination,onChange:function(v){props.setAttributes({showPagination:v});}}),
+          el(ToggleControl,{key:'nav',label:'Navigation',checked:!!props.attributes.showNavigation,onChange:function(v){props.setAttributes({showNavigation:v});}}),
+          el(SelectControl,{key:'style',label:'Demo style',value:props.attributes.demoStyle||'cards',options:[{label:'Cards',value:'cards'},{label:'Text',value:'text'},{label:'Minimal',value:'minimal'}],onChange:function(v){props.setAttributes({demoStyle:v});}})
+        ].concat(slides.map(function(slide,index){
+          return el('div',{key:'slide'+index,className:'wpbb-mini-card'},[
+            el(SelectControl,{key:'type',label:'Type',value:slide.type||'text',options:[{label:'Text',value:'text'},{label:'Card',value:'card'},{label:'Video',value:'video'}],onChange:function(v){updateSlide(index,'type',v);}}),
+            el(TextControl,{key:'title',label:'Title',value:slide.title||'',onChange:function(v){updateSlide(index,'title',v);}}),
+            el(TextareaControl,{key:'text',label:'Text',value:slide.text||'',onChange:function(v){updateSlide(index,'text',v);}}),
+            el(TextControl,{key:'video',label:'Video URL',value:slide.video||'',onChange:function(v){updateSlide(index,'video',v);}}),
+            el(Button,{key:'rm',variant:'secondary',onClick:function(){removeSlide(index);}},'Remove slide')
+          ]);
+        })).concat([el(Button,{key:'add',variant:'secondary',onClick:addSlide},'Add slide')]))),
+        el('div',useBlockProps({className:'wpbb-swiper-editor'}),label('SWIPER'),
+          el('div',{className:'wpbb-swiper-editor-track'},slides.map(function(slide,idx){
+            return el('div',{key:idx,className:'wpbb-swiper-editor-slide'},[
+              el('strong',{key:'t'},slide.title||('Slide '+(idx+1))),
+              el('div',{key:'b'},slide.type||'text')
+            ]);
+          }))
+        )
+      );
+    },
     save:function(){ return null; }
   });
 

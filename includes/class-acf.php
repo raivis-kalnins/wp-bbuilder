@@ -17,7 +17,6 @@ final class WPBB_ACF {
     private function get_block_dirs() {
         return [
             'hero' => WPBB_PLUGIN_DIR . 'acf-blocks/hero',
-            'boot-card' => WPBB_PLUGIN_DIR . 'acf-blocks/boot-card',
             'gallery' => WPBB_PLUGIN_DIR . 'acf-blocks/gallery',
         ];
     }
@@ -27,7 +26,6 @@ final class WPBB_ACF {
 
         $defs = [
             'hero' => ['name' => 'wpbb-hero', 'title' => 'Hero', 'icon' => 'cover-image'],
-            'boot-card' => ['name' => 'wpbb-card', 'title' => 'Boot Card', 'icon' => 'id'],
             'gallery' => ['name' => 'wpbb-gallery', 'title' => 'Gallery', 'icon' => 'format-gallery'],
         ];
 

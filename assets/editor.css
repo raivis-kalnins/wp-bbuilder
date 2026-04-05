@@ -249,3 +249,18 @@
 .wpbb-social-preview-icons{
   font-size:12px;
 }
+
+.wpbb-inline-grid,.wpbb-inline-grid--compact{display:grid !important;grid-template-columns:minmax(0,1fr) 56px !important;gap:6px !important;width:100% !important;align-items:start !important}
+.wpbb-inline-grid select,.wpbb-inline-grid--compact select{width:100% !important;max-width:100% !important;min-width:0 !important;font-size:12px !important;padding:0 4px !important}
+.wpbb-inline-grid input,.wpbb-inline-grid--compact input{width:100% !important;max-width:100% !important}
+
+.wp-block[data-type="wpbb/row"] .block-editor-inner-blocks>.block-editor-block-list__layout{display:flex !important;flex-wrap:wrap !important;gap:10px !important;align-items:flex-start !important}
+.wp-block[data-type="wpbb/row"] .block-editor-inner-blocks>.block-editor-block-list__layout>.wp-block[data-type="wpbb/column"]{flex-grow:0 !important;flex-shrink:0 !important}
+
+.wpbb-editor-label{width:fit-content !important;max-width:fit-content !important;white-space:nowrap !important}
+.wpbb-inline-grid,.wpbb-inline-grid--compact{display:grid !important;grid-template-columns:minmax(0,1fr) 56px !important;gap:6px !important;width:100% !important;align-items:start !important}
+.wpbb-inline-grid select,.wpbb-inline-grid--compact select{width:100% !important;max-width:100% !important;min-width:0 !important;font-size:12px !important;padding:0 4px !important}
+.wpbb-inline-grid input,.wpbb-inline-grid--compact input{width:100% !important;max-width:100% !important}
+.wp-block[data-type="acf/wpbb-card"],.wp-block[data-type="wpbb/row-section"]{display:none !important}
+
+.wpbb-editor-label{width:fit-content !important;max-width:fit-content !important;white-space:nowrap !important}

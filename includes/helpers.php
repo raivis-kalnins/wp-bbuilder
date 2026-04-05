@@ -6,8 +6,8 @@ function wpbb_defaults() {
         'enabled_blocks' => [
             'accordion' => 1,'accordion-item' => 1,'button' => 1,'card' => 1,'cards' => 1,'column' => 1,
             'cta-card' => 1,'cta-section' => 1,'dynamic-form' => 1,'google-map' => 1,'menu-option' => 1,
-            'row' => 1,'row-section' => 1,'sitemap' => 1,'soc-follow-block' => 1,'soc-share' => 1,
-            'tab-item' => 1,'table' => 1,'tabs' => 1,'video' => 1,
+            'row' => 1,'sitemap' => 1,'soc-follow-block' => 1,'soc-share' => 1,
+            'tab-item' => 1,'table' => 1,'tabs' => 1,'video' => 1,'swiper' => 1,
         ],
         'disable_core_group' => 1,'disable_core_columns' => 1,'disable_core_column' => 1,
         'disable_core_table' => 1,'disable_core_embed' => 0,'disable_core_gallery' => 0,
@@ -39,6 +39,10 @@ function wpbb_defaults() {
         'cookie_button_text' => '#ffffff',
         'google_analytics_enabled' => 0,
         'google_analytics_head' => '',
+        'custom_scss' => '',
+        'compiled_css' => '',
+        'meta_header_code' => '',
+        'global_footer_code' => '',
     ];
 }
 function wpbb_get_option($key, $default = null) {
@@ -51,9 +55,9 @@ function wpbb_is_block_enabled($slug) {
     return empty($enabled) || !empty($enabled[$slug]);
 }
 function wpbb_get_blocks_list() {
-    return ['accordion','accordion-item','button','card','cards','column','cta-card','cta-section','dynamic-form','google-map','menu-option','row','row-section','sitemap','soc-follow-block','soc-share','tab-item','table','tabs','video'];
+    return ['accordion','accordion-item','button','card','cards','column','cta-card','cta-section','dynamic-form','google-map','menu-option','row','sitemap','soc-follow-block','soc-share','tab-item','table','tabs','video','swiper'];
 }
-function wpbb_get_acf_blocks_list() { return ['wpbb-hero','wpbb-card','wpbb-gallery']; }
+function wpbb_get_acf_blocks_list() { return ['wpbb-hero','wpbb-gallery']; }
 function wpbb_parse_fields_json($json) {
     $decoded = json_decode((string) $json, true);
     return is_array($decoded) ? $decoded : [];
