@@ -77,6 +77,29 @@ final class WPBB_Blocks {
         return $result ?: $selector . '{' . $scss . '}';
     }
 
+
+    private function wpbb_build_spacing_inline($attributes) {
+        $style = '';
+        $pairs = [
+            ['paddingTop','paddingTopUnit','padding-top'],
+            ['paddingRight','paddingRightUnit','padding-right'],
+            ['paddingBottom','paddingBottomUnit','padding-bottom'],
+            ['paddingLeft','paddingLeftUnit','padding-left'],
+            ['marginTop','marginTopUnit','margin-top'],
+            ['marginRight','marginRightUnit','margin-right'],
+            ['marginBottom','marginBottomUnit','margin-bottom'],
+            ['marginLeft','marginLeftUnit','margin-left'],
+        ];
+        foreach ($pairs as $pair) {
+            $num = isset($attributes[$pair[0]]) ? $attributes[$pair[0]] : null;
+            $unit = isset($attributes[$pair[1]]) ? $attributes[$pair[1]] : 'px';
+            if ($num !== null && $num !== '' && is_numeric($num) && floatval($num) != 0.0) {
+                $style .= $pair[2] . ':' . floatval($num) . preg_replace('/[^a-z%]/i', '', (string)$unit) . ';';
+            }
+        }
+        return $style;
+    }
+
 public function register_assets() {
         wp_register_script('wpbb-editor', WPBB_PLUGIN_URL . 'assets/editor.js', ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n', 'wp-data'], WPBB_VERSION, true);
         wp_register_script('wpbb-editor-enhancer', WPBB_PLUGIN_URL . 'assets/editor-enhancer.js', ['wp-dom-ready'], WPBB_VERSION, true);
@@ -471,6 +494,46 @@ public function register_assets() {
 
 
 
+
+
+            case 'row':
+                $classes = ['row', 'wpbb-row'];
+                foreach (['gutterX','gutterY','paddingClass','marginClass','backgroundClass','animationClass','displayClass','textUtilityClass','roundedClass','shadowClass','bootstrapClasses','utilityClasses','visibilityClass','className'] as $k) {
+                    if (!empty($attributes[$k])) $classes[] = $attributes[$k];
+                }
+                if (!empty($attributes['align'])) $classes[] = 'justify-content-' . sanitize_html_class($attributes['align']);
+                $uid = !empty($attributes['uniqueId']) ? sanitize_html_class($attributes['uniqueId']) : sanitize_html_class('wpbb-row-' . wp_unique_id());
+                $style = $this->wpbb_build_spacing_inline($attributes);
+                if (!empty($attributes['backgroundColor'])) $style .= 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';';
+                if (!empty($attributes['textColor'])) $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['textColor']) . ';';
+                if (!empty($attributes['maxWidth'])) $style .= 'max-width:' . preg_replace('/[^0-9.%a-zA-Z-]/', '', (string)$attributes['maxWidth']) . ';margin-left:auto;margin-right:auto;';
+                if (!empty($attributes['customStyle'])) $style .= (string)$attributes['customStyle'];
+                $cssTag = !empty($attributes['customCss']) ? '<style>#' . $uid . '{' . wp_strip_all_tags((string)$attributes['customCss']) . '}</style>' : '';
+                $scssTag = !empty($attributes['customScss']) ? '<style>' . $this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss']) . '</style>' : '';
+                $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_filter($classes)) . $extra, 'style' => $style, 'id' => $uid]);
+                return "{$cssTag}{$scssTag}<div {$wrapper}>{$content}</div>";
+
+            case 'column':
+                $classes = ['wpbb-column'];
+                $bpMap = ['xs'=>'col','sm'=>'col-sm','md'=>'col-md','lg'=>'col-lg','xl'=>'col-xl','xxl'=>'col-xxl'];
+                foreach ($bpMap as $bp => $prefix) {
+                    $val = isset($attributes[$bp]) ? intval($attributes[$bp]) : 0;
+                    if ($bp === 'xs' && $val <= 0) $val = 12;
+                    if ($val > 0) $classes[] = $prefix . '-' . $val;
+                }
+                foreach (['orderClass','visibilityClass','animationClass','paddingClass','marginClass','backgroundClass','displayClass','textUtilityClass','roundedClass','shadowClass','bootstrapClasses','utilityClasses','className'] as $k) {
+                    if (!empty($attributes[$k])) $classes[] = $attributes[$k];
+                }
+                $uid = !empty($attributes['uniqueId']) ? sanitize_html_class($attributes['uniqueId']) : sanitize_html_class('wpbb-col-' . wp_unique_id());
+                $style = $this->wpbb_build_spacing_inline($attributes);
+                if (!empty($attributes['backgroundColor'])) $style .= 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';';
+                if (!empty($attributes['textColor'])) $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['textColor']) . ';';
+                if (!empty($attributes['borderRadius'])) $style .= 'border-radius:' . preg_replace('/[^0-9.%a-zA-Z-]/', '', (string)$attributes['borderRadius']) . ';';
+                if (!empty($attributes['customStyle'])) $style .= (string)$attributes['customStyle'];
+                $cssTag = !empty($attributes['customCss']) ? '<style>#' . $uid . '{' . wp_strip_all_tags((string)$attributes['customCss']) . '}</style>' : '';
+                $scssTag = !empty($attributes['customScss']) ? '<style>' . $this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss']) . '</style>' : '';
+                $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_filter($classes)) . $extra, 'style' => $style, 'id' => $uid]);
+                return "{$cssTag}{$scssTag}<div {$wrapper}>{$content}</div>";
 
             case 'video':
                 $url = esc_url($attributes['videoUrl'] ?? '');

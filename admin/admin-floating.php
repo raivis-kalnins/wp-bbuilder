@@ -9,10 +9,12 @@ if (!defined('ABSPATH')) exit;
 class WPBBuilder_Floating_Admin {
     
     public function __construct() {
-        add_action('admin_menu', [$this, 'register_menu'], 1);
+        // duplicate top-level menu disabled
+        // add_action('admin_menu', [$this, 'register_menu'], 1);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
         add_action('wp_ajax_wpbb_quick_save', [$this, 'ajax_save']);
-        add_action('admin_footer', [$this, 'render_panel']);
+        // floating panel disabled to avoid duplicate empty BBuilder menu
+        // add_action('admin_footer', [$this, 'render_panel']);
     }
     
     public function register_menu() {

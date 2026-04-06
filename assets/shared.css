@@ -330,3 +330,21 @@
   color:#64748b;
   margin-top:4px;
 }
+
+.wpbb-soc-links,.wpbb-share-links{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+.wpbb-soc-icon-link,.wpbb-share-link{
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+}
+.wpbb-soc-icon-link svg,.wpbb-share-link svg,.wpbb-social-icon svg{
+  display:block !important;
+  width:20px !important;
+  height:20px !important;
+  fill:currentColor !important;
+  color:inherit !important;
+}
+.wpbb-soc-icon-link:hover,.wpbb-share-link:hover{opacity:.95}
+.wpbb-row{display:flex;flex-wrap:wrap}
+.wpbb-row>[class*="col-"]{box-sizing:border-box}
