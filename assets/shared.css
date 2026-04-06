@@ -245,3 +245,88 @@
 .wpbb-menu-option__menu li{margin-bottom:.35rem}
 .wpbb-menu-option__menu a{text-decoration:none}
 .wpbb-bootstrap-div{display:block}
+
+
+/* improved social icon styling */
+.wpbb-soc-follow,
+.wpbb-soc-share{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.5rem;
+  align-items:center;
+}
+.wpbb-social-icon{
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  width:42px !important;
+  height:42px !important;
+  min-width:42px;
+  border-radius:999px;
+  border:1px solid rgba(15,23,42,.10);
+  text-decoration:none;
+  color:inherit;
+  background:linear-gradient(180deg,#ffffff,#f8fafc);
+  box-shadow:0 4px 12px rgba(15,23,42,.10);
+  transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease;
+}
+.wpbb-social-icon:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 18px rgba(15,23,42,.14);
+  opacity:.98;
+}
+.wpbb-social-icon svg{
+  width:20px !important;
+  height:20px !important;
+  display:block !important;
+  fill:currentColor;
+}
+.wpbb-social-icon__glyph{
+  display:none !important;
+}
+
+/* animation helpers */
+.anim-fade-left{
+  animation:wpbbFadeLeft .45s ease both;
+}
+.anim-fade-right{
+  animation:wpbbFadeRight .45s ease both;
+}
+@keyframes wpbbFadeLeft{
+  from{opacity:0;transform:translateX(-18px)}
+  to{opacity:1;transform:none}
+}
+@keyframes wpbbFadeRight{
+  from{opacity:0;transform:translateX(18px)}
+  to{opacity:1;transform:none}
+}
+
+/* bootstrap-like row / column tighter layout */
+.wpbb-row{
+  display:flex;
+  flex-wrap:wrap;
+  row-gap:10px;
+}
+.wpbb-row > [class*="col-"]{
+  box-sizing:border-box;
+  padding-left:.5rem;
+  padding-right:.5rem;
+  margin-left:0;
+  margin-right:0;
+}
+.wpbb-row > .col-6,
+.wpbb-row > .col-sm-6,
+.wpbb-row > .col-md-6,
+.wpbb-row > .col-lg-6,
+.wpbb-row > .col-xl-6,
+.wpbb-row > .col-xxl-6{
+  flex:0 0 50%;
+  max-width:50%;
+}
+
+/* visible utility helper */
+.wpbb-bootstrap-class-tip{
+  font-size:12px;
+  color:#64748b;
+  margin-top:4px;
+}
