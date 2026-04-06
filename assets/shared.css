@@ -239,3 +239,9 @@
 .wpbb-code-display__head strong,.wpbb-code-display code,.wpbb-code-display pre{color:#fff}
 .wpbb-code-display__head .button{min-width:40px}
 .wpbb-row>[class*="col-"]{padding-left:.5rem;padding-right:.5rem}
+
+.wpbb-social-icon{display:inline-flex !important;align-items:center;justify-content:center}
+.wpbb-social-icon svg{width:18px !important;height:18px !important;display:block !important;fill:currentColor}
+.wpbb-menu-option__menu li{margin-bottom:.35rem}
+.wpbb-menu-option__menu a{text-decoration:none}
+.wpbb-bootstrap-div{display:block}

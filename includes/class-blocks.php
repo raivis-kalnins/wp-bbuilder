@@ -156,11 +156,14 @@ public function register_assets() {
                 $args['render_callback'] = [$this, 'render_fun_fact_block'];
             } elseif ($slug === 'mailchimp') {
                 $args['render_callback'] = [$this, 'render_mailchimp_block'];
+            } elseif ($slug === 'bootstrap-div') {
+                $args['render_callback'] = [$this, 'render_bootstrap_div_block'];
             } else {
                 $args['render_callback'] = [$this, 'render_generic_block'];
             }
 
             if ($slug === 'column') $args['parent'] = ['wpbb/row'];
+            if ($slug === 'bootstrap-div') $args['supports']['innerBlocks'] = true;
             if ($slug === 'accordion-item') $args['parent'] = ['wpbb/accordion'];
             if ($slug === 'tab-item') $args['parent'] = ['wpbb/tabs'];
 
@@ -181,7 +184,7 @@ public function register_assets() {
             'tab-item' => 'editor-table',
             'tabs' => 'index-card',
             'table' => 'table-col-after',
-            'swiper' => 'images-alt2','weather' => 'cloud','varda-dienas' => 'calendar-alt','ajax-search' => 'search','pricecards' => 'index-card','catalogue' => 'screenoptions','code-display' => 'editor-code','countdown-timer' => 'clock','chart' => 'chart-bar','fun-fact' => 'star-filled','mailchimp' => 'email',
+            'swiper' => 'images-alt2','weather' => 'cloud','varda-dienas' => 'calendar-alt','ajax-search' => 'search','pricecards' => 'index-card','catalogue' => 'screenoptions','code-display' => 'editor-code','countdown-timer' => 'clock','chart' => 'chart-bar','fun-fact' => 'star-filled','mailchimp' => 'email','bootstrap-div' => 'screenoptions',
                     ];
         return $map[$slug] ?? 'screenoptions';
     }
@@ -516,6 +519,27 @@ public function register_assets() {
                 return ['title'=>['type'=>'string','default'=>'CTA Section'],'titleTag'=>['type'=>'string','default'=>'h2'],'text'=>['type'=>'string','default'=>'Call to action text'],'buttonText'=>['type'=>'string','default'=>'Get started'],'buttonUrl'=>['type'=>'string','default'=>'#'],'bgColor'=>['type'=>'string','default'=>''],'textColor'=>['type'=>'string','default'=>''],'backgroundImage'=>['type'=>'string','default'=>''],'parallax'=>['type'=>'boolean','default'=>false],'className'=>['type'=>'string','default'=>'']];
             case 'google-map':
                 return ['embedUrl'=>['type'=>'string','default'=>''],'height'=>['type'=>'string','default'=>'380px'],'mapFilter'=>['type'=>'string','default'=>''],'className'=>['type'=>'string','default'=>'']];
+            case 'menu-option':
+                return [
+                    'title' => ['type' => 'string', 'default' => 'Menu'],
+                    'menuSlug' => ['type' => 'string', 'default' => ''],
+                    'showMenuTitle' => ['type' => 'boolean', 'default' => false],
+                    'className' => ['type' => 'string', 'default' => ''],
+                ];
+            case 'bootstrap-div':
+                return [
+                    'tagName' => ['type' => 'string', 'default' => 'div'],
+                    'maxWidth' => ['type' => 'string', 'default' => ''],
+                    'maxHeight' => ['type' => 'string', 'default' => ''],
+                    'minHeight' => ['type' => 'string', 'default' => ''],
+                    'backgroundColor' => ['type' => 'string', 'default' => ''],
+                    'textColor' => ['type' => 'string', 'default' => ''],
+                    'borderRadius' => ['type' => 'string', 'default' => ''],
+                    'padding' => ['type' => 'string', 'default' => ''],
+                    'margin' => ['type' => 'string', 'default' => ''],
+                    'utilityClasses' => ['type' => 'string', 'default' => ''],
+                    'className' => ['type' => 'string', 'default' => ''],
+                ];
             case 'menu-option':
                 return ['title'=>['type'=>'string','default'=>'Menu Item'],'price'=>['type'=>'string','default'=>''],'text'=>['type'=>'string','default'=>''],'bgColor'=>['type'=>'string','default'=>''],'textColor'=>['type'=>'string','default'=>''],'className'=>['type'=>'string','default'=>'']];
             case 'sitemap':
@@ -1002,6 +1026,29 @@ public function register_assets() {
         $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-mailchimp card']);
         $nameField = $showName ? '<input type="text" class="form-control" name="FNAME" placeholder="Name">' : '';
         return "<div {$wrapper}><div class=\"card-body\"><h3 class=\"card-title\">{$title}</h3><p>{$text}</p><form class=\"wpbb-mailchimp-form\" method=\"post\" action=\"{$action}\" target=\"_blank\"><div class=\"row g-2\"><div class=\"col-12\">{$nameField}</div><div class=\"col-12\"><div class=\"input-group\"><input type=\"email\" class=\"form-control\" name=\"{$fieldName}\" placeholder=\"Email\"><button class=\"btn btn-primary\" type=\"submit\">{$buttonText}</button></div></div></div></form></div></div>";
+    }
+
+
+    public function render_bootstrap_div_block($attributes, $content, $block) {
+        $tag = in_array(($attributes['tagName'] ?? 'div'), ['div','section','article','aside'], true) ? $attributes['tagName'] : 'div';
+        $classes = trim('wpbb-bootstrap-div ' . ($attributes['utilityClasses'] ?? '') . ' ' . ($attributes['className'] ?? ''));
+        $style = '';
+        foreach ([
+            'maxWidth' => 'max-width',
+            'maxHeight' => 'max-height',
+            'minHeight' => 'min-height',
+            'backgroundColor' => 'background',
+            'textColor' => 'color',
+            'borderRadius' => 'border-radius',
+            'padding' => 'padding',
+            'margin' => 'margin'
+        ] as $key => $css) {
+            if (!empty($attributes[$key])) {
+                $style .= $css . ':' . preg_replace('/[^#(),.% 0-9a-zA-Z\-]/', '', (string)$attributes[$key]) . ';';
+            }
+        }
+        $wrapper = get_block_wrapper_attributes(['class' => $classes, 'style' => $style]);
+        return "<{$tag} {$wrapper}>{$content}</{$tag}>";
     }
 
 

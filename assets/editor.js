@@ -493,7 +493,7 @@
     attributes:{ title:{type:'string',default:'CTA Card'}, text:{type:'string',default:'Call to action text'}, buttonText:{type:'string',default:'Learn more'}, buttonUrl:{type:'string',default:'#'}, bgColor:{type:'string',default:''}, textColor:{type:'string',default:''}, schemaEnable:{type:'boolean',default:false}, schemaType:{type:'string',default:'CreativeWork'}, schemaPrice:{type:'string',default:''} },
     edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'CTA Card settings',initialOpen:true},[
       el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}), el(TextControl,{key:'currency',label:'Currency',value:props.attributes.currency||'€',onChange:function(v){props.setAttributes({currency:v});}}),
-      el(TextareaControl,{key:'text',label:'Text',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}}),
+      el(TextControl,{key:'menuSlug',label:'Menu slug or location',help:'Example: primary or main-menu',value:props.attributes.menuSlug||'',onChange:function(v){props.setAttributes({menuSlug:v});}}), el(ToggleControl,{key:'showMenuTitle',label:'Show title',checked:!!props.attributes.showMenuTitle,onChange:function(v){props.setAttributes({showMenuTitle:v});}}),
       el(TextControl,{key:'buttonText',label:'Button text',value:props.attributes.buttonText,onChange:function(v){props.setAttributes({buttonText:v});}}),
       el(TextControl,{key:'buttonUrl',label:'Button URL',value:props.attributes.buttonUrl,onChange:function(v){props.setAttributes({buttonUrl:v});}}),
       colorInput('Background color',props.attributes.bgColor,function(v){props.setAttributes({bgColor:v});},'cta-bg'),
@@ -653,5 +653,29 @@
   registerBlockType('wpbb/fun-fact', { title:'Fun Fact', icon:'star-filled', category:'wpbb', attributes:{ number:{type:'string',default:'100+'}, label:{type:'string',default:'Projects'}, icon:{type:'string',default:'⭐'}, styleVariant:{type:'string',default:'default'} }, edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Fun Fact',initialOpen:true},[ el(TextControl,{key:'num',label:'Number',value:props.attributes.number,onChange:function(v){props.setAttributes({number:v});}}), el(TextControl,{key:'label',label:'Label',value:props.attributes.label,onChange:function(v){props.setAttributes({label:v});}}), el(TextControl,{key:'icon',label:'Icon',value:props.attributes.icon,onChange:function(v){props.setAttributes({icon:v});}}), el(SelectControl,{key:'variant',label:'Style',value:props.attributes.styleVariant||'default',options:[{label:'Default',value:'default'},{label:'Soft',value:'soft'}],onChange:function(v){props.setAttributes({styleVariant:v});}}) ])), el('div',useBlockProps({className:'wpbb-fun-fact'}),label('FUN FACT'),props.attributes.number + ' ' + props.attributes.label)); }, save:function(){ return null; } });
 
   registerBlockType('wpbb/mailchimp', { title:'MailChimp', icon:'email', category:'wpbb', attributes:{ title:{type:'string',default:'Subscribe'}, text:{type:'string',default:'Join our newsletter'}, actionUrl:{type:'string',default:''}, audienceFieldName:{type:'string',default:'EMAIL'}, showNameField:{type:'boolean',default:false}, buttonText:{type:'string',default:'Subscribe'} }, edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'MailChimp',initialOpen:true},[ el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}), el(TextareaControl,{key:'text',label:'Text',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}}), el(TextControl,{key:'action',label:'Action URL',value:props.attributes.actionUrl||'',onChange:function(v){props.setAttributes({actionUrl:v});}}), el(TextControl,{key:'aud',label:'Audience field name',value:props.attributes.audienceFieldName||'EMAIL',onChange:function(v){props.setAttributes({audienceFieldName:v});}}), el(ToggleControl,{key:'showName',label:'Show name field',checked:!!props.attributes.showNameField,onChange:function(v){props.setAttributes({showNameField:v});}}), el(TextControl,{key:'btn',label:'Button text',value:props.attributes.buttonText||'',onChange:function(v){props.setAttributes({buttonText:v});}}) ])), el('div',useBlockProps({className:'wpbb-mailchimp'}),label('MAILCHIMP'),props.attributes.title)); }, save:function(){ return null; } });
+
+  registerBlockType('wpbb/bootstrap-div', {
+    title:'Bootstrap Div', icon:'screenoptions', category:'wpbb',
+    attributes:{ tagName:{type:'string',default:'div'}, maxWidth:{type:'string',default:''}, maxHeight:{type:'string',default:''}, minHeight:{type:'string',default:''}, backgroundColor:{type:'string',default:''}, textColor:{type:'string',default:''}, borderRadius:{type:'string',default:''}, padding:{type:'string',default:''}, margin:{type:'string',default:''}, utilityClasses:{type:'string',default:''} },
+    edit:function(props){
+      var bp = useBlockProps({className:'wpbb-bootstrap-div ' + (props.attributes.utilityClasses||''), style:{maxWidth:props.attributes.maxWidth||undefined,maxHeight:props.attributes.maxHeight||undefined,minHeight:props.attributes.minHeight||undefined,background:props.attributes.backgroundColor||undefined,color:props.attributes.textColor||undefined,borderRadius:props.attributes.borderRadius||undefined,padding:props.attributes.padding||undefined,margin:props.attributes.margin||undefined}});
+      return el(wp.element.Fragment,{}, 
+        el(InspectorControls,{},el(PanelBody,{title:'Bootstrap Div',initialOpen:true},[
+          el(SelectControl,{key:'tag',label:'Tag',value:props.attributes.tagName||'div',options:[{label:'div',value:'div'},{label:'section',value:'section'},{label:'article',value:'article'},{label:'aside',value:'aside'}],onChange:function(v){props.setAttributes({tagName:v});}}),
+          el(TextControl,{key:'mw',label:'Max width',value:props.attributes.maxWidth||'',onChange:function(v){props.setAttributes({maxWidth:v});}}),
+          el(TextControl,{key:'mh',label:'Max height',value:props.attributes.maxHeight||'',onChange:function(v){props.setAttributes({maxHeight:v});}}),
+          el(TextControl,{key:'minh',label:'Min height',value:props.attributes.minHeight||'',onChange:function(v){props.setAttributes({minHeight:v});}}),
+          colorInput('Background',props.attributes.backgroundColor,function(v){props.setAttributes({backgroundColor:v});},'bd-bg'),
+          colorInput('Text color',props.attributes.textColor,function(v){props.setAttributes({textColor:v});},'bd-tx'),
+          el(TextControl,{key:'br',label:'Border radius',value:props.attributes.borderRadius||'',onChange:function(v){props.setAttributes({borderRadius:v});}}),
+          el(TextControl,{key:'pad',label:'Padding',value:props.attributes.padding||'',onChange:function(v){props.setAttributes({padding:v});}}),
+          el(TextControl,{key:'mar',label:'Margin',value:props.attributes.margin||'',onChange:function(v){props.setAttributes({margin:v});}}),
+          el(TextControl,{key:'uc',label:'Additional CSS class(es)',help:'Bootstrap classes like shadow, rounded, text-center, d-flex',value:props.attributes.utilityClasses||'',onChange:function(v){props.setAttributes({utilityClasses:v});}})
+        ])),
+        el('div',bp,label('BOOTSTRAP DIV'), el(InnerBlocks,{allowedBlocks:['core/paragraph','core/heading','wpbb/button','wpbb/cta-card','wpbb/code-display']}))
+      );
+    },
+    save:function(){ return el(InnerBlocks.Content); }
+  });
 
 })(window.wp);

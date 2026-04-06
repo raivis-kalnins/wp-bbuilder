@@ -9,7 +9,7 @@ function wpbb_defaults() {
             'row' => 1,'sitemap' => 1,'soc-follow-block' => 1,'soc-share' => 1,
             'tab-item' => 1,'table' => 1,'tabs' => 1,'video' => 1,'swiper' => 1,
             'weather' => 1,'varda-dienas' => 1,'ajax-search' => 1,'pricecards' => 1,'catalogue' => 1,
-            'code-display' => 1,'countdown-timer' => 1,'chart' => 1,'fun-fact' => 1,'mailchimp' => 1,
+            'code-display' => 1,'countdown-timer' => 1,'chart' => 1,'fun-fact' => 1,'mailchimp' => 1,'bootstrap-div' => 1,
         ],
         'disable_core_group' => 1,'disable_core_columns' => 1,'disable_core_column' => 1,
         'disable_core_table' => 1,'disable_core_embed' => 0,'disable_core_gallery' => 0,
@@ -59,7 +59,7 @@ function wpbb_is_block_enabled($slug) {
     return empty($enabled) || !empty($enabled[$slug]);
 }
 function wpbb_get_blocks_list() {
-    return ['accordion','accordion-item','button','card','cards','column','cta-card','cta-section','dynamic-form','google-map','menu-option','row','sitemap','soc-follow-block','soc-share','tab-item','table','tabs','video','swiper','weather','varda-dienas','ajax-search','pricecards','catalogue','code-display','countdown-timer','chart','fun-fact','mailchimp'];
+    return ['accordion','accordion-item','button','card','cards','column','cta-card','cta-section','dynamic-form','google-map','menu-option','row','sitemap','soc-follow-block','soc-share','tab-item','table','tabs','video','swiper','weather','varda-dienas','ajax-search','pricecards','catalogue','code-display','countdown-timer','chart','fun-fact','mailchimp','bootstrap-div'];
 }
 function wpbb_get_acf_blocks_list() { return ['wpbb-hero','wpbb-gallery']; }
 function wpbb_parse_fields_json($json) {
