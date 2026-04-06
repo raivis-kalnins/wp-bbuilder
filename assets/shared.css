@@ -174,4 +174,68 @@
 .wpbb-social-icon{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:999px;border:1px solid rgba(15,23,42,.08);text-decoration:none;background:linear-gradient(180deg,#ffffff,#f8fafc);box-shadow:0 3px 8px rgba(15,23,42,.08)}
 .wpbb-social-icon__glyph{font-size:11px;font-weight:800;line-height:1;text-transform:lowercase}
 
-.wpbb-social-icon__glyph{font-size:14px !important}
+
+.wpbb-soc-follow,
+.wpbb-soc-share{
+  gap:.5rem;
+  flex-wrap:wrap;
+}
+.wpbb-social-icon{
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+.wpbb-social-icon:hover{
+  transform:translateY(-1px);
+  box-shadow:0 6px 16px rgba(15,23,42,.12);
+}
+.wpbb-soc-follow .btn,
+.wpbb-soc-share .btn{
+  border-radius:999px;
+}
+
+.anim-fade-left{animation:wpbbFadeLeft .45s ease}
+.anim-fade-right{animation:wpbbFadeRight .45s ease}
+@keyframes wpbbFadeLeft{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+@keyframes wpbbFadeRight{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.wpbb-weather-temp{font-size:2rem;font-weight:700}
+.wpbb-varda-dienas-names{font-size:1.1rem;font-weight:600}
+.wpbb-ajax-search-results{display:grid;gap:8px;margin-top:12px}
+.wpbb-ajax-search-item{display:flex;gap:10px;align-items:center;padding:8px;border:1px solid rgba(0,0,0,.08);border-radius:12px;text-decoration:none;color:inherit;background:#fff}
+.wpbb-ajax-search-thumb{width:48px;height:48px;object-fit:cover;border-radius:10px}
+.wpbb-ajax-search-page-btn{margin-top:12px}
+.wpbb-pricecards-price{font-size:2rem;font-weight:700;margin:.5rem 0}
+.wpbb-pricecards--soft .card{background:#f8fafc}
+.wpbb-pricecards--outline .card{border-width:2px}
+.wpbb-code-display{border:1px solid rgba(0,0,0,.08);border-radius:14px;overflow:hidden;background:#0f172a;color:#e5e7eb}
+.wpbb-code-display__head{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;background:#111827}
+.wpbb-code-display__pre{margin:0;padding:1rem;overflow:auto}
+.wpbb-countdown-timer__value{font-size:1.75rem;font-weight:700}
+.wpbb-fun-fact__icon{font-size:2rem}
+.wpbb-fun-fact__number{font-size:2rem;font-weight:700}
+
+.wpbb-ajax-search-excerpt{display:block;color:#64748b;margin-top:4px}
+.wpbb-ajax-search-price{display:block;font-weight:600;margin-top:4px}
+.wpbb-pricecards__featured{border:2px solid #2563eb;transform:translateY(-2px)}
+.wpbb-pricecards-period{font-size:1rem;color:#64748b;margin-left:4px}
+.wpbb-code-display__head strong,.wpbb-code-display code,.wpbb-code-display pre{color:#fff}
+.wpbb-code-display__head .button{min-width:40px}
+.wpbb-chart__canvas{min-height:260px;position:relative}
+
+.wpbb-row{row-gap:10px}
+.wpbb-row > [class*="col-"]{padding-right:calc(var(--bs-gutter-x,1rem)*.5);padding-left:calc(var(--bs-gutter-x,1rem)*.5)}
+.wpbb-row > .col-6,.wpbb-row > .col-md-6,.wpbb-row > .col-lg-6,.wpbb-row > .col-xl-6{flex:0 0 50%;max-width:50%}
+.wpbb-code-editor,.wpbb-code-editor textarea,.wpbb-code-editor-preview textarea{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace !important;background:#fff;color:#111827}
+.wpbb-code-editor-preview{border:1px solid #d1d5db;border-radius:10px;padding:8px;background:#fff}
+.wpbb-weather-note{margin-top:8px;color:#64748b}
+.wpbb-chart__canvas canvas{width:100% !important;height:260px !important}
+.wpbb-sitemap ul{margin:0;padding-left:1.25rem}
+.wpbb-sitemap li{margin-bottom:.35rem}
+.wpbb-social-icon svg{display:block}
+
+.wpbb-scss-build-note{font-size:12px;color:#64748b;margin-top:4px}
+.wpbb-social-icon{padding:0}
+.wpbb-social-icon svg{width:18px;height:18px}
+.wpbb-pricecards__featured{border:2px solid #2563eb;transform:translateY(-2px)}
+.wpbb-pricecards-period{font-size:1rem;color:#64748b;margin-left:4px}
+.wpbb-code-display__head strong,.wpbb-code-display code,.wpbb-code-display pre{color:#fff}
+.wpbb-code-display__head .button{min-width:40px}
+.wpbb-row>[class*="col-"]{padding-left:.5rem;padding-right:.5rem}

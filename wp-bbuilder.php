@@ -53,17 +53,25 @@ WP_BBuilder::instance();
 if (!function_exists('wpbb_render_compiled_css')) {
     function wpbb_render_compiled_css() {
         $css = (string) wpbb_get_option('compiled_css', '');
-        if ($css !== '') echo '<style id="wpbb-compiled-css">' . $css . '</style>';
+        if ($css !== '') {
+            echo "<style id=\"wpbb-compiled-css\">" . $css . "</style>";
+        }
     }
     add_action('wp_head', 'wpbb_render_compiled_css', 99);
+
     function wpbb_render_meta_header_code() {
         $code = (string) wpbb_get_option('meta_header_code', '');
-        if ($code !== '') echo $code;
+        if ($code !== '') {
+            echo $code;
+        }
     }
     add_action('wp_head', 'wpbb_render_meta_header_code', 100);
+
     function wpbb_render_global_footer_code() {
         $code = (string) wpbb_get_option('global_footer_code', '');
-        if ($code !== '') echo $code;
+        if ($code !== '') {
+            echo $code;
+        }
     }
     add_action('wp_footer', 'wpbb_render_global_footer_code', 100);
 }

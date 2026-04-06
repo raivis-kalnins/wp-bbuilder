@@ -66,3 +66,23 @@
 .CodeMirror-gutters{background:#f8fafc !important;border-right:1px solid #e5e7eb !important}
 .CodeMirror-linenumber{color:#64748b !important}
 .CodeMirror-cursor{border-left:1px solid #111827 !important}
+
+
+/* light code editor look */
+.wpbb-code-editor{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.CodeMirror{
+  border:1px solid #d1d5db !important;
+  border-radius:10px;
+  min-height:220px;
+  height:auto;
+  background:#fff !important;
+  color:#111827 !important;
+}
+.CodeMirror-gutters{
+  background:#f8fafc !important;
+  border-right:1px solid #e5e7eb !important;
+}
+.CodeMirror-linenumber{color:#64748b !important}
+.CodeMirror-cursor{border-left:1px solid #111827 !important}
