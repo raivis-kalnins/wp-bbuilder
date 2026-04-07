@@ -15,11 +15,6 @@ require_once plugin_dir_path(__FILE__) . 'includes/helpers.php';
 // Include the optimized Bootstrap loader
 require_once plugin_dir_path(__FILE__) . 'includes/class-bootstrap.php';
 
-// Include the floating admin panel (optional - only if you want it)
-if (is_admin()) {
-    require_once plugin_dir_path(__FILE__) . 'admin/admin-floating.php';
-}
-
 // Include other existing files...
 require_once plugin_dir_path(__FILE__) . 'includes/class-settings.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-blocks.php';
@@ -110,5 +105,25 @@ add_action('wp_enqueue_scripts', function() {
     }
 });
 
-// In wp-bbuilder.php, inside the is_admin() check
-require_once plugin_dir_path(__FILE__) . 'admin/admin-floating.php';
+add_action('admin_enqueue_scripts', 'wp_bbuilder_admin_fonts');
+add_action('enqueue_block_editor_assets', 'wp_bbuilder_editor_fonts');
+
+function wp_bbuilder_admin_fonts() {
+    // Ielādē Font Awesome 6 (vai jūsu izmantoto versiju)
+    wp_enqueue_style(
+        'wp-bbuilder-fontawesome',
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+        [],
+        '6.4.0'
+    );
+}
+
+function wp_bbuilder_editor_fonts() {
+    // Ielādē arī block editorā
+    wp_enqueue_style(
+        'wp-bbuilder-fontawesome-editor',
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+        [],
+        '6.4.0'
+    );
+}
