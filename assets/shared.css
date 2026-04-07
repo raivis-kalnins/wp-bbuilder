@@ -367,3 +367,21 @@
 .wpbb-sitemap__group{margin-top:14px}
 .wpbb-sitemap__label{display:block;margin-bottom:6px}
 .wpbb-bootstrap-div{width:100%}
+
+
+/* v8 frontend fixes */
+.wpbb-row > .row::after{content:"";display:block;clear:both}
+.wpbb-column.d-flex{display:flex}
+.wpbb-button-wrap.w-100,.wpbb-button-wrap .w-100{width:100%}
+.wpbb-pricecards .card{display:block}
+.wpbb-pricecards .card-body{padding:1.25rem}
+.wpbb-pricecards-price{font-size:2rem;font-weight:700;line-height:1.1;margin:.5rem 0 1rem}
+.wpbb-pricecards__featured{border:2px solid var(--bs-primary, #0d6efd)}
+.wpbb-accordion .accordion-button{cursor:pointer}
+.wpbb-table-block table{width:100%}
+.wpbb-table-block .table-responsive{width:100%;overflow:auto}
+
+.wpbb-row > .container,.wpbb-row > .container-sm,.wpbb-row > .container-md,.wpbb-row > .container-lg,.wpbb-row > .container-xl,.wpbb-row > .container-xxl,.wpbb-row > .container-fluid{width:100%}
+.wpbb-row > .row{display:flex;flex-wrap:wrap;width:100%}
+
+.wpbb-row > .container > .row,.wpbb-row > .container-sm > .row,.wpbb-row > .container-md > .row,.wpbb-row > .container-lg > .row,.wpbb-row > .container-xl > .row,.wpbb-row > .container-xxl > .row,.wpbb-row > .container-fluid > .row{display:flex;flex-wrap:wrap;width:100%}

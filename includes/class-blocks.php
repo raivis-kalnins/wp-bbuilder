@@ -16,6 +16,7 @@ final class WPBB_Blocks {
         add_filter('block_categories_all', [$this, 'register_category'], 10, 1);
         add_filter('allowed_block_types_all', [$this, 'filter_allowed_blocks'], 20, 2);
         add_action('enqueue_block_assets', [$this, 'enqueue_frontend_assets']);
+        add_action('enqueue_block_editor_assets', [$this, 'enqueue_block_editor_code_assets']);
         add_action('wp_ajax_wpbb_ajax_search', [$this, 'ajax_search']);
         add_action('wp_ajax_nopriv_wpbb_ajax_search', [$this, 'ajax_search']);
     }
@@ -52,45 +53,144 @@ final class WPBB_Blocks {
     private function wpbb_compile_scoped_scss($selector, $scss) {
         $scss = trim((string) $scss);
         if ($scss === '') return '';
+
         $scss = preg_replace('!/\*.*?\*/!s', '', $scss);
-        if (strpos($scss, '{') === false) return $selector . '{' . $scss . '}';
-        $result = '';
-        if (preg_match_all('/([^{}]+)\{((?:[^{}]|\{[^{}]*\})*)\}/s', $scss, $blocks, PREG_SET_ORDER)) {
-            foreach ($blocks as $block) {
-                $parent = trim($block[1]);
-                $body = trim($block[2]);
-                $fullParent = strpos($parent, '&') !== false ? str_replace('&', $selector, $parent) : $selector . ' ' . $parent;
-                if (preg_match_all('/([^{}]+)\{([^{}]*)\}/s', $body, $children, PREG_SET_ORDER)) {
-                    foreach ($children as $child) {
-                        $childSel = trim($child[1]);
-                        $childBody = trim($child[2]);
-                        $finalSel = strpos($childSel, '&') !== false ? str_replace('&', $fullParent, $childSel) : $fullParent . ' ' . $childSel;
-                        $result .= $finalSel . '{' . $childBody . '}';
-                    }
-                    $plain = trim(preg_replace('/([^{}]+)\{([^{}]*)\}/s', '', $body));
-                    if ($plain !== '') $result .= $fullParent . '{' . $plain . '}';
-                } else {
-                    $result .= $fullParent . '{' . $body . '}';
-                }
+
+        $vars = [];
+        if (preg_match_all('/\$([a-zA-Z0-9_-]+)\s*:\s*([^;]+);/', $scss, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $row) {
+                $vars[$row[1]] = trim($row[2]);
             }
         }
+        $scss = preg_replace('/\$[a-zA-Z0-9_-]+\s*:\s*[^;]+;/', '', $scss);
+        foreach ($vars as $name => $value) {
+            $scss = preg_replace('/\$' . preg_quote($name, '/') . '\b/', $value, $scss);
+        }
+
+        if (strpos($scss, '{') === false) return $selector . '{' . $scss . '}';
+
+        $flatten = function ($source, $parent = '') use (&$flatten) {
+            $css = '';
+            $len = strlen($source);
+            $i = 0;
+
+            while ($i < $len) {
+                while ($i < $len && ctype_space($source[$i])) $i++;
+                if ($i >= $len) break;
+
+                $selStart = $i;
+                while ($i < $len && $source[$i] !== '{' && $source[$i] !== '}') $i++;
+                if ($i >= $len || $source[$i] === '}') break;
+
+                $selectorText = trim(substr($source, $selStart, $i - $selStart));
+                $i++;
+
+                $depth = 1;
+                $bodyStart = $i;
+                while ($i < $len && $depth > 0) {
+                    if ($source[$i] === '{') $depth++;
+                    if ($source[$i] === '}') $depth--;
+                    $i++;
+                }
+                $body = trim(substr($source, $bodyStart, max(0, $i - $bodyStart - 1)));
+                if ($selectorText === '') continue;
+
+                $fullSelector = $parent
+                    ? (strpos($selectorText, '&') !== false ? str_replace('&', $parent, $selectorText) : trim($parent . ' ' . $selectorText))
+                    : (strpos($selectorText, '&') !== false ? str_replace('&', $selector, $selectorText) : trim($selector . ' ' . $selectorText));
+
+                $plain = preg_replace('/[^{}]+\{(?:[^{}]|\{[^{}]*\})*\}/', '', $body);
+                $plain = trim((string) $plain);
+                if ($plain !== '') {
+                    $plain = preg_replace('/\s*;\s*/', ';', $plain);
+                    $plain = preg_replace('/\s*:\s*/', ':', $plain);
+                    $css .= $fullSelector . '{' . trim($plain, '; ') . '}';
+                }
+
+                if (strpos($body, '{') !== false) {
+                    $css .= $flatten($body, $fullSelector);
+                }
+            }
+
+            return $css;
+        };
+
+        $result = $flatten($scss, '');
         return $result ?: $selector . '{' . $scss . '}';
     }
 
 
+    private function wpbb_responsive_spacing_attributes() {
+        $attributes = [];
+        foreach (['padding', 'margin'] as $prefix) {
+            foreach (['Default', 'Sm', 'Md', 'Lg', 'Xl', 'Xxl'] as $bp) {
+                foreach (['Top', 'Right', 'Bottom', 'Left'] as $side) {
+                    $attributes[$prefix . $bp . $side] = ['type' => 'string', 'default' => ''];
+                }
+            }
+        }
+        return $attributes;
+    }
+
+    private function wpbb_sanitize_css_value($value) {
+        return trim(preg_replace('/[^#(),.% 0-9a-zA-Z\-\+*\/:_]/', '', (string) $value));
+    }
+
+    private function wpbb_build_responsive_spacing_css($attributes, $selector) {
+        $breakpoints = [
+            'Default' => '',
+            'Sm' => '576px',
+            'Md' => '768px',
+            'Lg' => '992px',
+            'Xl' => '1200px',
+            'Xxl' => '1400px',
+        ];
+        $css = '';
+        foreach ($breakpoints as $bp => $minWidth) {
+            $rules = '';
+            foreach (['padding', 'margin'] as $prefix) {
+                foreach (['Top', 'Right', 'Bottom', 'Left'] as $side) {
+                    $key = $prefix . $bp . $side;
+                    if (empty($attributes[$key])) continue;
+                    $value = $this->wpbb_sanitize_css_value($attributes[$key]);
+                    if ($value === '') continue;
+                    $rules .= $prefix . '-' . strtolower($side) . ':' . $value . ';';
+                }
+            }
+            if ($rules === '') continue;
+            if ($bp === 'Default') {
+                $css .= $selector . '{' . $rules . '}';
+            } else {
+                $css .= '@media (min-width:' . $minWidth . '){' . $selector . '{' . $rules . '}}';
+            }
+        }
+        return $css;
+    }
+
+    private function wpbb_class_tokens_from_value($value) {
+        $tokens = preg_split('/\s+/', trim((string) $value));
+        $classes = [];
+        foreach ($tokens as $token) {
+            $token = sanitize_html_class($token);
+            if ($token !== '') $classes[] = $token;
+        }
+        return $classes;
+    }
+
     private function wpbb_build_spacing_inline($attributes) {
         $style = '';
         $pairs = [
-            ['paddingTop','paddingTopUnit','padding-top'],
-            ['paddingRight','paddingRightUnit','padding-right'],
-            ['paddingBottom','paddingBottomUnit','padding-bottom'],
-            ['paddingLeft','paddingLeftUnit','padding-left'],
-            ['marginTop','marginTopUnit','margin-top'],
-            ['marginRight','marginRightUnit','margin-right'],
-            ['marginBottom','marginBottomUnit','margin-bottom'],
-            ['marginLeft','marginLeftUnit','margin-left'],
+            ['paddingTop','paddingTopUnit','padding-top','paddingDefaultTop'],
+            ['paddingRight','paddingRightUnit','padding-right','paddingDefaultRight'],
+            ['paddingBottom','paddingBottomUnit','padding-bottom','paddingDefaultBottom'],
+            ['paddingLeft','paddingLeftUnit','padding-left','paddingDefaultLeft'],
+            ['marginTop','marginTopUnit','margin-top','marginDefaultTop'],
+            ['marginRight','marginRightUnit','margin-right','marginDefaultRight'],
+            ['marginBottom','marginBottomUnit','margin-bottom','marginDefaultBottom'],
+            ['marginLeft','marginLeftUnit','margin-left','marginDefaultLeft'],
         ];
         foreach ($pairs as $pair) {
+            if (!empty($attributes[$pair[3]])) continue;
             $num = isset($attributes[$pair[0]]) ? $attributes[$pair[0]] : null;
             $unit = isset($attributes[$pair[1]]) ? $attributes[$pair[1]] : 'px';
             if ($num !== null && $num !== '' && is_numeric($num) && floatval($num) != 0.0) {
@@ -98,6 +198,23 @@ final class WPBB_Blocks {
             }
         }
         return $style;
+    }
+
+
+    public function enqueue_block_editor_code_assets() {
+        $scss_settings = wp_enqueue_code_editor(['type' => 'text/x-scss']);
+        wp_enqueue_script('wp-theme-plugin-editor');
+        wp_enqueue_style('wp-codemirror');
+        wp_enqueue_script('wpbb-editor-enhancer');
+        if (wpbb_get_option('load_bootstrap_css', 1)) {
+            wp_enqueue_style('wpbb-bootstrap-editor', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css', [], '5.3.3');
+        }
+        if (wpbb_get_option('load_bootstrap_js', 0)) {
+            wp_enqueue_script('wpbb-bootstrap-editor', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js', [], '5.3.3', true);
+        }
+        wp_localize_script('wpbb-editor-enhancer', 'wpbbEditorEnhancer', [
+            'scss' => $scss_settings,
+        ]);
     }
 
 public function register_assets() {
@@ -181,6 +298,12 @@ public function register_assets() {
                 $args['render_callback'] = [$this, 'render_mailchimp_block'];
             } elseif ($slug === 'bootstrap-div') {
                 $args['render_callback'] = [$this, 'render_bootstrap_div_block'];
+            } elseif ($slug === 'button') {
+                $args['render_callback'] = [$this, 'render_button_block'];
+            } elseif ($slug === 'accordion') {
+                $args['render_callback'] = [$this, 'render_accordion_block'];
+            } elseif ($slug === 'accordion-item') {
+                $args['render_callback'] = [$this, 'render_accordion_item_block'];
             } elseif ($slug === 'row') {
                 $args['render_callback'] = [$this, 'render_row_block'];
             } elseif ($slug === 'column') {
@@ -223,7 +346,7 @@ public function register_assets() {
     private function attributes_for($slug) {
         switch ($slug) {
             case 'row':
-                return [
+                return array_merge([
                     'gutterX' => ['type' => 'string', 'default' => 'gx-3'],
                     'gutterY' => ['type' => 'string', 'default' => 'gy-3'],
                     'align' => ['type' => 'string', 'default' => ''],
@@ -235,7 +358,10 @@ public function register_assets() {
                     'textUtilityClass' => ['type' => 'string', 'default' => ''],
                     'roundedClass' => ['type' => 'string', 'default' => ''],
                     'shadowClass' => ['type' => 'string', 'default' => ''],
-                    'bootstrapClasses' => ['type' => 'string', 'default' => ''],'spacingSm' => ['type' => 'string', 'default' => ''],'spacingMd' => ['type' => 'string', 'default' => ''],'spacingLg' => ['type' => 'string', 'default' => ''],'spacingXl' => ['type' => 'string', 'default' => ''],'spacingXxl' => ['type' => 'string', 'default' => ''],'paddingSm' => ['type' => 'string', 'default' => ''],'paddingMd' => ['type' => 'string', 'default' => ''],'paddingLg' => ['type' => 'string', 'default' => ''],'paddingXl' => ['type' => 'string', 'default' => ''],'paddingXxl' => ['type' => 'string', 'default' => ''],'marginSm' => ['type' => 'string', 'default' => ''],'marginMd' => ['type' => 'string', 'default' => ''],'marginLg' => ['type' => 'string', 'default' => ''],'marginXl' => ['type' => 'string', 'default' => ''],'marginXxl' => ['type' => 'string', 'default' => ''],'uniqueId' => ['type' => 'string', 'default' => ''],'customCss' => ['type' => 'string', 'default' => ''],'customScss' => ['type' => 'string', 'default' => ''],
+                    'bootstrapClasses' => ['type' => 'string', 'default' => ''],
+                    'customClasses' => ['type' => 'string', 'default' => ''],
+                    'utilityClasses' => ['type' => 'string', 'default' => ''],
+                    'spacingSm' => ['type' => 'string', 'default' => ''],'spacingMd' => ['type' => 'string', 'default' => ''],'spacingLg' => ['type' => 'string', 'default' => ''],'spacingXl' => ['type' => 'string', 'default' => ''],'spacingXxl' => ['type' => 'string', 'default' => ''],'paddingSm' => ['type' => 'string', 'default' => ''],'paddingMd' => ['type' => 'string', 'default' => ''],'paddingLg' => ['type' => 'string', 'default' => ''],'paddingXl' => ['type' => 'string', 'default' => ''],'paddingXxl' => ['type' => 'string', 'default' => ''],'marginSm' => ['type' => 'string', 'default' => ''],'marginMd' => ['type' => 'string', 'default' => ''],'marginLg' => ['type' => 'string', 'default' => ''],'marginXl' => ['type' => 'string', 'default' => ''],'marginXxl' => ['type' => 'string', 'default' => ''],'uniqueId' => ['type' => 'string', 'default' => ''],'customCss' => ['type' => 'string', 'default' => ''],'customScss' => ['type' => 'string', 'default' => ''],
                     'paddingTop' => ['type' => 'number', 'default' => 0],
                     'paddingTopUnit' => ['type' => 'string', 'default' => 'px'],
                     'paddingRight' => ['type' => 'number', 'default' => 0],
@@ -256,9 +382,18 @@ public function register_assets() {
                     'textColor' => ['type' => 'string', 'default' => ''],
                     'customStyle' => ['type' => 'string', 'default' => ''],
                     'className' => ['type' => 'string', 'default' => ''],
-                ];
+                    'maxWidth' => ['type' => 'string', 'default' => ''],
+                    'maxWidthUnit' => ['type' => 'string', 'default' => 'px'],
+                    'containerClass' => ['type' => 'string', 'default' => ''],
+                    'visibilityClass' => ['type' => 'string', 'default' => ''],
+                    'visibilityXs' => ['type' => 'boolean', 'default' => true],
+                    'visibilitySm' => ['type' => 'boolean', 'default' => true],
+                    'visibilityMd' => ['type' => 'boolean', 'default' => true],
+                    'visibilityLg' => ['type' => 'boolean', 'default' => true],
+                    'visibilityXl' => ['type' => 'boolean', 'default' => true],
+                ], $this->wpbb_responsive_spacing_attributes());
             case 'column':
-                return [
+                return array_merge([
                     'xs' => ['type' => 'number', 'default' => 12],
                     'sm' => ['type' => 'number', 'default' => 0],
                     'md' => ['type' => 'number', 'default' => 6],
@@ -268,37 +403,39 @@ public function register_assets() {
                     'uniqueId' => ['type' => 'string', 'default' => ''],
                     'customCss' => ['type' => 'string', 'default' => ''],
                     'customScss' => ['type' => 'string', 'default' => ''],
-                    'orderClass' => ['type' => 'string', 'default' => ''],'visibilityClass' => ['type' => 'string', 'default' => ''],'visibilityXs' => ['type' => 'boolean', 'default' => true],'visibilitySm' => ['type' => 'boolean', 'default' => true],'visibilityMd' => ['type' => 'boolean', 'default' => true],'visibilityLg' => ['type' => 'boolean', 'default' => true],'visibilityXl' => ['type' => 'boolean', 'default' => true],'animationClass' => ['type' => 'string', 'default' => ''],'paddingTop' => ['type' => 'number', 'default' => 0],'paddingTopUnit' => ['type' => 'string', 'default' => 'px'],'paddingRight' => ['type' => 'number', 'default' => 0],'paddingRightUnit' => ['type' => 'string', 'default' => 'px'],'paddingBottom' => ['type' => 'number', 'default' => 0],'paddingBottomUnit' => ['type' => 'string', 'default' => 'px'],'paddingLeft' => ['type' => 'number', 'default' => 0],'paddingLeftUnit' => ['type' => 'string', 'default' => 'px'],'marginTop' => ['type' => 'number', 'default' => 0],'marginTopUnit' => ['type' => 'string', 'default' => 'px'],'marginRight' => ['type' => 'number', 'default' => 0],'marginRightUnit' => ['type' => 'string', 'default' => 'px'],'marginBottom' => ['type' => 'number', 'default' => 0],'marginBottomUnit' => ['type' => 'string', 'default' => 'px'],'marginLeft' => ['type' => 'number', 'default' => 0],'marginLeftUnit' => ['type' => 'string', 'default' => 'px'],
+                    'orderClass' => ['type' => 'string', 'default' => ''],
+                    'verticalAlign' => ['type' => 'string', 'default' => ''],
+                    'horizontalAlign' => ['type' => 'string', 'default' => ''],
+                    'visibilityClass' => ['type' => 'string', 'default' => ''],
+                    'visibilityXs' => ['type' => 'boolean', 'default' => true],
+                    'visibilitySm' => ['type' => 'boolean', 'default' => true],
+                    'visibilityMd' => ['type' => 'boolean', 'default' => true],
+                    'visibilityLg' => ['type' => 'boolean', 'default' => true],
+                    'visibilityXl' => ['type' => 'boolean', 'default' => true],
+                    'animationClass' => ['type' => 'string', 'default' => ''],
+                    'paddingTop' => ['type' => 'number', 'default' => 0], 'paddingTopUnit' => ['type' => 'string', 'default' => 'px'],
+                    'paddingRight' => ['type' => 'number', 'default' => 0], 'paddingRightUnit' => ['type' => 'string', 'default' => 'px'],
+                    'paddingBottom' => ['type' => 'number', 'default' => 0], 'paddingBottomUnit' => ['type' => 'string', 'default' => 'px'],
+                    'paddingLeft' => ['type' => 'number', 'default' => 0], 'paddingLeftUnit' => ['type' => 'string', 'default' => 'px'],
+                    'marginTop' => ['type' => 'number', 'default' => 0], 'marginTopUnit' => ['type' => 'string', 'default' => 'px'],
+                    'marginRight' => ['type' => 'number', 'default' => 0], 'marginRightUnit' => ['type' => 'string', 'default' => 'px'],
+                    'marginBottom' => ['type' => 'number', 'default' => 0], 'marginBottomUnit' => ['type' => 'string', 'default' => 'px'],
+                    'marginLeft' => ['type' => 'number', 'default' => 0], 'marginLeftUnit' => ['type' => 'string', 'default' => 'px'],
                     'paddingClass' => ['type' => 'string', 'default' => ''],
                     'marginClass' => ['type' => 'string', 'default' => ''],
                     'backgroundClass' => ['type' => 'string', 'default' => ''],
-                    'animationClass' => ['type' => 'string', 'default' => ''],
                     'displayClass' => ['type' => 'string', 'default' => ''],
                     'textUtilityClass' => ['type' => 'string', 'default' => ''],
                     'roundedClass' => ['type' => 'string', 'default' => ''],
                     'shadowClass' => ['type' => 'string', 'default' => ''],
                     'bootstrapClasses' => ['type' => 'string', 'default' => ''],
-                    'paddingTop' => ['type' => 'number', 'default' => 0],
-                    'paddingTopUnit' => ['type' => 'string', 'default' => 'px'],
-                    'paddingRight' => ['type' => 'number', 'default' => 0],
-                    'paddingRightUnit' => ['type' => 'string', 'default' => 'px'],
-                    'paddingBottom' => ['type' => 'number', 'default' => 0],
-                    'paddingBottomUnit' => ['type' => 'string', 'default' => 'px'],
-                    'paddingLeft' => ['type' => 'number', 'default' => 0],
-                    'paddingLeftUnit' => ['type' => 'string', 'default' => 'px'],
-                    'marginTop' => ['type' => 'number', 'default' => 0],
-                    'marginTopUnit' => ['type' => 'string', 'default' => 'px'],
-                    'marginRight' => ['type' => 'number', 'default' => 0],
-                    'marginRightUnit' => ['type' => 'string', 'default' => 'px'],
-                    'marginBottom' => ['type' => 'number', 'default' => 0],
-                    'marginBottomUnit' => ['type' => 'string', 'default' => 'px'],
-                    'marginLeft' => ['type' => 'number', 'default' => 0],
-                    'marginLeftUnit' => ['type' => 'string', 'default' => 'px'],
+                    'customClasses' => ['type' => 'string', 'default' => ''],
+                    'utilityClasses' => ['type' => 'string', 'default' => ''],
                     'backgroundColor' => ['type' => 'string', 'default' => ''],
                     'textColor' => ['type' => 'string', 'default' => ''],
                     'customStyle' => ['type' => 'string', 'default' => ''],
                     'className' => ['type' => 'string', 'default' => ''],
-                ];
+                ], $this->wpbb_responsive_spacing_attributes());
             case 'button':
                 return [
                     'text' => ['type' => 'string', 'default' => 'Button'],
@@ -309,6 +446,8 @@ public function register_assets() {
                     'fullWidth' => ['type' => 'boolean', 'default' => false],
                     'backgroundColor' => ['type' => 'string', 'default' => ''],
                     'textColor' => ['type' => 'string', 'default' => ''],
+                    'align' => ['type' => 'string', 'default' => ''],
+                    'borderRadius' => ['type' => 'string', 'default' => '12px'],
                 ];
             case 'cards':
                 return [
@@ -425,15 +564,28 @@ public function register_assets() {
                     'className' => ['type' => 'string', 'default' => ''],
                 ];
             case 'cta-card':
-                $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('CTA Card', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'h3'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'h3';
+                $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('CTA Card', 'wp-bbuilder')));
+                $titleTag = in_array(($attributes['titleTag'] ?? 'h3'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'h3';
                 $text = esc_html($attributes['text'] ?? '');
                 $buttonText = esc_html($attributes['buttonText'] ?? __('Learn more', 'wp-bbuilder'));
                 $buttonUrl = esc_url($attributes['buttonUrl'] ?? '#');
                 $schemaType = !empty($attributes['schemaType']) ? sanitize_html_class($attributes['schemaType']) : 'CreativeWork';
-                $schemaAttr = !empty($attributes['schemaEnable']) ? ' itemscope itemtype="https://schema.org/' . esc_attr($schemaType) . '"' : '';
-                $schemaPrice = !empty($attributes['schemaPrice']) ? '<meta itemprop="price" content="' . esc_attr($attributes['schemaPrice']) . '">' : '';
+                $schemaEnabled = !empty($attributes['schemaEnable']);
+                $schemaAttr = $schemaEnabled ? ' itemscope itemtype="https://schema.org/' . esc_attr($schemaType) . '"' : '';
+                $currency = esc_html($attributes['currency'] ?? '€');
+                $schemaPrice = '';
+                if ($schemaEnabled && $schemaType === 'Product' && !empty($attributes['schemaPrice'])) {
+                    $price = esc_attr($attributes['schemaPrice']);
+                    $schemaPrice = '<meta itemprop="priceCurrency" content="' . esc_attr($currency) . '"><meta itemprop="price" content="' . $price . '"><div class="wpbb-cta-card-price"><span class="wpbb-cta-card-currency">' . $currency . '</span>' . $price . '</div>';
+                }
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-cta-card card h-100' . $extra]);
-                $style = ""; if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";"; if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";"; if (!empty($attributes["borderRadius"])) $style .= "border-radius:" . preg_replace('/[^0-9.%a-zA-Z-]/', "", (string)$attributes["borderRadius"]) . ";"; return "<div {$wrapper}{$schemaAttr} style=\"" . esc_attr($style) . "\"><div class=\"card-body\">{$schemaPrice}<{$titleTag} class=\"card-title {$titleTag}\">{$title}</{$titleTag}><p class=\"card-text\">{$text}</p><a class=\"btn btn-primary\" href=\"{$buttonUrl}\">{$buttonText}</a></div></div>";
+                $style = "";
+                if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";";
+                if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";";
+                if (!empty($attributes["borderRadius"])) $style .= "border-radius:" . preg_replace('/[^0-9.%a-zA-Z-]/', "", (string)$attributes["borderRadius"]) . ";";
+                $titleItemprop = $schemaEnabled ? ' itemprop="name"' : '';
+                $descItemprop = $schemaEnabled ? ' itemprop="description"' : '';
+                return '<div ' . $wrapper . $schemaAttr . ' style="' . esc_attr($style) . '"><div class="card-body">' . $schemaPrice . '<' . $titleTag . ' class="card-title ' . $titleTag . '"' . $titleItemprop . '>' . $title . '</' . $titleTag . '><p class="card-text"' . $descItemprop . '>' . $text . '</p><a class="btn btn-primary" href="' . $buttonUrl . '">' . $buttonText . '</a></div></div>';
 
             case 'cta-section':
                 $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('CTA Section', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'h2'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? $attributes['titleTag'] : 'h2';
@@ -525,22 +677,52 @@ public function register_assets() {
 
 
             case 'row':
-                $classes = ['row', 'wpbb-row'];
-                foreach (['gutterX','gutterY','paddingClass','marginClass','backgroundClass','animationClass','displayClass','textUtilityClass','roundedClass','shadowClass','bootstrapClasses','utilityClasses','visibilityClass','className'] as $k) {
-                    if (!empty($attributes[$k])) $classes[] = $attributes[$k];
-                }
-                if (!empty($attributes['align'])) $classes[] = 'justify-content-' . sanitize_html_class($attributes['align']);
-                $uid = !empty($attributes['uniqueId']) ? sanitize_html_class($attributes['uniqueId']) : sanitize_html_class('wpbb-row-' . wp_unique_id());
-                $style = $this->wpbb_build_spacing_inline($attributes);
-                if (!empty($attributes['backgroundColor'])) $style .= 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';';
-                if (!empty($attributes['textColor'])) $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['textColor']) . ';';
-                if (!empty($attributes['maxWidth'])) $style .= 'max-width:' . preg_replace('/[^0-9.%a-zA-Z-]/', '', (string)$attributes['maxWidth']) . ';margin-left:auto;margin-right:auto;';
-                if (!empty($attributes['customStyle'])) $style .= (string)$attributes['customStyle'];
-                $cssTag = !empty($attributes['customCss']) ? '<style>#' . $uid . '{' . wp_strip_all_tags((string)$attributes['customCss']) . '}</style>' : '';
-                $scssTag = !empty($attributes['customScss']) ? '<style>' . $this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss']) . '</style>' : '';
-                $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_filter($classes)) . $extra, 'style' => $style, 'id' => $uid]);
-                return "{$cssTag}{$scssTag}<div {$wrapper}>{$content}</div>";
-
+                return array_merge([
+                    'gutterX' => ['type' => 'string', 'default' => 'gx-3'],
+                    'gutterY' => ['type' => 'string', 'default' => 'gy-3'],
+                    'align' => ['type' => 'string', 'default' => ''],
+                    'paddingClass' => ['type' => 'string', 'default' => ''],
+                    'marginClass' => ['type' => 'string', 'default' => ''],
+                    'backgroundClass' => ['type' => 'string', 'default' => ''],
+                    'animationClass' => ['type' => 'string', 'default' => ''],
+                    'displayClass' => ['type' => 'string', 'default' => ''],
+                    'textUtilityClass' => ['type' => 'string', 'default' => ''],
+                    'roundedClass' => ['type' => 'string', 'default' => ''],
+                    'shadowClass' => ['type' => 'string', 'default' => ''],
+                    'bootstrapClasses' => ['type' => 'string', 'default' => ''],
+                    'customClasses' => ['type' => 'string', 'default' => ''],
+                    'utilityClasses' => ['type' => 'string', 'default' => ''],
+                    'spacingSm' => ['type' => 'string', 'default' => ''],'spacingMd' => ['type' => 'string', 'default' => ''],'spacingLg' => ['type' => 'string', 'default' => ''],'spacingXl' => ['type' => 'string', 'default' => ''],'spacingXxl' => ['type' => 'string', 'default' => ''],'paddingSm' => ['type' => 'string', 'default' => ''],'paddingMd' => ['type' => 'string', 'default' => ''],'paddingLg' => ['type' => 'string', 'default' => ''],'paddingXl' => ['type' => 'string', 'default' => ''],'paddingXxl' => ['type' => 'string', 'default' => ''],'marginSm' => ['type' => 'string', 'default' => ''],'marginMd' => ['type' => 'string', 'default' => ''],'marginLg' => ['type' => 'string', 'default' => ''],'marginXl' => ['type' => 'string', 'default' => ''],'marginXxl' => ['type' => 'string', 'default' => ''],'uniqueId' => ['type' => 'string', 'default' => ''],'customCss' => ['type' => 'string', 'default' => ''],'customScss' => ['type' => 'string', 'default' => ''],
+                    'paddingTop' => ['type' => 'number', 'default' => 0],
+                    'paddingTopUnit' => ['type' => 'string', 'default' => 'px'],
+                    'paddingRight' => ['type' => 'number', 'default' => 0],
+                    'paddingRightUnit' => ['type' => 'string', 'default' => 'px'],
+                    'paddingBottom' => ['type' => 'number', 'default' => 0],
+                    'paddingBottomUnit' => ['type' => 'string', 'default' => 'px'],
+                    'paddingLeft' => ['type' => 'number', 'default' => 0],
+                    'paddingLeftUnit' => ['type' => 'string', 'default' => 'px'],
+                    'marginTop' => ['type' => 'number', 'default' => 0],
+                    'marginTopUnit' => ['type' => 'string', 'default' => 'px'],
+                    'marginRight' => ['type' => 'number', 'default' => 0],
+                    'marginRightUnit' => ['type' => 'string', 'default' => 'px'],
+                    'marginBottom' => ['type' => 'number', 'default' => 0],
+                    'marginBottomUnit' => ['type' => 'string', 'default' => 'px'],
+                    'marginLeft' => ['type' => 'number', 'default' => 0],
+                    'marginLeftUnit' => ['type' => 'string', 'default' => 'px'],
+                    'backgroundColor' => ['type' => 'string', 'default' => ''],
+                    'textColor' => ['type' => 'string', 'default' => ''],
+                    'customStyle' => ['type' => 'string', 'default' => ''],
+                    'className' => ['type' => 'string', 'default' => ''],
+                    'maxWidth' => ['type' => 'string', 'default' => ''],
+                    'maxWidthUnit' => ['type' => 'string', 'default' => 'px'],
+                    'containerClass' => ['type' => 'string', 'default' => ''],
+                    'visibilityClass' => ['type' => 'string', 'default' => ''],
+                    'visibilityXs' => ['type' => 'boolean', 'default' => true],
+                    'visibilitySm' => ['type' => 'boolean', 'default' => true],
+                    'visibilityMd' => ['type' => 'boolean', 'default' => true],
+                    'visibilityLg' => ['type' => 'boolean', 'default' => true],
+                    'visibilityXl' => ['type' => 'boolean', 'default' => true],
+                ], $this->wpbb_responsive_spacing_attributes());
             case 'column':
                 $classes = ['wpbb-column'];
                 $bpMap = ['xs'=>'col','sm'=>'col-sm','md'=>'col-md','lg'=>'col-lg','xl'=>'col-xl','xxl'=>'col-xxl'];
@@ -627,6 +809,7 @@ public function register_assets() {
                 return [
                     'tagName' => ['type' => 'string', 'default' => 'div'],
                     'maxWidth' => ['type' => 'string', 'default' => ''],
+                    'maxWidthUnit' => ['type' => 'string', 'default' => 'px'],
                     'maxHeight' => ['type' => 'string', 'default' => ''],
                     'minHeight' => ['type' => 'string', 'default' => ''],
                     'backgroundColor' => ['type' => 'string', 'default' => ''],
@@ -1044,7 +1227,22 @@ public function register_assets() {
             wp_enqueue_style('wpbb-shared');
         }
         if (wpbb_get_option('load_bootstrap_css', 1)) {
-            wp_enqueue_style('wpbb-bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css', [], '5.3.3');
+            $bootstrap_mode = wpbb_get_option('bootstrap_css_mode', 'full');
+            $bootstrap_version = '5.3.3';
+            if ($bootstrap_mode === 'custom') {
+                $css_parts = (array) wpbb_get_option('bootstrap_css_components', ['reboot','grid','utilities']);
+                if (in_array('reboot', $css_parts, true)) {
+                    wp_enqueue_style('wpbb-bootstrap-reboot', 'https://cdn.jsdelivr.net/npm/bootstrap@' . $bootstrap_version . '/dist/css/bootstrap-reboot.min.css', [], $bootstrap_version);
+                }
+                if (in_array('grid', $css_parts, true)) {
+                    wp_enqueue_style('wpbb-bootstrap-grid', 'https://cdn.jsdelivr.net/npm/bootstrap@' . $bootstrap_version . '/dist/css/bootstrap-grid.min.css', [], $bootstrap_version);
+                }
+                if (in_array('utilities', $css_parts, true)) {
+                    wp_enqueue_style('wpbb-bootstrap-utilities', 'https://cdn.jsdelivr.net/npm/bootstrap@' . $bootstrap_version . '/dist/css/bootstrap-utilities.min.css', [], $bootstrap_version);
+                }
+            } else {
+                wp_enqueue_style('wpbb-bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@' . $bootstrap_version . '/dist/css/bootstrap.min.css', [], $bootstrap_version);
+            }
         }
         wp_enqueue_style('wpbb-datatables', 'https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css', [], '2.0.8');
         wp_enqueue_script('wpbb-datatables', 'https://cdn.datatables.net/2.0.8/js/dataTables.js', [], '2.0.8', true);
@@ -1310,15 +1508,17 @@ public function register_assets() {
     private function wpbb_collect_spacing_classes($attributes) {
         $classes = [];
         foreach (['spacingSm','spacingMd','spacingLg','spacingXl','spacingXxl','paddingSm','paddingMd','paddingLg','paddingXl','paddingXxl','marginSm','marginMd','marginLg','marginXl','marginXxl'] as $k) {
-            if (!empty($attributes[$k])) $classes[] = sanitize_text_field((string)$attributes[$k]);
+            if (empty($attributes[$k])) continue;
+            $classes = array_merge($classes, $this->wpbb_class_tokens_from_value($attributes[$k]));
         }
-        return $classes;
+        return array_values(array_unique($classes));
     }
 
     public function render_row_block($attributes, $content, $block) {
         $classes = ['row', 'wpbb-row'];
-        foreach (['gutterX','gutterY','paddingClass','marginClass','backgroundClass','animationClass','displayClass','textUtilityClass','roundedClass','shadowClass','bootstrapClasses','utilityClasses','visibilityClass','className'] as $k) {
-            if (!empty($attributes[$k])) $classes[] = sanitize_text_field((string)$attributes[$k]);
+        foreach (['gutterX','gutterY','paddingClass','marginClass','backgroundClass','animationClass','displayClass','textUtilityClass','roundedClass','shadowClass','bootstrapClasses','utilityClasses','customClasses','visibilityClass','className'] as $k) {
+            if (empty($attributes[$k])) continue;
+            $classes = array_merge($classes, $this->wpbb_class_tokens_from_value($attributes[$k]));
         }
         $classes = array_merge($classes, $this->wpbb_collect_spacing_classes($attributes));
         if (!empty($attributes['align'])) $classes[] = 'justify-content-' . sanitize_html_class((string)$attributes['align']);
@@ -1326,12 +1526,18 @@ public function register_assets() {
         $style = $this->wpbb_build_spacing_inline($attributes);
         if (!empty($attributes['backgroundColor'])) $style .= 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';';
         if (!empty($attributes['textColor'])) $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['textColor']) . ';';
-        if (!empty($attributes['maxWidth'])) $style .= 'max-width:' . preg_replace('/[^0-9.%a-zA-Z-]/', '', (string)$attributes['maxWidth']) . ';margin-left:auto;margin-right:auto;';
+        if (!empty($attributes['maxWidth'])) { $mwRaw = trim((string)$attributes['maxWidth']); $mwu = preg_replace('/[^a-z%]/i', '', (string)($attributes['maxWidthUnit'] ?? '')); if ($mwu === '') $mwu = 'px'; if ($mwRaw === 'auto') { $style .= 'max-width:auto;margin-left:auto;margin-right:auto;'; } else { $mwNum = preg_replace('/[^0-9.\-]/', '', $mwRaw); if ($mwNum !== '') { $style .= 'max-width:' . $mwNum . $mwu . ';margin-left:auto;margin-right:auto;'; } } }
         if (!empty($attributes['customStyle'])) $style .= (string)$attributes['customStyle'];
-        $cssTag = !empty($attributes['customCss']) ? '<style>#' . $uid . '{' . wp_strip_all_tags((string)$attributes['customCss']) . '}</style>' : '';
+        $responsiveSpacingCss = $this->wpbb_build_responsive_spacing_css($attributes, '#' . $uid);
+        $spacingTag = $responsiveSpacingCss !== '' ? '<style>' . $responsiveSpacingCss . '</style>' : '';
         $scssTag = !empty($attributes['customScss']) ? '<style>' . $this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss']) . '</style>' : '';
-        $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_filter($classes)), 'style' => $style, 'id' => $uid]);
-        return $cssTag . $scssTag . '<div ' . $wrapper . '>' . $content . '</div>';
+        $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_values(array_unique(array_filter($classes)))), 'style' => $style, 'id' => $uid]);
+        $inner = '<div class="row">' . $content . '</div>';
+        if (!empty($attributes['containerClass'])) {
+            $container_class = implode(' ', array_values(array_unique(array_filter($this->wpbb_class_tokens_from_value($attributes['containerClass'])))));
+            $inner = '<div class="' . esc_attr($container_class) . '">' . $inner . '</div>';
+        }
+        return $spacingTag . $scssTag . '<div ' . $wrapper . '>' . $inner . '</div>';
     }
 
     public function render_column_block($attributes, $content, $block) {
@@ -1342,8 +1548,9 @@ public function register_assets() {
             if ($bp === 'xs' && $val <= 0) $val = 12;
             if ($val > 0) $classes[] = $prefix . '-' . $val;
         }
-        foreach (['orderClass','visibilityClass','animationClass','paddingClass','marginClass','backgroundClass','displayClass','textUtilityClass','roundedClass','shadowClass','bootstrapClasses','utilityClasses','className'] as $k) {
-            if (!empty($attributes[$k])) $classes[] = sanitize_text_field((string)$attributes[$k]);
+        foreach (['orderClass','verticalAlign','horizontalAlign','visibilityClass','animationClass','paddingClass','marginClass','backgroundClass','displayClass','textUtilityClass','roundedClass','shadowClass','bootstrapClasses','utilityClasses','customClasses','className'] as $k) {
+            if (empty($attributes[$k])) continue;
+            $classes = array_merge($classes, $this->wpbb_class_tokens_from_value($attributes[$k]));
         }
         $classes = array_merge($classes, $this->wpbb_collect_spacing_classes($attributes));
         $uid = !empty($attributes['uniqueId']) ? sanitize_html_class((string)$attributes['uniqueId']) : sanitize_html_class('wpbb-col-' . wp_unique_id());
@@ -1352,10 +1559,16 @@ public function register_assets() {
         if (!empty($attributes['textColor'])) $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['textColor']) . ';';
         if (!empty($attributes['borderRadius'])) $style .= 'border-radius:' . preg_replace('/[^0-9.%a-zA-Z-]/', '', (string)$attributes['borderRadius']) . ';';
         if (!empty($attributes['customStyle'])) $style .= (string)$attributes['customStyle'];
-        $cssTag = !empty($attributes['customCss']) ? '<style>#' . $uid . '{' . wp_strip_all_tags((string)$attributes['customCss']) . '}</style>' : '';
+        $responsiveSpacingCss = $this->wpbb_build_responsive_spacing_css($attributes, '#' . $uid);
+        $spacingTag = $responsiveSpacingCss !== '' ? '<style>' . $responsiveSpacingCss . '</style>' : '';
         $scssTag = !empty($attributes['customScss']) ? '<style>' . $this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss']) . '</style>' : '';
-        $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_filter($classes)), 'style' => $style, 'id' => $uid]);
-        return $cssTag . $scssTag . '<div ' . $wrapper . '>' . $content . '</div>';
+        $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_values(array_unique(array_filter($classes)))), 'style' => $style, 'id' => $uid]);
+        $inner = $content;
+        if (!empty($attributes['containerClass'])) {
+            $container_class = implode(' ', $this->wpbb_class_tokens_from_value($attributes['containerClass']));
+            $inner = '<div class="' . esc_attr($container_class) . '">' . $content . '</div>';
+        }
+        return $spacingTag . $scssTag . '<div ' . $wrapper . '>' . $inner . '</div>';
     }
 
     public function render_social_follow_block($attributes, $content, $block) {
@@ -1430,7 +1643,62 @@ public function register_assets() {
     }
 
 
+    public function render_button_block($attributes, $content, $block) {
+        $text = !empty($attributes['text']) ? wp_kses_post($attributes['text']) : 'Button';
+        $url = !empty($attributes['url']) ? esc_url($attributes['url']) : '#';
+        $variant = sanitize_html_class($attributes['variant'] ?? 'primary');
+        $size = sanitize_html_class($attributes['size'] ?? '');
+        $btn_class = trim((string)($attributes['btnClass'] ?? ''));
+        if ($btn_class === '') {
+            $btn_class = 'btn btn-' . $variant . ($size ? ' btn-' . $size : '') . (!empty($attributes['fullWidth']) ? ' w-100' : '');
+        }
+        $wrap_class = 'wpbb-button-wrap';
+        if (!empty($attributes['fullWidth'])) $wrap_class .= ' w-100';
+        $align = sanitize_html_class($attributes['align'] ?? '');
+        if ($align) $wrap_class .= ' text-' . $align;
 
+        $style = '';
+        if (!empty($attributes['backgroundColor'])) {
+            $bg = preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']);
+            $style .= 'background:' . $bg . ';border-color:' . $bg . ';';
+        }
+        if (!empty($attributes['textColor'])) {
+            $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['textColor']) . ';';
+        }
+        if (!empty($attributes['borderRadius'])) {
+            $style .= 'border-radius:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['borderRadius']) . ';';
+        }
+
+        $wrapper = get_block_wrapper_attributes(['class' => $wrap_class]);
+        return '<div ' . $wrapper . '><a class="' . esc_attr($btn_class) . '" href="' . $url . '" style="' . esc_attr($style) . '">' . $text . '</a></div>';
+    }
+
+    public function render_accordion_block($attributes, $content, $block) {
+        if (wpbb_get_option('load_bootstrap_js', 0)) {
+            wp_enqueue_script('wpbb-bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js', [], '5.3.3', true);
+        }
+        $uid = !empty($attributes['anchor']) ? sanitize_html_class((string)$attributes['anchor']) : sanitize_html_class('wpbb-accordion-' . wp_unique_id());
+        $wrapper = get_block_wrapper_attributes(['class' => 'accordion wpbb-accordion', 'id' => $uid]);
+        return '<div ' . $wrapper . '>' . $content . '</div>';
+    }
+
+    public function render_accordion_item_block($attributes, $content, $block) {
+        $title = esc_html($attributes['title'] ?? 'Accordion Item');
+        $item_id = sanitize_html_class('wpbb-acc-item-' . wp_unique_id());
+        $head_id = $item_id . '-head';
+        $collapse_id = $item_id . '-collapse';
+        $parent = '';
+        if (!empty($block->context['postId'])) {
+            $parent = '';
+        }
+        return '<div class="accordion-item wpbb-accordion-item">'
+            . '<h2 class="accordion-header" id="' . esc_attr($head_id) . '">'
+            . '<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#' . esc_attr($collapse_id) . '" aria-expanded="false" aria-controls="' . esc_attr($collapse_id) . '">'
+            . $title
+            . '</button></h2>'
+            . '<div id="' . esc_attr($collapse_id) . '" class="accordion-collapse collapse">'
+            . '<div class="accordion-body">' . $content . '</div></div></div>';
+    }
 
 
     }

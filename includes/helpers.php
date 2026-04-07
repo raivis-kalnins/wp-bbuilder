@@ -16,6 +16,8 @@ function wpbb_defaults() {
         'disable_core_image' => 0,'disable_core_cover' => 0,'disable_core_media_text' => 0,
         'disable_core_buttons' => 0,'disable_core_button' => 0,
         'load_bootstrap_css' => 1,'load_bootstrap_js' => 0,'save_entries' => 1,'show_entries_menu' => 0,
+        'bootstrap_css_mode' => 'full',
+        'bootstrap_css_components' => ['reboot','grid','utilities'],
         'default_recipient_email' => get_option('admin_email'),
         'default_success_message' => __('Thank you for your submission!', 'wp-bbuilder'),
         'default_error_message' => __('Something went wrong. Please try again.', 'wp-bbuilder'),

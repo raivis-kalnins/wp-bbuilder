@@ -151,6 +151,21 @@ final class WPBB_Admin {
                             <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[<?php echo esc_attr($setting); ?>]" value="1" <?php checked(!empty($opts[$setting])); ?>> <?php echo esc_html__('Disable ', 'wp-bbuilder') . esc_html($label); ?></label>
                         <?php endforeach; ?>
                         <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[load_bootstrap_css]" value="1" <?php checked(!empty($opts['load_bootstrap_css'])); ?>> Load Bootstrap CSS</label>
+                        <div class="wpbb-subsettings">
+                            <p><label><?php esc_html_e('Bootstrap CSS mode', 'wp-bbuilder'); ?><br>
+                                <select name="wpbb_settings[bootstrap_css_mode]">
+                                    <option value="full" <?php selected(($opts['bootstrap_css_mode'] ?? 'full'), 'full'); ?>><?php esc_html_e('Full library', 'wp-bbuilder'); ?></option>
+                                    <option value="custom" <?php selected(($opts['bootstrap_css_mode'] ?? 'full'), 'custom'); ?>><?php esc_html_e('Only selected CSS parts', 'wp-bbuilder'); ?></option>
+                                </select>
+                            </label></p>
+                            <div class="wpbb-setting-group">
+                                <strong><?php esc_html_e('Load Bootstrap CSS parts', 'wp-bbuilder'); ?></strong>
+                                <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[bootstrap_css_components][]" value="reboot" <?php checked(in_array('reboot', (array)($opts['bootstrap_css_components'] ?? []), true)); ?>> <?php esc_html_e('Reboot / base reset', 'wp-bbuilder'); ?></label>
+                                <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[bootstrap_css_components][]" value="grid" <?php checked(in_array('grid', (array)($opts['bootstrap_css_components'] ?? []), true)); ?>> <?php esc_html_e('Grid / containers / rows / columns', 'wp-bbuilder'); ?></label>
+                                <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[bootstrap_css_components][]" value="utilities" <?php checked(in_array('utilities', (array)($opts['bootstrap_css_components'] ?? []), true)); ?>> <?php esc_html_e('Utilities helpers', 'wp-bbuilder'); ?></label>
+                                <p class="description"><?php esc_html_e('Use custom mode to load only the Bootstrap CSS parts your site needs.', 'wp-bbuilder'); ?></p>
+                            </div>
+                        </div>
                         <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[load_bootstrap_js]" value="1" <?php checked(!empty($opts['load_bootstrap_js'])); ?>> Load Bootstrap JS</label>
                         <p><label>Admin max width<br><input type="text" name="wpbb_settings[admin_max_width]" value="<?php echo esc_attr($opts['admin_max_width']); ?>"></label></p>
                     </div>
@@ -182,7 +197,11 @@ final class WPBB_Admin {
         }
         check_ajax_referer('wpbb_builder_nonce', 'nonce');
         $scss = isset($_POST['scss']) ? wp_unslash((string) $_POST['scss']) : '';
-        $compiled = $this->simple_compile_scss($scss);
+        try {
+            $compiled = $this->simple_compile_scss($scss);
+        } catch (Throwable $e) {
+            wp_send_json_error(['message' => 'SCSS build failed: ' . $e->getMessage()], 500);
+        }
         $opts = wp_parse_args(get_option('wpbb_settings', []), wpbb_defaults());
         $opts['custom_scss'] = $scss;
         $opts['compiled_css'] = $compiled;
@@ -191,38 +210,79 @@ final class WPBB_Admin {
     }
 
     private function simple_compile_scss($scss) {
-        $css = (string) $scss;
-        $vars = [];
-        if (preg_match_all('/\$([a-zA-Z0-9_-]+)\s*:\s*([^;]+);/', $css, $matches, PREG_SET_ORDER)) {
-            foreach ($matches as $row) $vars[$row[1]] = trim($row[2]);
+        $scss = trim((string) $scss);
+        if ($scss === '') {
+            return '';
         }
-        $css = preg_replace('/\$[a-zA-Z0-9_-]+\s*:\s*[^;]+;/', '', $css);
-        foreach ($vars as $name => $value) $css = str_replace('$' . $name, $value, $css);
-        $css = preg_replace('!/\*.*?\*/!s', '', $css);
-        $result = '';
-        if (preg_match_all('/([^{}]+)\{((?:[^{}]|\{[^{}]*\})*)\}/s', $css, $blocks, PREG_SET_ORDER)) {
-            foreach ($blocks as $block) {
-                $parent = trim($block[1]);
-                $body = trim($block[2]);
-                if (preg_match_all('/([^{}]+)\{([^{}]*)\}/s', $body, $children, PREG_SET_ORDER)) {
-                    foreach ($children as $child) {
-                        $childSel = trim($child[1]);
-                        $childBody = trim($child[2]);
-                        if ($childSel === '') continue;
-                        $selector = strpos($childSel, '&') !== false ? str_replace('&', $parent, $childSel) : $parent . ' ' . $childSel;
-                        $result .= $selector . '{' . $childBody . '}';
-                    }
-                    $plain = trim(preg_replace('/([^{}]+)\{([^{}]*)\}/s', '', $body));
-                    if ($plain !== '') $result .= $parent . '{' . $plain . '}';
-                } else {
-                    $result .= $parent . '{' . $body . '}';
+
+        $scss = preg_replace('!/\*.*?\*/!s', '', $scss);
+
+        $vars = [];
+        if (preg_match_all('/\$([a-zA-Z0-9_-]+)\s*:\s*([^;]+);/', $scss, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $row) {
+                $vars[$row[1]] = trim($row[2]);
+            }
+        }
+        $scss = preg_replace('/\$[a-zA-Z0-9_-]+\s*:\s*[^;]+;/', '', $scss);
+        foreach ($vars as $name => $value) {
+            $scss = preg_replace('/\$' . preg_quote($name, '/') . '\b/', $value, $scss);
+        }
+
+        $scss = preg_replace('/\s+/', ' ', $scss);
+
+        $flatten = function ($source, $parent = '') use (&$flatten) {
+            $css = '';
+            $len = strlen($source);
+            $i = 0;
+
+            while ($i < $len) {
+                while ($i < $len && ctype_space($source[$i])) $i++;
+                if ($i >= $len) break;
+
+                $selStart = $i;
+                while ($i < $len && $source[$i] !== '{' && $source[$i] !== '}') $i++;
+                if ($i >= $len || $source[$i] === '}') break;
+
+                $selector = trim(substr($source, $selStart, $i - $selStart));
+                $i++;
+
+                $depth = 1;
+                $bodyStart = $i;
+                while ($i < $len && $depth > 0) {
+                    if ($source[$i] === '{') $depth++;
+                    if ($source[$i] === '}') $depth--;
+                    $i++;
+                }
+                $body = trim(substr($source, $bodyStart, max(0, $i - $bodyStart - 1)));
+                if ($selector === '') continue;
+
+                $fullSelector = $parent
+                    ? (strpos($selector, '&') !== false ? str_replace('&', $parent, $selector) : trim($parent . ' ' . $selector))
+                    : $selector;
+
+                $plain = preg_replace('/[^{}]+\{(?:[^{}]|\{[^{}]*\})*\}/', '', $body);
+                $plain = trim((string) $plain);
+                if ($plain !== '') {
+                    $plain = preg_replace('/\s*;\s*/', ';', $plain);
+                    $plain = preg_replace('/\s*:\s*/', ':', $plain);
+                    $css .= $fullSelector . '{' . trim($plain, '; ') . '}';
+                }
+
+                if (strpos($body, '{') !== false) {
+                    $css .= $flatten($body, $fullSelector);
                 }
             }
-        } else {
-            $result = $css;
+            return $css;
+        };
+
+        $result = $flatten($scss, '');
+        if ($result === '') {
+            $result = trim($scss);
         }
+
         $result = preg_replace('/\s+/', ' ', $result);
-        $result = str_replace([' { ', '; ', ': ', ', ', ' }'], ['{',';',';',',','}'], $result);
+        $result = str_replace([' {', '{ ', '; ', ': ', ', ', ' }'], ['{', '{', ';', ':', ',', '}'], $result);
+
         return trim($result);
     }
 }

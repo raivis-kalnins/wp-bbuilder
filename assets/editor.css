@@ -261,7 +261,6 @@
 .wpbb-inline-grid,.wpbb-inline-grid--compact{display:grid !important;grid-template-columns:minmax(0,1fr) 56px !important;gap:6px !important;width:100% !important;align-items:start !important}
 .wpbb-inline-grid select,.wpbb-inline-grid--compact select{width:100% !important;max-width:100% !important;min-width:0 !important;font-size:12px !important;padding:0 4px !important}
 .wpbb-inline-grid input,.wpbb-inline-grid--compact input{width:100% !important;max-width:100% !important}
-.wp-block[data-type="acf/wpbb-card"],.wp-block[data-type="wpbb/row-section"]{display:none !important}
 
 .wpbb-editor-label{width:fit-content !important;max-width:fit-content !important;white-space:nowrap !important}
 
@@ -418,3 +417,161 @@
   border-radius:10px;
   background:#fff;
 }
+
+
+.wpbb-responsive-group{margin:8px 0 12px;padding:8px;border:1px solid #e5e7eb;border-radius:10px;background:#fff}
+.wpbb-responsive-group__label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#334155;margin-bottom:6px}
+.wpbb-responsive-tabs--compact .components-tab-panel__tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.wpbb-responsive-tabs--compact .components-button.components-tab-panel__tabs-item{min-height:24px;height:24px;border:1px solid #d0d7de;border-radius:6px;background:#fff;padding:0 6px;font-size:10px;line-height:1;text-transform:lowercase}
+.wpbb-responsive-tab-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:2px 0 0}
+.wpbb-responsive-tab-panel .components-base-control{margin-bottom:2px}
+.wpbb-responsive-tab-panel .components-base-control__field{margin-bottom:0}
+.wpbb-responsive-tab-panel .components-base-control__label{text-transform:lowercase;font-size:11px;margin-bottom:2px}
+.wpbb-bootstrap-select{margin:10px 0 12px}
+.wpbb-editor-field-label{display:block;font-size:12px;font-weight:600;margin-bottom:6px}
+.wpbb-bootstrap-select__input{width:100%;min-height:160px;border:1px solid #d0d7de;border-radius:8px;padding:6px;background:#fff;font-size:12px}
+.wpbb-selected-class-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.wpbb-selected-class-chip{display:inline-flex;align-items:center;border:1px solid #cbd5e1;border-radius:999px;padding:2px 8px;font-size:11px;background:#f8fafc;color:#334155}
+
+
+.wpbb-responsive-side-field{border:1px solid #e5e7eb;border-radius:8px;padding:6px;background:#fff}
+.wpbb-responsive-side-field__label{display:block;font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:lowercase;color:#475569;margin-bottom:4px}
+.wpbb-responsive-side-field__controls{display:grid;grid-template-columns:minmax(0,1fr) 64px;gap:6px;align-items:end}
+.wpbb-responsive-side-field__controls .components-base-control,.wpbb-responsive-side-field__controls .components-base-control__field{margin-bottom:0 !important}
+.wpbb-responsive-side-field__controls input.components-text-control__input{min-height:30px;height:30px;padding:0 8px;font-size:12px}
+.wpbb-responsive-side-field__controls .components-select-control__input{min-height:30px;height:30px;font-size:11px;padding:0 20px 0 6px}
+.wpbb-bootstrap-search .components-base-control__field{margin-bottom:6px !important}
+.wpbb-selected-class-chip{gap:6px;padding:2px 4px 2px 8px}
+.wpbb-selected-class-chip__text{line-height:1.2}
+.wpbb-selected-class-chip__remove{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border:none;border-radius:999px;background:#e2e8f0;color:#334155;cursor:pointer;font-size:12px;line-height:1;padding:0}
+.wpbb-selected-class-chip__remove:hover{background:#cbd5e1}
+.wpbb-code-editor .components-textarea-control__input{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,monospace;min-height:140px}
+
+
+.wpbb-responsive-side-field__controls{grid-template-columns:minmax(0,1fr) 56px;gap:4px}
+.wpbb-responsive-side-field__controls input.components-text-control__input,
+.wpbb-responsive-side-field__controls input[type=number]{min-height:28px;height:28px;padding:0 6px;font-size:11px}
+.wpbb-responsive-side-field__controls .components-select-control__input{min-height:28px;height:28px;font-size:10px;padding:0 18px 0 4px}
+.wpbb-responsive-side-field .components-base-control{margin-bottom:0 !important}
+.wpbb-responsive-side-field .components-input-control__container{margin:0 !important}
+.wpbb-scss-build-bar{display:flex;align-items:center;gap:8px;margin:6px 0}
+.wpbb-scss-build-bar .components-button{min-height:28px;height:28px;padding:0 10px}
+.wpbb-subsettings{margin:8px 0 12px 24px;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc}
+.wpbb-setting-group{margin-top:8px}
+
+
+/* v5 compact spacing controls */
+.wpbb-responsive-tabs--compact .components-button.components-tab-panel__tabs-item{
+  min-height:22px !important;
+  height:22px !important;
+  padding:0 5px !important;
+  font-size:10px !important;
+}
+.wpbb-responsive-tab-panel{
+  gap:4px !important;
+}
+.wpbb-responsive-side-field{
+  padding:4px !important;
+}
+.wpbb-responsive-side-field__label{
+  margin-bottom:2px !important;
+  font-size:9px !important;
+}
+.wpbb-responsive-side-field__controls{
+  position:relative !important;
+  display:block !important;
+}
+.wpbb-responsive-side-field__controls > .components-base-control:first-child{
+  margin-right:0 !important;
+}
+.wpbb-responsive-side-field__controls > .components-base-control:first-child .components-base-control__field{
+  margin-bottom:0 !important;
+}
+.wpbb-responsive-side-field__controls > .components-base-control:first-child input.components-text-control__input,
+.wpbb-responsive-side-field__controls > .components-base-control:first-child input[type=number]{
+  width:100% !important;
+  min-height:26px !important;
+  height:26px !important;
+  padding:0 42px 0 5px !important;
+  font-size:11px !important;
+}
+.wpbb-responsive-side-field__controls > .components-base-control:last-child{
+  position:absolute !important;
+  right:0 !important;
+  top:0 !important;
+  width:38px !important;
+  margin:0 !important;
+}
+.wpbb-responsive-side-field__controls > .components-base-control:last-child .components-base-control__field{
+  margin-bottom:0 !important;
+}
+.wpbb-responsive-side-field__controls > .components-base-control:last-child .components-select-control__input{
+  width:38px !important;
+  min-width:38px !important;
+  min-height:26px !important;
+  height:26px !important;
+  padding:0 14px 0 3px !important;
+  font-size:9px !important;
+  border-top-left-radius:0 !important;
+  border-bottom-left-radius:0 !important;
+}
+
+
+/* v7 row inner wrapper */
+.wp-block[data-type="wpbb/row"] .wpbb-row__inner{
+  width:100%;
+  max-width:none;
+  box-sizing:border-box;
+}
+
+
+/* v8 previews */
+.wpbb-pricecards-preview .card{display:block;background:#fff;border:1px solid #dbe2ea;border-radius:12px}
+.wpbb-pricecards-preview .card-body{padding:14px}
+.wpbb-button-editor{width:100%}
+
+.wpbb-cta-card-price{font-size:1.25rem;font-weight:700;margin:.5rem 0 1rem}
+
+
+/* v10 editor full width + compact unit input + pricecards preview */
+.block-editor-inner-blocks{width:100%}
+.wp-block[data-type="wpbb/row"] > .block-editor-inner-blocks,
+.wp-block[data-type="wpbb/row"] > .block-editor-inner-blocks > .block-editor-block-list__layout,
+.wp-block[data-type="wpbb/row"] .block-editor-block-list__layout{width:100%;max-width:none}
+.wpbb-maxwidth-inline .wpbb-responsive-side-field__controls{
+  position:relative !important;
+  display:block !important;
+}
+.wpbb-maxwidth-inline .wpbb-responsive-side-field__controls > .components-base-control:first-child input.components-text-control__input{
+  width:100% !important;
+  min-height:26px !important;
+  height:26px !important;
+  padding:0 42px 0 5px !important;
+  font-size:11px !important;
+}
+.wpbb-maxwidth-inline .wpbb-responsive-side-field__controls > .components-base-control:last-child{
+  position:absolute !important;
+  right:0 !important;
+  top:0 !important;
+  width:38px !important;
+  margin:0 !important;
+}
+.wpbb-maxwidth-inline .wpbb-responsive-side-field__controls > .components-base-control:last-child .components-select-control__input{
+  width:38px !important;
+  min-width:38px !important;
+  min-height:26px !important;
+  height:26px !important;
+  padding:0 14px 0 3px !important;
+  font-size:9px !important;
+  border-top-left-radius:0 !important;
+  border-bottom-left-radius:0 !important;
+}
+.wpbb-pricecards-preview{display:flex;flex-wrap:wrap;width:100%}
+.wpbb-pricecards-preview > .col-12,
+.wpbb-pricecards-preview > .col-md-6,
+.wpbb-pricecards-preview > .col-lg-4{display:block}
+.wpbb-pricecards-preview .card{display:flex;flex-direction:column;height:100%;background:#fff;border:1px solid #dbe2ea;border-radius:12px}
+.wpbb-pricecards-preview .card-body{padding:14px}
+.wpbb-pricecards-preview .card-title{margin:0 0 8px;font-size:16px;font-weight:700}
+.wpbb-pricecards-preview .wpbb-pricecards-price{font-size:24px;font-weight:700;line-height:1.1;margin:6px 0 12px}
+.wpbb-pricecards-preview .card-text{margin-bottom:12px;color:#475569}
