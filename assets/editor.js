@@ -1,4 +1,25 @@
 (function (wp) {
+  function wpbbResponsiveSpacingPanel(props) {
+    function field(k, label){
+      return el(TextControl,{key:k,label:label,help:'Example: p-sm-2 m-sm-1 or px-sm-3',value:props.attributes[k]||'',onChange:function(v){var o={};o[k]=v;props.setAttributes(o);}});
+    }
+    return el(TabPanel,{
+      className:'wpbb-responsive-tabs',
+      tabs:[
+        {name:'sm',title:'SM'},
+        {name:'md',title:'MD'},
+        {name:'lg',title:'LG'},
+        {name:'xl',title:'XL'},
+        {name:'xxl',title:'XXL'}
+      ]
+    },function(tab){
+      var key = 'spacing' + tab.name.charAt(0).toUpperCase() + tab.name.slice(1);
+      return el('div',{className:'wpbb-responsive-tab-panel'},[
+        field(key, tab.title + ' spacing classes')
+      ]);
+    });
+  }
+
   function wpbbCompileScopedScssPreview(selector, scss) {
     scss = (scss || '').trim();
     if (!scss) return '';
@@ -15,6 +36,7 @@
   var PanelBody = wp.components.PanelBody;
   var TextControl = wp.components.TextControl;
   var TextareaControl = wp.components.TextareaControl;
+  var TabPanel = wp.components.TabPanel;
   var SelectControl = wp.components.SelectControl;
   var ToggleControl = wp.components.ToggleControl;
   var RangeControl = wp.components.RangeControl;
@@ -140,7 +162,7 @@
       });
       var controls = [
         el(SelectControl, { key:'containerClass', label:'Bootstrap container', value:props.attributes.containerClass, options:[{label:'None',value:''},{label:'container',value:'container'},{label:'container-fluid',value:'container-fluid'},{label:'container-xl',value:'container-xl'}], onChange:function(v){ props.setAttributes({containerClass:v}); } }),
-        el(TextControl, { key:'utilityClasses', label:'Bootstrap class list', help:'Add Bootstrap classes like shadow, rounded, text-center, d-flex, align-items-center', value:props.attributes.utilityClasses, onChange:function(v){ props.setAttributes({utilityClasses:v}); } }), el(TextControl,{key:'spacingSm',label:'SM spacing classes',help:'Example: p-sm-2 m-sm-1',value:props.attributes.spacingSm||'',onChange:function(v){props.setAttributes({spacingSm:v});}}), el(TextControl,{key:'spacingMd',label:'MD spacing classes',help:'Example: p-md-3 m-md-2',value:props.attributes.spacingMd||'',onChange:function(v){props.setAttributes({spacingMd:v});}}), el(TextControl,{key:'spacingLg',label:'LG spacing classes',help:'Example: p-lg-4 m-lg-3',value:props.attributes.spacingLg||'',onChange:function(v){props.setAttributes({spacingLg:v});}}), el(TextControl,{key:'spacingXl',label:'XL spacing classes',help:'Example: p-xl-5 m-xl-4',value:props.attributes.spacingXl||'',onChange:function(v){props.setAttributes({spacingXl:v});}}), el(TextControl,{key:'spacingXxl',label:'XXL spacing classes',help:'Example: p-xxl-5 m-xxl-4',value:props.attributes.spacingXxl||'',onChange:function(v){props.setAttributes({spacingXxl:v});}}),
+        el(TextControl, { key:'utilityClasses', label:'Bootstrap class list', help:'Add Bootstrap classes like shadow, rounded, text-center, d-flex, align-items-center', value:props.attributes.utilityClasses, onChange:function(v){ props.setAttributes({utilityClasses:v}); } }), wpbbResponsiveSpacingPanel(props),
         el(TextControl, { key:'maxWidth', label:'Max width', value:props.attributes.maxWidth, onChange:function(v){ props.setAttributes({maxWidth:v}); } }), el(TextControl,{key:'uniqueId',label:'Unique ID',value:props.attributes.uniqueId||'',onChange:function(v){props.setAttributes({uniqueId:v});}}), el('div',{className:'wpbb-code-editor-preview'},[el(TextareaControl,{key:'customCss',label:'Custom CSS',className:'wpbb-code-editor',value:props.attributes.customCss||'',onChange:function(v){props.setAttributes({customCss:v});}}), el(TextareaControl,{key:'customScss',label:'Custom SCSS',className:'wpbb-code-editor',help:'Use & for this block scope',value:props.attributes.customScss||'',onChange:function(v){props.setAttributes({customScss:v});}}), el(TextareaControl,{key:'compiledPreview',label:'Compiled CSS preview',className:'wpbb-code-editor',value:wpbbCompileScopedScssPreview('#' + (props.attributes.uniqueId || 'preview-row'), props.attributes.customScss||''),readOnly:true}), el('div',{className:'wpbb-scss-build-note'},'SCSS preview updates automatically')]),
         el(SelectControl, { key:'visibilityClass', label:'Extra visibility class', value:props.attributes.visibilityClass, options:[{label:'None',value:''},{label:'d-none',value:'d-none'},{label:'d-none d-md-block',value:'d-none d-md-block'},{label:'d-md-none',value:'d-md-none'}], onChange:function(v){ props.setAttributes({visibilityClass:v}); } }),
         visibilitySwitches(props),
@@ -677,7 +699,7 @@
           el(TextControl,{key:'br',label:'Border radius',value:props.attributes.borderRadius||'',onChange:function(v){props.setAttributes({borderRadius:v});}}),
           el(TextControl,{key:'pad',label:'Padding',value:props.attributes.padding||'',onChange:function(v){props.setAttributes({padding:v});}}),
           el(TextControl,{key:'mar',label:'Margin',value:props.attributes.margin||'',onChange:function(v){props.setAttributes({margin:v});}}),
-          el(TextControl,{key:'uc',label:'Additional CSS class(es)',help:'Bootstrap classes like shadow, rounded, text-center, d-flex',value:props.attributes.utilityClasses||'',onChange:function(v){props.setAttributes({utilityClasses:v});}})
+          el(TextControl,{key:'uc',label:'Additional CSS class(es) - Add Bootstrap class',help:'Add Bootstrap classes like shadow, rounded, text-center, d-flex, align-items-center, p-3, m-2',value:props.attributes.utilityClasses||'',onChange:function(v){props.setAttributes({utilityClasses:v});}})
         ])),
         el('div',bp,label('BOOTSTRAP DIV'), el(InnerBlocks,{allowedBlocks:['core/paragraph','core/heading','wpbb/button','wpbb/cta-card','wpbb/code-display']}))
       );

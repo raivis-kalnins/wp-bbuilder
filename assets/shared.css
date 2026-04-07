@@ -359,3 +359,7 @@
 .wpbb-row{display:flex;flex-wrap:wrap;row-gap:10px}
 .wpbb-row > [class*="col-"]{padding-left:.5rem;padding-right:.5rem}
 .wpbb-row > .col-6,.wpbb-row > .col-sm-6,.wpbb-row > .col-md-6,.wpbb-row > .col-lg-6,.wpbb-row > .col-xl-6,.wpbb-row > .col-xxl-6{flex:0 0 50%;max-width:50%}
+
+.wpbb-bootstrap-div{
+  width:100%;
+}

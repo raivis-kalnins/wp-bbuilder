@@ -1261,7 +1261,7 @@ public function register_assets() {
 
     public function render_bootstrap_div_block($attributes, $content, $block) {
         $tag = in_array(($attributes['tagName'] ?? 'div'), ['div','section','article','aside'], true) ? $attributes['tagName'] : 'div';
-        $classes = trim('wpbb-bootstrap-div ' . ($attributes['utilityClasses'] ?? '') . ' ' . ($attributes['className'] ?? ''));
+        $classes = trim('wpbb-bootstrap-div ' . sanitize_text_field((string)($attributes['utilityClasses'] ?? '')) . ' ' . sanitize_text_field((string)($attributes['className'] ?? '')));
         $style = '';
         foreach ([
             'maxWidth' => 'max-width',
