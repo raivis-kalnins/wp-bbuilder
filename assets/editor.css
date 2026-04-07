@@ -365,3 +365,45 @@
 .wpbb-responsive-tab-panel{
   padding:6px 0 2px;
 }
+
+.wpbb-social-preview-card{
+  border:1px solid #dbe2ea;
+  border-radius:14px;
+  padding:12px;
+  background:#fff;
+}
+.wpbb-social-preview-icons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:6px;
+}
+.wpbb-social-preview-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:34px;
+  height:34px;
+  padding:0 8px;
+  border-radius:999px;
+  background:#0f172a;
+  color:#fff;
+  font-size:12px;
+  font-weight:700;
+  text-transform:uppercase;
+  box-shadow:0 4px 10px rgba(15,23,42,.12);
+}
+.wpbb-responsive-tabs .components-tab-panel__tabs{
+  gap:6px;
+  margin-bottom:8px;
+}
+.wpbb-responsive-tabs .components-button.components-tab-panel__tabs-item{
+  min-height:30px;
+  border:1px solid #d0d7de;
+  border-radius:8px;
+  background:#fff;
+  padding:0 10px;
+}
+.wpbb-responsive-tab-panel{
+  padding:6px 0 2px;
+}

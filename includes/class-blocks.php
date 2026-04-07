@@ -235,7 +235,7 @@ public function register_assets() {
                     'textUtilityClass' => ['type' => 'string', 'default' => ''],
                     'roundedClass' => ['type' => 'string', 'default' => ''],
                     'shadowClass' => ['type' => 'string', 'default' => ''],
-                    'bootstrapClasses' => ['type' => 'string', 'default' => ''],'spacingSm' => ['type' => 'string', 'default' => ''],'spacingMd' => ['type' => 'string', 'default' => ''],'spacingLg' => ['type' => 'string', 'default' => ''],'spacingXl' => ['type' => 'string', 'default' => ''],'spacingXxl' => ['type' => 'string', 'default' => ''],'uniqueId' => ['type' => 'string', 'default' => ''],'customCss' => ['type' => 'string', 'default' => ''],'customScss' => ['type' => 'string', 'default' => ''],
+                    'bootstrapClasses' => ['type' => 'string', 'default' => ''],'spacingSm' => ['type' => 'string', 'default' => ''],'spacingMd' => ['type' => 'string', 'default' => ''],'spacingLg' => ['type' => 'string', 'default' => ''],'spacingXl' => ['type' => 'string', 'default' => ''],'spacingXxl' => ['type' => 'string', 'default' => ''],'paddingSm' => ['type' => 'string', 'default' => ''],'paddingMd' => ['type' => 'string', 'default' => ''],'paddingLg' => ['type' => 'string', 'default' => ''],'paddingXl' => ['type' => 'string', 'default' => ''],'paddingXxl' => ['type' => 'string', 'default' => ''],'marginSm' => ['type' => 'string', 'default' => ''],'marginMd' => ['type' => 'string', 'default' => ''],'marginLg' => ['type' => 'string', 'default' => ''],'marginXl' => ['type' => 'string', 'default' => ''],'marginXxl' => ['type' => 'string', 'default' => ''],'uniqueId' => ['type' => 'string', 'default' => ''],'customCss' => ['type' => 'string', 'default' => ''],'customScss' => ['type' => 'string', 'default' => ''],
                     'paddingTop' => ['type' => 'number', 'default' => 0],
                     'paddingTopUnit' => ['type' => 'string', 'default' => 'px'],
                     'paddingRight' => ['type' => 'number', 'default' => 0],
@@ -459,7 +459,27 @@ public function register_assets() {
 
             case 'sitemap':
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-sitemap' . $extra]);
-                $title = esc_html(wpbb_translate_string($attributes["title"] ?? __("Sitemap", "wp-bbuilder"))); $titleTag = in_array(($attributes["titleTag"] ?? "h3"), ["h1","h2","h3","h4","h5","h6","div","p","span"], true) ? ($attributes["titleTag"] ?: "h3") : "h3"; $pages = !empty($attributes["showPages"]) ? wp_list_pages(["echo"=>0,"title_li"=>""]) : ""; $posts = ""; if (!empty($attributes["showPosts"])) { $items = get_posts(["numberposts"=>10,"post_status"=>"publish"]); if ($items) { $posts .= "<ul>"; foreach ($items as $p) $posts .= "<li><a href=\"" . esc_url(get_permalink($p)) . "\">" . esc_html(get_the_title($p)) . "</a></li>"; $posts .= "</ul>"; } } return "<div {$wrapper}><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>" . ($pages ? "<ul>{$pages}</ul>" : "") . $posts . "</div>";
+                $title = esc_html(wpbb_translate_string($attributes["title"] ?? __("Sitemap", "wp-bbuilder")));
+                $titleTag = in_array(($attributes["titleTag"] ?? "h3"), ["h1","h2","h3","h4","h5","h6","div","p","span"], true) ? ($attributes["titleTag"] ?: "h3") : "h3";
+                $html = "<div {$wrapper}><{$titleTag} class=\"{$titleTag}\">{$title}</{$titleTag}>";
+                if (!empty($attributes["showPages"])) {
+                    $pages = wp_list_pages(["echo"=>0,"title_li"=>""]);
+                    if ($pages) $html .= "<div class=\"wpbb-sitemap__group wpbb-sitemap__pages\"><ul>{$pages}</ul></div>";
+                }
+                if (!empty($attributes["showPosts"])) {
+                    $post_types = get_post_types(['public' => true], 'objects');
+                    foreach ($post_types as $pt_key => $pt_obj) {
+                        if (in_array($pt_key, ['attachment','wp_block','wp_template','wp_template_part','nav_menu_item'], true)) continue;
+                        $items = get_posts(['numberposts' => -1, 'post_status' => 'publish', 'post_type' => $pt_key, 'orderby' => 'title', 'order' => 'ASC']);
+                        if (!$items) continue;
+                        $html .= "<div class=\"wpbb-sitemap__group wpbb-sitemap__{$pt_key}\"><strong class=\"wpbb-sitemap__label\">" . esc_html($pt_obj->labels->name ?? $pt_key) . "</strong><ul>";
+                        foreach ($items as $p) {
+                            $html .= "<li><a href=\"" . esc_url(get_permalink($p)) . "\">" . esc_html(get_the_title($p)) . "</a></li>";
+                        }
+                        $html .= "</ul></div>";
+                    }
+                }
+                return $html . "</div>";
 
             case 'soc-follow-block':
                 return [
@@ -1261,7 +1281,7 @@ public function register_assets() {
 
     public function render_bootstrap_div_block($attributes, $content, $block) {
         $tag = in_array(($attributes['tagName'] ?? 'div'), ['div','section','article','aside'], true) ? $attributes['tagName'] : 'div';
-        $classes = trim('wpbb-bootstrap-div ' . sanitize_text_field((string)($attributes['utilityClasses'] ?? '')) . ' ' . sanitize_text_field((string)($attributes['className'] ?? '')));
+        $classes = trim('wpbb-bootstrap-div ' . trim((string)($attributes['utilityClasses'] ?? '')) . ' ' . trim((string)($attributes['className'] ?? '')));
         $style = '';
         foreach ([
             'maxWidth' => 'max-width',
@@ -1289,7 +1309,7 @@ public function register_assets() {
 
     private function wpbb_collect_spacing_classes($attributes) {
         $classes = [];
-        foreach (['spacingSm','spacingMd','spacingLg','spacingXl','spacingXxl'] as $k) {
+        foreach (['spacingSm','spacingMd','spacingLg','spacingXl','spacingXxl','paddingSm','paddingMd','paddingLg','paddingXl','paddingXxl','marginSm','marginMd','marginLg','marginXl','marginXxl'] as $k) {
             if (!empty($attributes[$k])) $classes[] = sanitize_text_field((string)$attributes[$k]);
         }
         return $classes;

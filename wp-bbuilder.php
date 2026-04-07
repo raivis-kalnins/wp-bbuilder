@@ -15,6 +15,11 @@ require_once plugin_dir_path(__FILE__) . 'includes/helpers.php';
 // Include the optimized Bootstrap loader
 require_once plugin_dir_path(__FILE__) . 'includes/class-bootstrap.php';
 
+// Include the floating admin panel (optional - only if you want it)
+if (is_admin()) {
+    require_once plugin_dir_path(__FILE__) . 'admin/admin-floating.php';
+}
+
 // Include other existing files...
 require_once plugin_dir_path(__FILE__) . 'includes/class-settings.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-blocks.php';
@@ -86,44 +91,4 @@ if (!function_exists('wpbb_render_compiled_css')) {
         }
     }
     add_action('wp_footer', 'wpbb_render_global_footer_code', 100);
-}
-
-// Instead of direct enqueue
-add_action('wp_enqueue_scripts', function() {
-    // Inline critical CSS
-    $critical_css = '/* paste the CSS from above here, minified */';
-    wp_register_style('wpbb-critical', false);
-    wp_enqueue_style('wpbb-critical');
-    wp_add_inline_style('wpbb-critical', $critical_css);
-    
-    // Optional full Bootstrap
-    if (get_option('wpbb_load_bootstrap_css', '1') === '1') {
-        wp_enqueue_style('bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css', [], '5.3.2');
-    }
-    if (get_option('wpbb_load_bootstrap_js', '1') === '1') {
-        wp_enqueue_script('bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js', [], '5.3.2', true);
-    }
-});
-
-add_action('admin_enqueue_scripts', 'wp_bbuilder_admin_fonts');
-add_action('enqueue_block_editor_assets', 'wp_bbuilder_editor_fonts');
-
-function wp_bbuilder_admin_fonts() {
-    // Ielādē Font Awesome 6 (vai jūsu izmantoto versiju)
-    wp_enqueue_style(
-        'wp-bbuilder-fontawesome',
-        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-        [],
-        '6.4.0'
-    );
-}
-
-function wp_bbuilder_editor_fonts() {
-    // Ielādē arī block editorā
-    wp_enqueue_style(
-        'wp-bbuilder-fontawesome-editor',
-        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-        [],
-        '6.4.0'
-    );
 }

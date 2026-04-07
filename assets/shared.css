@@ -363,3 +363,7 @@
 .wpbb-bootstrap-div{
   width:100%;
 }
+
+.wpbb-sitemap__group{margin-top:14px}
+.wpbb-sitemap__label{display:block;margin-bottom:6px}
+.wpbb-bootstrap-div{width:100%}
