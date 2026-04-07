@@ -348,3 +348,14 @@
 .wpbb-soc-icon-link:hover,.wpbb-share-link:hover{opacity:.95}
 .wpbb-row{display:flex;flex-wrap:wrap}
 .wpbb-row>[class*="col-"]{box-sizing:border-box}
+
+.wpbb-soc-follow,.wpbb-soc-share{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem}
+.wpbb-soc-title,.wpbb-share-title{margin:0}
+.wpbb-soc-links,.wpbb-share-links{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem}
+.wpbb-social-icon,.wpbb-share-link,.wpbb-soc-icon-link{display:inline-flex !important;align-items:center;justify-content:center;width:42px;height:42px;min-width:42px;border-radius:12px;text-decoration:none;border:1px solid rgba(15,23,42,.08);box-shadow:0 8px 18px rgba(15,23,42,.08);transition:transform .18s ease, box-shadow .18s ease, opacity .18s ease}
+.wpbb-social-icon:hover,.wpbb-share-link:hover,.wpbb-soc-icon-link:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(15,23,42,.14)}
+.wpbb-social-icon svg,.wpbb-share-link svg,.wpbb-soc-icon-link svg{display:block !important;width:20px !important;height:20px !important;fill:currentColor !important;color:inherit !important}
+.wpbb-social-label{font-size:13px;color:#475569}
+.wpbb-row{display:flex;flex-wrap:wrap;row-gap:10px}
+.wpbb-row > [class*="col-"]{padding-left:.5rem;padding-right:.5rem}
+.wpbb-row > .col-6,.wpbb-row > .col-sm-6,.wpbb-row > .col-md-6,.wpbb-row > .col-lg-6,.wpbb-row > .col-xl-6,.wpbb-row > .col-xxl-6{flex:0 0 50%;max-width:50%}

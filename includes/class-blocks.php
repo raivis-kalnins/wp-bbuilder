@@ -181,6 +181,14 @@ public function register_assets() {
                 $args['render_callback'] = [$this, 'render_mailchimp_block'];
             } elseif ($slug === 'bootstrap-div') {
                 $args['render_callback'] = [$this, 'render_bootstrap_div_block'];
+            } elseif ($slug === 'row') {
+                $args['render_callback'] = [$this, 'render_row_block'];
+            } elseif ($slug === 'column') {
+                $args['render_callback'] = [$this, 'render_column_block'];
+            } elseif ($slug === 'soc-follow-block') {
+                $args['render_callback'] = [$this, 'render_social_follow_block'];
+            } elseif ($slug === 'soc-share') {
+                $args['render_callback'] = [$this, 'render_social_share_block'];
             } else {
                 $args['render_callback'] = [$this, 'render_generic_block'];
             }
@@ -227,7 +235,7 @@ public function register_assets() {
                     'textUtilityClass' => ['type' => 'string', 'default' => ''],
                     'roundedClass' => ['type' => 'string', 'default' => ''],
                     'shadowClass' => ['type' => 'string', 'default' => ''],
-                    'bootstrapClasses' => ['type' => 'string', 'default' => ''],'uniqueId' => ['type' => 'string', 'default' => ''],'customCss' => ['type' => 'string', 'default' => ''],'customScss' => ['type' => 'string', 'default' => ''],
+                    'bootstrapClasses' => ['type' => 'string', 'default' => ''],'spacingSm' => ['type' => 'string', 'default' => ''],'spacingMd' => ['type' => 'string', 'default' => ''],'spacingLg' => ['type' => 'string', 'default' => ''],'spacingXl' => ['type' => 'string', 'default' => ''],'spacingXxl' => ['type' => 'string', 'default' => ''],'uniqueId' => ['type' => 'string', 'default' => ''],'customCss' => ['type' => 'string', 'default' => ''],'customScss' => ['type' => 'string', 'default' => ''],
                     'paddingTop' => ['type' => 'number', 'default' => 0],
                     'paddingTopUnit' => ['type' => 'string', 'default' => 'px'],
                     'paddingRight' => ['type' => 'number', 'default' => 0],
@@ -1272,6 +1280,136 @@ public function register_assets() {
         $wrapper = get_block_wrapper_attributes(['class' => $classes, 'style' => $style]);
         return "<{$tag} {$wrapper}>{$content}</{$tag}>";
     }
+
+    private function wpbb_compile_preview_css($selector, $scss) {
+        $scss = trim((string)$scss);
+        if ($scss === '') return '';
+        return trim(preg_replace('/\s+/', ' ', $this->wpbb_compile_scoped_scss($selector, $scss)));
+    }
+
+    private function wpbb_collect_spacing_classes($attributes) {
+        $classes = [];
+        foreach (['spacingSm','spacingMd','spacingLg','spacingXl','spacingXxl'] as $k) {
+            if (!empty($attributes[$k])) $classes[] = sanitize_text_field((string)$attributes[$k]);
+        }
+        return $classes;
+    }
+
+    public function render_row_block($attributes, $content, $block) {
+        $classes = ['row', 'wpbb-row'];
+        foreach (['gutterX','gutterY','paddingClass','marginClass','backgroundClass','animationClass','displayClass','textUtilityClass','roundedClass','shadowClass','bootstrapClasses','utilityClasses','visibilityClass','className'] as $k) {
+            if (!empty($attributes[$k])) $classes[] = sanitize_text_field((string)$attributes[$k]);
+        }
+        $classes = array_merge($classes, $this->wpbb_collect_spacing_classes($attributes));
+        if (!empty($attributes['align'])) $classes[] = 'justify-content-' . sanitize_html_class((string)$attributes['align']);
+        $uid = !empty($attributes['uniqueId']) ? sanitize_html_class((string)$attributes['uniqueId']) : sanitize_html_class('wpbb-row-' . wp_unique_id());
+        $style = $this->wpbb_build_spacing_inline($attributes);
+        if (!empty($attributes['backgroundColor'])) $style .= 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';';
+        if (!empty($attributes['textColor'])) $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['textColor']) . ';';
+        if (!empty($attributes['maxWidth'])) $style .= 'max-width:' . preg_replace('/[^0-9.%a-zA-Z-]/', '', (string)$attributes['maxWidth']) . ';margin-left:auto;margin-right:auto;';
+        if (!empty($attributes['customStyle'])) $style .= (string)$attributes['customStyle'];
+        $cssTag = !empty($attributes['customCss']) ? '<style>#' . $uid . '{' . wp_strip_all_tags((string)$attributes['customCss']) . '}</style>' : '';
+        $scssTag = !empty($attributes['customScss']) ? '<style>' . $this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss']) . '</style>' : '';
+        $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_filter($classes)), 'style' => $style, 'id' => $uid]);
+        return $cssTag . $scssTag . '<div ' . $wrapper . '>' . $content . '</div>';
+    }
+
+    public function render_column_block($attributes, $content, $block) {
+        $classes = ['wpbb-column'];
+        $bpMap = ['xs'=>'col','sm'=>'col-sm','md'=>'col-md','lg'=>'col-lg','xl'=>'col-xl','xxl'=>'col-xxl'];
+        foreach ($bpMap as $bp => $prefix) {
+            $val = isset($attributes[$bp]) ? intval($attributes[$bp]) : 0;
+            if ($bp === 'xs' && $val <= 0) $val = 12;
+            if ($val > 0) $classes[] = $prefix . '-' . $val;
+        }
+        foreach (['orderClass','visibilityClass','animationClass','paddingClass','marginClass','backgroundClass','displayClass','textUtilityClass','roundedClass','shadowClass','bootstrapClasses','utilityClasses','className'] as $k) {
+            if (!empty($attributes[$k])) $classes[] = sanitize_text_field((string)$attributes[$k]);
+        }
+        $classes = array_merge($classes, $this->wpbb_collect_spacing_classes($attributes));
+        $uid = !empty($attributes['uniqueId']) ? sanitize_html_class((string)$attributes['uniqueId']) : sanitize_html_class('wpbb-col-' . wp_unique_id());
+        $style = $this->wpbb_build_spacing_inline($attributes);
+        if (!empty($attributes['backgroundColor'])) $style .= 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';';
+        if (!empty($attributes['textColor'])) $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['textColor']) . ';';
+        if (!empty($attributes['borderRadius'])) $style .= 'border-radius:' . preg_replace('/[^0-9.%a-zA-Z-]/', '', (string)$attributes['borderRadius']) . ';';
+        if (!empty($attributes['customStyle'])) $style .= (string)$attributes['customStyle'];
+        $cssTag = !empty($attributes['customCss']) ? '<style>#' . $uid . '{' . wp_strip_all_tags((string)$attributes['customCss']) . '}</style>' : '';
+        $scssTag = !empty($attributes['customScss']) ? '<style>' . $this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss']) . '</style>' : '';
+        $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_filter($classes)), 'style' => $style, 'id' => $uid]);
+        return $cssTag . $scssTag . '<div ' . $wrapper . '>' . $content . '</div>';
+    }
+
+    public function render_social_follow_block($attributes, $content, $block) {
+        $title = esc_html($attributes['title'] ?? __('Follow Us', 'wp-bbuilder'));
+        $titleTag = in_array(($attributes['titleTag'] ?? 'span'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? ($attributes['titleTag'] ?: 'span') : 'span';
+        $style = $attributes['socialStyle'] ?? 'icons';
+        $sizeMap = ['sm' => '34px', 'md' => '42px', 'lg' => '50px'];
+        $iconSize = $sizeMap[$attributes['iconSize'] ?? 'md'] ?? '42px';
+        $shape = $attributes['iconShape'] ?? 'rounded';
+        $shapeRadius = $shape === 'circle' ? '999px' : ($shape === 'square' ? '0' : '12px');
+        $showLabels = !empty($attributes['showLabels']);
+        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-soc-follow wpbb-soc-style-' . sanitize_html_class($style)]);
+        $items = [
+            'facebook' => esc_url($attributes['facebook'] ?? ''),
+            'instagram' => esc_url($attributes['instagram'] ?? ''),
+            'linkedin' => esc_url($attributes['linkedin'] ?? ''),
+            'x' => esc_url($attributes['x'] ?? ''),
+            'youtube' => esc_url($attributes['youtube'] ?? ''),
+            'tiktok' => esc_url($attributes['tiktok'] ?? ''),
+            'pinterest' => esc_url($attributes['pinterest'] ?? ''),
+            'whatsapp' => esc_url($attributes['whatsapp'] ?? ''),
+            'email' => !empty($attributes['email']) ? 'mailto:' . antispambot(sanitize_email((string)$attributes['email'])) : '',
+        ];
+        $labels = ['facebook'=>'Facebook','instagram'=>'Instagram','linkedin'=>'LinkedIn','x'=>'X','youtube'=>'YouTube','tiktok'=>'TikTok','pinterest'=>'Pinterest','whatsapp'=>'WhatsApp','email'=>'Email'];
+        $links = '';
+        foreach ($items as $key => $url) {
+            if (!$url) continue;
+            $bg = !empty($attributes['iconBgColor']) ? (string)$attributes['iconBgColor'] : '#0f172a';
+            $fg = !empty($attributes['iconTextColor']) ? (string)$attributes['iconTextColor'] : '#ffffff';
+            $icon = $this->wpbb_svg_icon($key);
+            if ($style === 'buttons') {
+                $links .= '<a href="' . esc_url($url) . '" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" target="_blank" rel="noopener noreferrer"><span class="wpbb-social-icon wpbb-social-icon--inline" style="width:26px;height:26px;border-radius:' . esc_attr($shapeRadius) . ';background:' . esc_attr($bg) . ';color:' . esc_attr($fg) . ';">' . $icon . '</span>' . esc_html($labels[$key]) . '</a>';
+            } else {
+                $links .= '<a href="' . esc_url($url) . '" class="wpbb-social-icon" target="_blank" rel="noopener noreferrer" aria-label="' . esc_attr($labels[$key]) . '" style="width:' . esc_attr($iconSize) . ';height:' . esc_attr($iconSize) . ';border-radius:' . esc_attr($shapeRadius) . ';background:' . esc_attr($bg) . ';color:' . esc_attr($fg) . ';">' . $icon . '</a>';
+                if ($showLabels) $links .= '<span class="wpbb-social-label">' . esc_html($labels[$key]) . '</span>';
+            }
+        }
+        if ($links === '') return '';
+        return '<div ' . $wrapper . '>' . ($title ? '<' . $titleTag . ' class="wpbb-soc-title">' . $title . '</' . $titleTag . '>' : '') . '<div class="wpbb-soc-links">' . $links . '</div></div>';
+    }
+
+    public function render_social_share_block($attributes, $content, $block) {
+        $title = esc_html($attributes['title'] ?? __('Share', 'wp-bbuilder'));
+        $titleTag = in_array(($attributes['titleTag'] ?? 'span'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? ($attributes['titleTag'] ?: 'span') : 'span';
+        $style = $attributes['iconStyle'] ?? 'icons';
+        $sizeMap = ['sm' => '34px', 'md' => '42px', 'lg' => '50px'];
+        $iconSize = $sizeMap[$attributes['iconSize'] ?? 'md'] ?? '42px';
+        $shape = $attributes['iconShape'] ?? 'rounded';
+        $shapeRadius = $shape === 'circle' ? '999px' : ($shape === 'square' ? '0' : '12px');
+        $shareUrl = rawurlencode(get_permalink());
+        $shareTitle = rawurlencode(get_the_title());
+        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-soc-share wpbb-soc-style-' . sanitize_html_class($style)]);
+        $items = [
+            'facebook' => ['url' => 'https://www.facebook.com/sharer/sharer.php?u=' . $shareUrl, 'label' => 'Facebook'],
+            'x' => ['url' => 'https://twitter.com/intent/tweet?url=' . $shareUrl . '&text=' . $shareTitle, 'label' => 'X'],
+            'linkedin' => ['url' => 'https://www.linkedin.com/sharing/share-offsite/?url=' . $shareUrl, 'label' => 'LinkedIn'],
+            'whatsapp' => ['url' => 'https://wa.me/?text=' . $shareTitle . '%20' . $shareUrl, 'label' => 'WhatsApp'],
+            'email' => ['url' => 'mailto:?subject=' . $shareTitle . '&body=' . $shareUrl, 'label' => 'Email'],
+        ];
+        $links = '';
+        foreach ($items as $key => $data) {
+            $bg = !empty($attributes['iconBgColor']) ? (string)$attributes['iconBgColor'] : '#0f172a';
+            $fg = !empty($attributes['iconColor']) ? (string)$attributes['iconColor'] : '#ffffff';
+            $icon = $this->wpbb_svg_icon($key);
+            if ($style === 'buttons') {
+                $links .= '<a href="' . esc_url($data['url']) . '" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2" target="_blank" rel="noopener noreferrer"><span class="wpbb-social-icon wpbb-social-icon--inline" style="width:26px;height:26px;border-radius:' . esc_attr($shapeRadius) . ';background:' . esc_attr($bg) . ';color:' . esc_attr($fg) . ';">' . $icon . '</span>' . esc_html($data['label']) . '</a>';
+            } else {
+                $links .= '<a href="' . esc_url($data['url']) . '" class="wpbb-share-link wpbb-social-icon" target="_blank" rel="noopener noreferrer" aria-label="' . esc_attr($data['label']) . '" style="width:' . esc_attr($iconSize) . ';height:' . esc_attr($iconSize) . ';border-radius:' . esc_attr($shapeRadius) . ';background:' . esc_attr($bg) . ';color:' . esc_attr($fg) . ';">' . $icon . '</a>';
+            }
+        }
+        return '<div ' . $wrapper . '>' . ($title ? '<' . $titleTag . ' class="wpbb-share-title">' . $title . '</' . $titleTag . '>' : '') . '<div class="wpbb-share-links">' . $links . '</div></div>';
+    }
+
+
 
 
 
