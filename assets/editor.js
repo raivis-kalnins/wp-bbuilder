@@ -1,7 +1,13 @@
 (function (wp) {
   function wpbbResponsiveSpacingPanel(props) {
-    function field(k, label){
-      return el(TextControl,{key:k,label:label,help:'Example: p-sm-2 m-sm-1 or px-sm-3',value:props.attributes[k]||'',onChange:function(v){var o={};o[k]=v;props.setAttributes(o);}});
+    function field(k, label, hint){
+      return el(TextControl,{
+        key:k,
+        label:label,
+        help:hint,
+        value:props.attributes[k]||'',
+        onChange:function(v){ var o={}; o[k]=v; props.setAttributes(o); }
+      });
     }
     return el(TabPanel,{
       className:'wpbb-responsive-tabs',
@@ -13,9 +19,10 @@
         {name:'xxl',title:'XXL'}
       ]
     },function(tab){
-      var key = 'spacing' + tab.name.charAt(0).toUpperCase() + tab.name.slice(1);
+      var suffix = tab.name.charAt(0).toUpperCase() + tab.name.slice(1);
       return el('div',{className:'wpbb-responsive-tab-panel'},[
-        field(key, tab.title + ' spacing classes')
+        field('padding' + suffix, tab.title + ' padding classes', 'Example: p-' + tab.name + '-2 or px-' + tab.name + '-3'),
+        field('margin' + suffix, tab.title + ' margin classes', 'Example: m-' + tab.name + '-1 or mt-' + tab.name + '-4')
       ]);
     });
   }
@@ -168,7 +175,7 @@
         visibilitySwitches(props),
         el(SelectControl, { key:'animationClass', label:'Animation', value:props.attributes.animationClass, options:[{label:'None',value:''},{label:'anim-fade-in',value:'anim-fade-in'},{label:'anim-fade-up',value:'anim-fade-up'},{label:'anim-zoom-in',value:'anim-zoom-in'},{label:'Fade Left',value:'anim-fade-left'},{label:'Fade Right',value:'anim-fade-right'}], onChange:function(v){ props.setAttributes({animationClass:v}); } }),
         el(SelectControl, { key:'gutterX', label:'Horizontal gap', value:props.attributes.gutterX, options:[{label:'gx-0',value:'gx-0'},{label:'gx-1',value:'gx-1'},{label:'gx-2',value:'gx-2'},{label:'gx-3',value:'gx-3'},{label:'gx-4',value:'gx-4'}], onChange:function(v){ props.setAttributes({gutterX:v}); } }),
-        el(SelectControl, { key:'gutterY', label:'Vertical gap', value:props.attributes.gutterY, options:[{label:'gy-0',value:'gy-0'},{label:'gy-1',value:'gy-1'},{label:'gy-2',value:'gy-2'},{label:'gy-3',value:'gy-3'},{label:'gy-4',value:'gy-4'}], onChange:function(v){ props.setAttributes({gutterY:v}); } }),
+        el(TextControl, { key:'utilityClassesBottom', label:'Additional CSS class(es) - Add Bootstrap class', help:'Bottom field for quick Bootstrap classes like shadow, rounded, text-center, d-flex, p-3, m-2', value:props.attributes.utilityClasses, onChange:function(v){ props.setAttributes({utilityClasses:v}); } }), el(SelectControl, { key:'gutterY', label:'Vertical gap', value:props.attributes.gutterY, options:[{label:'gy-0',value:'gy-0'},{label:'gy-1',value:'gy-1'},{label:'gy-2',value:'gy-2'},{label:'gy-3',value:'gy-3'},{label:'gy-4',value:'gy-4'}], onChange:function(v){ props.setAttributes({gutterY:v}); } }),
         el(SelectControl, { key:'align', label:'Alignment', value:props.attributes.align, options:[{label:'Default',value:''},{label:'Start',value:'start'},{label:'Center',value:'center'},{label:'End',value:'end'},{label:'Between',value:'between'}], onChange:function(v){ props.setAttributes({align:v}); } })
       ].concat(sideSpacingControls(props, 'padding')).concat(sideSpacingControls(props, 'margin'));
       return el(wp.element.Fragment, {},

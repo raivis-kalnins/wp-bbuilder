@@ -407,3 +407,14 @@
 .wpbb-responsive-tab-panel{
   padding:6px 0 2px;
 }
+
+.wpbb-responsive-tab-panel .components-base-control{
+  margin-bottom:10px;
+}
+.wpbb-responsive-tabs{
+  margin:8px 0 10px;
+  padding:8px;
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  background:#fff;
+}

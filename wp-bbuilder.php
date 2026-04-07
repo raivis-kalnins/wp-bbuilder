@@ -15,11 +15,6 @@ require_once plugin_dir_path(__FILE__) . 'includes/helpers.php';
 // Include the optimized Bootstrap loader
 require_once plugin_dir_path(__FILE__) . 'includes/class-bootstrap.php';
 
-// Include the floating admin panel (optional - only if you want it)
-if (is_admin()) {
-    require_once plugin_dir_path(__FILE__) . 'admin/admin-floating.php';
-}
-
 // Include other existing files...
 require_once plugin_dir_path(__FILE__) . 'includes/class-settings.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-blocks.php';
@@ -92,3 +87,12 @@ if (!function_exists('wpbb_render_compiled_css')) {
     }
     add_action('wp_footer', 'wpbb_render_global_footer_code', 100);
 }
+
+// Instead of direct enqueue
+add_action('wp_enqueue_scripts', function() {
+    // Inline critical CSS
+    $critical_css = '/* paste the CSS from above here, minified */';
+    wp_register_style('wpbb-critical', false);
+    wp_enqueue_style('wpbb-critical');
+    wp_add_inline_style('wpbb-critical', $critical_css);
+});
