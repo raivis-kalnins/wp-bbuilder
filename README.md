@@ -62,6 +62,11 @@ wp-bbuilder/
 - **Social Follow** — Brand links with SVG icons.
 - **Social Share** — Share buttons with clean SVG icons.
 
+### ACF Blocks
+- **Hero - Single & SWiper Slider
+- **Gallery - Drag & drop multiple images or videos
+- **CTA Card - Call to ation also Schema tag options
+
 ## Notes
 - Frontend container width can be controlled from **WP BBuilder Settings**.
 - Row and Column support custom SCSS with a native WordPress code editor.
