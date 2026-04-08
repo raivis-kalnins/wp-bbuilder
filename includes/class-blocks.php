@@ -11,6 +11,7 @@ final class WPBB_Blocks {
 
     private function __construct() {
         add_action('init', [$this, 'register_post_type']);
+        add_action('init', ['WPBBuilder_Bootstrap', 'register_assets']);
         add_action('init', [$this, 'register_assets']);
         add_action('init', [$this, 'register_blocks']);
         add_filter('block_categories_all', [$this, 'register_category'], 10, 1);
@@ -67,9 +68,67 @@ final class WPBB_Blocks {
             $scss = preg_replace('/\$' . preg_quote($name, '/') . '\b/', $value, $scss);
         }
 
-        if (strpos($scss, '{') === false) return $selector . '{' . $scss . '}';
+        $scss = trim(preg_replace('/\s+/', ' ', $scss));
+        if ($scss === '') return '';
 
-        $flatten = function ($source, $parent = '') use (&$flatten) {
+        if (strpos($scss, '{') === false) {
+            return $selector . '{' . trim($scss, '; ') . '}';
+        }
+
+        $leading = ltrim($scss);
+        $first = substr($leading, 0, 1);
+        if (
+            $first === '&' ||
+            $first === ':' ||
+            preg_match('/^[a-z-]+\s*:/i', $leading)
+        ) {
+            if (strpos($leading, '&') !== false) {
+                $scss = str_replace('&', $selector, $scss);
+            }
+            $scss = $selector . '{' . $scss . '}';
+        }
+
+        $normalize_selector = function ($parent, $selector_text) {
+            $parts = array_map('trim', explode(',', (string) $selector_text));
+            $selectors = [];
+            foreach ($parts as $part) {
+                if ($part === '') continue;
+                if ($parent === '') {
+                    $selectors[] = $part;
+                } elseif (strpos($part, '&') !== false) {
+                    $selectors[] = str_replace('&', $parent, $part);
+                } else {
+                    $selectors[] = trim($parent . ' ' . $part);
+                }
+            }
+            return implode(',', $selectors);
+        };
+
+        $extract_nested_ranges = function ($source) {
+            $ranges = [];
+            $len = strlen($source);
+            $i = 0;
+            while ($i < $len) {
+                while ($i < $len && ctype_space($source[$i])) $i++;
+                $start = $i;
+                while ($i < $len && $source[$i] !== '{' && $source[$i] !== '}') $i++;
+                if ($i < $len && $source[$i] === '{') {
+                    $depth = 1;
+                    $i++;
+                    while ($i < $len && $depth > 0) {
+                        if ($source[$i] === '{') $depth++;
+                        if ($source[$i] === '}') $depth--;
+                        $i++;
+                    }
+                    $ranges[] = [$start, $i];
+                } else {
+                    $i++;
+                }
+            }
+            return $ranges;
+        };
+
+        $flatten = function ($source, $parent = '') use (&$flatten, $normalize_selector, $extract_nested_ranges, $selector) {
             $css = '';
             $len = strlen($source);
             $i = 0;
@@ -78,37 +137,56 @@ final class WPBB_Blocks {
                 while ($i < $len && ctype_space($source[$i])) $i++;
                 if ($i >= $len) break;
 
-                $selStart = $i;
+                $sel_start = $i;
                 while ($i < $len && $source[$i] !== '{' && $source[$i] !== '}') $i++;
                 if ($i >= $len || $source[$i] === '}') break;
 
-                $selectorText = trim(substr($source, $selStart, $i - $selStart));
+                $selector_text = trim(substr($source, $sel_start, $i - $sel_start));
                 $i++;
 
                 $depth = 1;
-                $bodyStart = $i;
+                $body_start = $i;
                 while ($i < $len && $depth > 0) {
                     if ($source[$i] === '{') $depth++;
                     if ($source[$i] === '}') $depth--;
                     $i++;
                 }
-                $body = trim(substr($source, $bodyStart, max(0, $i - $bodyStart - 1)));
-                if ($selectorText === '') continue;
 
-                $fullSelector = $parent
-                    ? (strpos($selectorText, '&') !== false ? str_replace('&', $parent, $selectorText) : trim($parent . ' ' . $selectorText))
-                    : (strpos($selectorText, '&') !== false ? str_replace('&', $selector, $selectorText) : trim($selector . ' ' . $selectorText));
+                $body = trim(substr($source, $body_start, max(0, $i - $body_start - 1)));
+                if ($selector_text === '') continue;
 
-                $plain = preg_replace('/[^{}]+\{(?:[^{}]|\{[^{}]*\})*\}/', '', $body);
+                $full_selector = $normalize_selector($parent, $selector_text);
+                if ($full_selector === '') continue;
+
+                $ranges = $extract_nested_ranges($body);
+                $plain = '';
+
+                if (!empty($ranges)) {
+                    $cursor = 0;
+                    foreach ($ranges as $range) {
+                        $plain .= substr($body, $cursor, $range[0] - $cursor) . ' ';
+                        $cursor = $range[1];
+                    }
+                    $plain .= substr($body, $cursor);
+                } else {
+                    $plain = $body;
+                }
+
                 $plain = trim((string) $plain);
+                $plain = preg_replace('/\s*;\s*/', ';', $plain);
+                $plain = preg_replace('/\s*:\s*/', ':', $plain);
+                $plain = trim($plain, '; ');
+
                 if ($plain !== '') {
-                    $plain = preg_replace('/\s*;\s*/', ';', $plain);
-                    $plain = preg_replace('/\s*:\s*/', ':', $plain);
-                    $css .= $fullSelector . '{' . trim($plain, '; ') . '}';
+                    if ($parent === '' && strpos($selector_text, '&') !== false) {
+                        $css .= str_replace('&', $selector, $selector_text) . '{' . $plain . '}';
+                    } else {
+                        $css .= $full_selector . '{' . $plain . '}';
+                    }
                 }
 
                 if (strpos($body, '{') !== false) {
-                    $css .= $flatten($body, $fullSelector);
+                    $css .= $flatten($body, $full_selector);
                 }
             }
 
@@ -116,9 +194,15 @@ final class WPBB_Blocks {
         };
 
         $result = $flatten($scss, '');
-        return $result ?: $selector . '{' . $scss . '}';
-    }
+        if ($result === '') {
+            $result = str_replace('&', $selector, $scss);
+        }
 
+        $result = preg_replace('/\s+/', ' ', $result);
+        $result = str_replace([' {', '{ ', '; ', ': ', ', ', ' }'], ['{', '{', ';', ':', ',', '}'], $result);
+
+        return trim($result);
+    }
 
     private function wpbb_responsive_spacing_attributes() {
         $attributes = [];
@@ -219,10 +303,18 @@ final class WPBB_Blocks {
 
 public function register_assets() {
         wp_register_script('wpbb-editor', WPBB_PLUGIN_URL . 'assets/editor.js', ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n', 'wp-data'], WPBB_VERSION, true);
+        wp_localize_script('wpbb-editor', 'wpbbEditor', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('wpbb_builder_nonce'),
+        ]);
         wp_register_script('wpbb-editor-enhancer', WPBB_PLUGIN_URL . 'assets/editor-enhancer.js', ['wp-dom-ready'], WPBB_VERSION, true);
         wp_register_script('wpbb-form-view', WPBB_PLUGIN_URL . 'assets/form.js', [], WPBB_VERSION, true);
         wp_register_script('wpbb-copy-code', WPBB_PLUGIN_URL . 'assets/copy-code.js', [], WPBB_VERSION, true);
         wp_register_script('wpbb-ajax-search', WPBB_PLUGIN_URL . 'assets/ajax-search.js', [], WPBB_VERSION, true);
+        wp_register_style('wpbb-datatables', 'https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css', [], '2.0.8');
+        wp_register_script('wpbb-datatables', 'https://cdn.datatables.net/2.0.8/js/dataTables.js', [], '2.0.8', true);
+        wp_register_script('wpbb-datatables-bs5', 'https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js', ['wpbb-datatables'], '2.0.8', true);
+        wp_register_script('wpbb-table-init', WPBB_PLUGIN_URL . 'assets/table-init.js', ['wpbb-datatables-bs5'], WPBB_VERSION, true);
         wp_register_script('wpbb-chartjs', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js', [], '4.4.3', true);
         wp_register_script('wpbb-chart-view', WPBB_PLUGIN_URL . 'assets/chart-view.js', ['wpbb-chartjs'], WPBB_VERSION, true);
         wp_localize_script('wpbb-form-view', 'wpbbForm', [
@@ -263,7 +355,23 @@ public function register_assets() {
                 'supports' => ['anchor' => true, 'html' => false],
             ];
 
-            if ($slug === 'dynamic-form') {
+            if ($slug === 'alert') {
+                $args['render_callback'] = [$this, 'render_alert_block'];
+            } elseif ($slug === 'badge') {
+                $args['render_callback'] = [$this, 'render_badge_block'];
+            } elseif ($slug === 'breadcrumb') {
+                $args['render_callback'] = [$this, 'render_breadcrumb_block'];
+            } elseif ($slug === 'list-group') {
+                $args['render_callback'] = [$this, 'render_list_group_block'];
+            } elseif ($slug === 'navbar') {
+                $args['render_callback'] = [$this, 'render_navbar_block'];
+            } elseif ($slug === 'progress') {
+                $args['render_callback'] = [$this, 'render_progress_block'];
+            } elseif ($slug === 'section') {
+                $args['render_callback'] = [$this, 'render_section_block'];
+            } elseif ($slug === 'spinner') {
+                $args['render_callback'] = [$this, 'render_spinner_block'];
+            } elseif ($slug === 'dynamic-form') {
                 $args['script'] = 'wpbb-form-view';
                 $args['render_callback'] = [$this, 'render_dynamic_form'];
             } elseif ($slug === 'table') {
@@ -298,6 +406,10 @@ public function register_assets() {
                 $args['render_callback'] = [$this, 'render_mailchimp_block'];
             } elseif ($slug === 'bootstrap-div') {
                 $args['render_callback'] = [$this, 'render_bootstrap_div_block'];
+            } elseif ($slug === 'row') {
+                $args['render_callback'] = [$this, 'render_row_block'];
+            } elseif ($slug === 'column') {
+                $args['render_callback'] = [$this, 'render_column_block'];
             } elseif ($slug === 'button') {
                 $args['render_callback'] = [$this, 'render_button_block'];
             } elseif ($slug === 'accordion') {
@@ -329,12 +441,20 @@ public function register_assets() {
         $map = [
             'accordion' => 'menu',
             'accordion-item' => 'excerpt-view',
+            'alert' => 'warning',
+            'badge' => 'tag',
+            'breadcrumb' => 'editor-ol',
             'button' => 'button',
             'card' => 'id',
             'cards' => 'grid-view',
             'column' => 'columns',
             'dynamic-form' => 'feedback',
+            'list-group' => 'list-view',
+            'navbar' => 'menu',
+            'progress' => 'performance',
             'row' => 'grid-view','cta-card' => 'megaphone','cta-section' => 'cover-image','google-map' => 'location-alt','menu-option' => 'menu','sitemap' => 'networking','soc-follow-block' => 'share','soc-share' => 'share-alt2',
+            'section' => 'cover-image',
+            'spinner' => 'update',
             'tab-item' => 'editor-table',
             'tabs' => 'index-card',
             'table' => 'table-col-after',
@@ -449,6 +569,67 @@ public function register_assets() {
                     'align' => ['type' => 'string', 'default' => ''],
                     'borderRadius' => ['type' => 'string', 'default' => '12px'],
                 ];
+
+case 'alert':
+    return [
+        'text' => ['type' => 'string', 'default' => 'Heads up! This is a fast, accessible alert block.'],
+        'variant' => ['type' => 'string', 'default' => 'primary'],
+        'dismissible' => ['type' => 'boolean', 'default' => false],
+        'className' => ['type' => 'string', 'default' => ''],
+    ];
+case 'badge':
+    return [
+        'text' => ['type' => 'string', 'default' => 'New'],
+        'variant' => ['type' => 'string', 'default' => 'primary'],
+        'pill' => ['type' => 'boolean', 'default' => true],
+        'className' => ['type' => 'string', 'default' => ''],
+    ];
+case 'breadcrumb':
+    return [
+        'itemsJson' => ['type' => 'string', 'default' => '[{"label":"Home","url":"/"},{"label":"Library","url":"#"},{"label":"Current page","url":""}]'],
+        'className' => ['type' => 'string', 'default' => ''],
+    ];
+case 'list-group':
+    return [
+        'itemsJson' => ['type' => 'string', 'default' => '[{"text":"Fast loading","active":true},{"text":"Bootstrap components"},{"text":"Server-side rendering"}]'],
+        'flush' => ['type' => 'boolean', 'default' => false],
+        'numbered' => ['type' => 'boolean', 'default' => false],
+        'className' => ['type' => 'string', 'default' => ''],
+    ];
+case 'navbar':
+    return [
+        'brand' => ['type' => 'string', 'default' => 'BBuilder'],
+        'brandUrl' => ['type' => 'string', 'default' => '/'],
+        'expand' => ['type' => 'string', 'default' => 'lg'],
+        'scheme' => ['type' => 'string', 'default' => 'light'],
+        'bgClass' => ['type' => 'string', 'default' => 'bg-light'],
+        'itemsJson' => ['type' => 'string', 'default' => '[{"label":"Home","url":"/","active":true},{"label":"Docs","url":"#"},{"label":"Pricing","url":"#"}]'],
+        'className' => ['type' => 'string', 'default' => ''],
+    ];
+case 'progress':
+    return [
+        'value' => ['type' => 'number', 'default' => 72],
+        'label' => ['type' => 'string', 'default' => 'Performance'],
+        'variant' => ['type' => 'string', 'default' => 'success'],
+        'striped' => ['type' => 'boolean', 'default' => false],
+        'animated' => ['type' => 'boolean', 'default' => false],
+        'className' => ['type' => 'string', 'default' => ''],
+    ];
+case 'section':
+    return [
+        'title' => ['type' => 'string', 'default' => 'Section'],
+        'lead' => ['type' => 'string', 'default' => 'Use this semantic section wrapper for hero areas, feature strips, and content bands.'],
+        'containerClass' => ['type' => 'string', 'default' => 'container'],
+        'backgroundClass' => ['type' => 'string', 'default' => 'py-5'],
+        'className' => ['type' => 'string', 'default' => ''],
+    ];
+case 'spinner':
+    return [
+        'type' => ['type' => 'string', 'default' => 'border'],
+        'variant' => ['type' => 'string', 'default' => 'primary'],
+        'label' => ['type' => 'string', 'default' => 'Loading'],
+        'className' => ['type' => 'string', 'default' => ''],
+    ];
             case 'cards':
                 return [
                     'columnsMd' => ['type' => 'number', 'default' => 3],
@@ -741,7 +922,7 @@ public function register_assets() {
                 if (!empty($attributes['borderRadius'])) $style .= 'border-radius:' . preg_replace('/[^0-9.%a-zA-Z-]/', '', (string)$attributes['borderRadius']) . ';';
                 if (!empty($attributes['customStyle'])) $style .= (string)$attributes['customStyle'];
                 $cssTag = !empty($attributes['customCss']) ? '<style>#' . $uid . '{' . wp_strip_all_tags((string)$attributes['customCss']) . '}</style>' : '';
-                $scssTag = !empty($attributes['customScss']) ? '<style>' . $this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss']) . '</style>' : '';
+                $scssTag = !empty($attributes['customScss']) ? $this->wpbb_capture_style_tag($this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss'])) : '';
                 $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_filter($classes)) . $extra, 'style' => $style, 'id' => $uid]);
                 return "{$cssTag}{$scssTag}<div {$wrapper}>{$content}</div>";
 
@@ -1041,7 +1222,113 @@ public function register_assets() {
         }
     }
 
+
+public function render_alert_block($attributes, $content, $block) {
+    $variant = sanitize_html_class($attributes['variant'] ?? 'primary');
+    $text = wp_kses_post($attributes['text'] ?? '');
+    $dismissible = !empty($attributes['dismissible']);
+    if ($dismissible) WPBBuilder_Bootstrap::needs(['alert']);
+    $classes = 'wpbb-alert alert alert-' . $variant . ($dismissible ? ' alert-dismissible fade show' : '');
+    $wrapper = get_block_wrapper_attributes(['class' => $classes]);
+    $button = $dismissible ? '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' : '';
+    WPBBuilder_Bootstrap::enqueue_js_if_needed();
+    return '<div ' . $wrapper . '>' . $text . $button . '</div>';
+}
+
+public function render_badge_block($attributes, $content, $block) {
+    $variant = sanitize_html_class($attributes['variant'] ?? 'primary');
+    $pill = !empty($attributes['pill']) ? ' rounded-pill' : '';
+    $text = esc_html($attributes['text'] ?? '');
+    $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-badge']);
+    return '<div ' . $wrapper . '><span class="badge text-bg-' . $variant . $pill . '">' . $text . '</span></div>';
+}
+
+public function render_breadcrumb_block($attributes, $content, $block) {
+    $items = wpbb_parse_fields_json($attributes['itemsJson'] ?? '[]');
+    if (empty($items)) return '';
+    $out = '<nav aria-label="breadcrumb"><ol class="breadcrumb mb-0">';
+    $last = count($items) - 1;
+    foreach ($items as $i => $item) {
+        $label = esc_html($item['label'] ?? 'Item');
+        $url = esc_url($item['url'] ?? '');
+        if ($i === $last || $url === '') {
+            $out .= '<li class="breadcrumb-item active" aria-current="page">' . $label . '</li>';
+        } else {
+            $out .= '<li class="breadcrumb-item"><a href="' . $url . '">' . $label . '</a></li>';
+        }
+    }
+    $out .= '</ol></nav>';
+    $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-breadcrumb']);
+    return '<div ' . $wrapper . '>' . $out . '</div>';
+}
+
+public function render_list_group_block($attributes, $content, $block) {
+    $items = wpbb_parse_fields_json($attributes['itemsJson'] ?? '[]');
+    $tag = !empty($attributes['numbered']) ? 'ol' : 'ul';
+    $classes = 'list-group' . (!empty($attributes['flush']) ? ' list-group-flush' : '') . (!empty($attributes['numbered']) ? ' list-group-numbered' : '');
+    $html = '<' . $tag . ' class="' . esc_attr($classes) . '">';
+    foreach ($items as $item) {
+        $text = esc_html($item['text'] ?? 'Item');
+        $active = !empty($item['active']) ? ' active' : '';
+        $html .= '<li class="list-group-item' . $active . '">' . $text . '</li>';
+    }
+    $html .= '</' . $tag . '>';
+    $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-list-group']);
+    return '<div ' . $wrapper . '>' . $html . '</div>';
+}
+
+public function render_navbar_block($attributes, $content, $block) {
+    WPBBuilder_Bootstrap::needs(['collapse','navbar']);
+    WPBBuilder_Bootstrap::enqueue_js_if_needed();
+    $brand = esc_html($attributes['brand'] ?? 'BBuilder');
+    $brand_url = esc_url($attributes['brandUrl'] ?? '/');
+    $expand = sanitize_html_class($attributes['expand'] ?? 'lg');
+    $scheme = sanitize_html_class($attributes['scheme'] ?? 'light');
+    $bg = sanitize_html_class($attributes['bgClass'] ?? 'bg-light');
+    $items = wpbb_parse_fields_json($attributes['itemsJson'] ?? '[]');
+    $id = 'wpbb-navbar-' . wp_generate_password(6, false, false);
+    $links = '';
+    foreach ($items as $item) {
+        $label = esc_html($item['label'] ?? 'Link');
+        $url = esc_url($item['url'] ?? '#');
+        $active = !empty($item['active']) ? ' active' : '';
+        $links .= '<li class="nav-item"><a class="nav-link' . $active . '" href="' . $url . '">' . $label . '</a></li>';
+    }
+    $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-navbar']);
+    return '<nav ' . $wrapper . '><div class="navbar navbar-expand-' . $expand . ' navbar-' . $scheme . ' ' . $bg . ' rounded-4 px-3 py-2"><div class="container-fluid p-0"><a class="navbar-brand" href="' . $brand_url . '">' . $brand . '</a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#' . esc_attr($id) . '" aria-controls="' . esc_attr($id) . '" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="' . esc_attr($id) . '"><ul class="navbar-nav ms-auto mb-2 mb-lg-0">' . $links . '</ul></div></div></div></nav>';
+}
+
+public function render_progress_block($attributes, $content, $block) {
+    $value = max(0, min(100, intval($attributes['value'] ?? 0)));
+    $label = esc_html($attributes['label'] ?? 'Progress');
+    $variant = sanitize_html_class($attributes['variant'] ?? 'success');
+    $bar_classes = 'progress-bar bg-' . $variant . (!empty($attributes['striped']) ? ' progress-bar-striped' : '') . (!empty($attributes['animated']) ? ' progress-bar-animated' : '');
+    $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-progress']);
+    return '<div ' . $wrapper . '><div class="d-flex justify-content-between small mb-2"><span>' . $label . '</span><strong>' . $value . '%</strong></div><div class="progress" role="progressbar" aria-label="' . $label . '" aria-valuenow="' . $value . '" aria-valuemin="0" aria-valuemax="100"><div class="' . esc_attr($bar_classes) . '" style="width:' . $value . '%">' . $value . '%</div></div></div>';
+}
+
+public function render_section_block($attributes, $content, $block) {
+    $title = esc_html($attributes['title'] ?? 'Section');
+    $lead = wp_kses_post($attributes['lead'] ?? '');
+    $container = sanitize_html_class($attributes['containerClass'] ?? 'container');
+    $bg = sanitize_html_class($attributes['backgroundClass'] ?? 'py-5');
+    $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-section ' . $bg]);
+    return '<section ' . $wrapper . '><div class="' . $container . '"><div class="wpbb-section__intro mb-4"><h2 class="h3 mb-2">' . $title . '</h2><div class="text-secondary">' . $lead . '</div></div>' . $content . '</div></section>';
+}
+
+public function render_spinner_block($attributes, $content, $block) {
+    $type = ($attributes['type'] ?? 'border') === 'grow' ? 'spinner-grow' : 'spinner-border';
+    $variant = sanitize_html_class($attributes['variant'] ?? 'primary');
+    $label = esc_html($attributes['label'] ?? 'Loading');
+    $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-spinner text-' . $variant]);
+    return '<div ' . $wrapper . '><div class="' . $type . '" role="status"><span class="visually-hidden">' . $label . '</span></div></div>';
+}
+
     public function render_table_block($attributes, $content, $block) {
+        wp_enqueue_style('wpbb-datatables');
+        wp_enqueue_script('wpbb-datatables');
+        wp_enqueue_script('wpbb-datatables-bs5');
+        wp_enqueue_script('wpbb-table-init');
         $csv = (string) ($attributes['csvText'] ?? '');
         $delimiter = !empty($attributes['delimiter']) ? $attributes['delimiter'] : ',';
         $rows = preg_split('/\r\n|\r|\n/', trim($csv));
@@ -1222,34 +1509,14 @@ public function register_assets() {
         return ob_get_clean();
     }
 
-    public function enqueue_frontend_assets() {
+    
+public function enqueue_frontend_assets() {
+        if (is_admin()) return;
+        if (!$this->page_has_wpbb_blocks()) return;
+
+        WPBBuilder_Bootstrap::enqueue_css();
         if (wp_style_is('wpbb-shared', 'registered')) {
             wp_enqueue_style('wpbb-shared');
-        }
-        if (wpbb_get_option('load_bootstrap_css', 1)) {
-            $bootstrap_mode = wpbb_get_option('bootstrap_css_mode', 'full');
-            $bootstrap_version = '5.3.3';
-            if ($bootstrap_mode === 'custom') {
-                $css_parts = (array) wpbb_get_option('bootstrap_css_components', ['reboot','grid','utilities']);
-                if (in_array('reboot', $css_parts, true)) {
-                    wp_enqueue_style('wpbb-bootstrap-reboot', 'https://cdn.jsdelivr.net/npm/bootstrap@' . $bootstrap_version . '/dist/css/bootstrap-reboot.min.css', [], $bootstrap_version);
-                }
-                if (in_array('grid', $css_parts, true)) {
-                    wp_enqueue_style('wpbb-bootstrap-grid', 'https://cdn.jsdelivr.net/npm/bootstrap@' . $bootstrap_version . '/dist/css/bootstrap-grid.min.css', [], $bootstrap_version);
-                }
-                if (in_array('utilities', $css_parts, true)) {
-                    wp_enqueue_style('wpbb-bootstrap-utilities', 'https://cdn.jsdelivr.net/npm/bootstrap@' . $bootstrap_version . '/dist/css/bootstrap-utilities.min.css', [], $bootstrap_version);
-                }
-            } else {
-                wp_enqueue_style('wpbb-bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@' . $bootstrap_version . '/dist/css/bootstrap.min.css', [], $bootstrap_version);
-            }
-        }
-        wp_enqueue_style('wpbb-datatables', 'https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css', [], '2.0.8');
-        wp_enqueue_script('wpbb-datatables', 'https://cdn.datatables.net/2.0.8/js/dataTables.js', [], '2.0.8', true);
-        wp_enqueue_script('wpbb-datatables-bs5', 'https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js', ['wpbb-datatables'], '2.0.8', true);
-        wp_enqueue_script('wpbb-table-init', WPBB_PLUGIN_URL . 'assets/table-init.js', ['wpbb-datatables-bs5'], WPBB_VERSION, true);
-        if (wpbb_get_option('load_bootstrap_js', 0)) {
-            wp_enqueue_script('wpbb-bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js', [], '5.3.3', true);
         }
         $inline = ':root{'
             . '--wpbb-label-color:' . wpbb_hex_color(wpbb_get_option('default_label_color', '#334155')) . ';'
@@ -1260,6 +1527,16 @@ public function register_assets() {
         if (wp_style_is('wpbb-shared', 'registered')) {
             wp_add_inline_style('wpbb-shared', $inline);
         }
+    }
+
+    private function page_has_wpbb_blocks() {
+        if (is_admin()) return false;
+        if (is_singular()) {
+            global $post;
+            if (!$post || empty($post->post_content)) return false;
+            return strpos($post->post_content, '<!-- wp:wpbb/') !== false;
+        }
+        return true;
     }
 
 
@@ -1514,6 +1791,21 @@ public function register_assets() {
         return array_values(array_unique($classes));
     }
 
+
+    private function wpbb_capture_style_tag($css) {
+        $css = trim((string) $css);
+        if ($css === '') return '';
+        if (!wpbb_get_option('aggregate_inline_block_css', 1)) {
+            return '<style>' . $css . '</style>';
+        }
+        global $wpbb_inline_block_css_buffer;
+        if (!isset($wpbb_inline_block_css_buffer) || !is_array($wpbb_inline_block_css_buffer)) {
+            $wpbb_inline_block_css_buffer = [];
+        }
+        $wpbb_inline_block_css_buffer[] = $css;
+        return '';
+    }
+
     public function render_row_block($attributes, $content, $block) {
         $classes = ['row', 'wpbb-row'];
         foreach (['gutterX','gutterY','paddingClass','marginClass','backgroundClass','animationClass','displayClass','textUtilityClass','roundedClass','shadowClass','bootstrapClasses','utilityClasses','customClasses','visibilityClass','className'] as $k) {
@@ -1529,8 +1821,8 @@ public function register_assets() {
         if (!empty($attributes['maxWidth'])) { $mwRaw = trim((string)$attributes['maxWidth']); $mwu = preg_replace('/[^a-z%]/i', '', (string)($attributes['maxWidthUnit'] ?? '')); if ($mwu === '') $mwu = 'px'; if ($mwRaw === 'auto') { $style .= 'max-width:auto;margin-left:auto;margin-right:auto;'; } else { $mwNum = preg_replace('/[^0-9.\-]/', '', $mwRaw); if ($mwNum !== '') { $style .= 'max-width:' . $mwNum . $mwu . ';margin-left:auto;margin-right:auto;'; } } }
         if (!empty($attributes['customStyle'])) $style .= (string)$attributes['customStyle'];
         $responsiveSpacingCss = $this->wpbb_build_responsive_spacing_css($attributes, '#' . $uid);
-        $spacingTag = $responsiveSpacingCss !== '' ? '<style>' . $responsiveSpacingCss . '</style>' : '';
-        $scssTag = !empty($attributes['customScss']) ? '<style>' . $this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss']) . '</style>' : '';
+        $spacingTag = $responsiveSpacingCss !== '' ? $this->wpbb_capture_style_tag($responsiveSpacingCss) : '';
+        $scssTag = !empty($attributes['customScss']) ? $this->wpbb_capture_style_tag($this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss'])) : '';
         $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_values(array_unique(array_filter($classes)))), 'style' => $style, 'id' => $uid]);
         $inner = '<div class="row">' . $content . '</div>';
         if (!empty($attributes['containerClass'])) {
@@ -1560,8 +1852,8 @@ public function register_assets() {
         if (!empty($attributes['borderRadius'])) $style .= 'border-radius:' . preg_replace('/[^0-9.%a-zA-Z-]/', '', (string)$attributes['borderRadius']) . ';';
         if (!empty($attributes['customStyle'])) $style .= (string)$attributes['customStyle'];
         $responsiveSpacingCss = $this->wpbb_build_responsive_spacing_css($attributes, '#' . $uid);
-        $spacingTag = $responsiveSpacingCss !== '' ? '<style>' . $responsiveSpacingCss . '</style>' : '';
-        $scssTag = !empty($attributes['customScss']) ? '<style>' . $this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss']) . '</style>' : '';
+        $spacingTag = $responsiveSpacingCss !== '' ? $this->wpbb_capture_style_tag($responsiveSpacingCss) : '';
+        $scssTag = !empty($attributes['customScss']) ? $this->wpbb_capture_style_tag($this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss'])) : '';
         $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_values(array_unique(array_filter($classes)))), 'style' => $style, 'id' => $uid]);
         $inner = $content;
         if (!empty($attributes['containerClass'])) {

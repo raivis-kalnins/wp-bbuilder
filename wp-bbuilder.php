@@ -1,33 +1,22 @@
 <?php
 /**
  * Plugin Name: WP BBuilder
- * Description: Bootstrap-oriented Gutenberg blocks with row, column, cards, accordion, tabs, button, dynamic form, admin settings, and optional ACF Hero block.
- * Version: 3.3.0
+ * Description: Lightweight Bootstrap-oriented Gutenberg blocks optimized for Core Web Vitals and modular front-end loading.
+ * Version: 4.2.1
  * Author: Raivis Kalnins
  * Text Domain: wp-bbuilder
  */
 
 if (!defined('ABSPATH')) exit;
 
-// Include helper functions first
-require_once plugin_dir_path(__FILE__) . 'includes/helpers.php';
-
-// Include the optimized Bootstrap loader
-require_once plugin_dir_path(__FILE__) . 'includes/class-bootstrap.php';
-
-// Include other existing files...
-require_once plugin_dir_path(__FILE__) . 'includes/class-settings.php';
-require_once plugin_dir_path(__FILE__) . 'includes/class-blocks.php';
-require_once plugin_dir_path(__FILE__) . 'includes/class-admin.php';
-// ... rest of your includes
-
-define('WPBB_VERSION', '3.3.0');
+define('WPBB_VERSION', '4.2.1');
 define('WPBB_PLUGIN_FILE', __FILE__);
 define('WPBB_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WPBB_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WPBB_TEXTDOMAIN', 'wp-bbuilder');
 
 require_once WPBB_PLUGIN_DIR . 'includes/helpers.php';
+require_once WPBB_PLUGIN_DIR . 'includes/class-bootstrap.php';
 require_once WPBB_PLUGIN_DIR . 'includes/class-settings.php';
 require_once WPBB_PLUGIN_DIR . 'includes/class-admin.php';
 require_once WPBB_PLUGIN_DIR . 'includes/class-blocks.php';
@@ -66,33 +55,64 @@ if (!function_exists('wpbb_render_compiled_css')) {
     function wpbb_render_compiled_css() {
         $css = (string) wpbb_get_option('compiled_css', '');
         if ($css !== '') {
-            echo "<style id=\"wpbb-compiled-css\">" . $css . "</style>";
+            echo '<style id="wpbb-compiled-css">' . $css . '</style>';
         }
     }
     add_action('wp_head', 'wpbb_render_compiled_css', 99);
 
     function wpbb_render_meta_header_code() {
         $code = (string) wpbb_get_option('meta_header_code', '');
-        if ($code !== '') {
-            echo $code;
-        }
+        if ($code !== '') echo $code;
     }
     add_action('wp_head', 'wpbb_render_meta_header_code', 100);
 
     function wpbb_render_global_footer_code() {
         $code = (string) wpbb_get_option('global_footer_code', '');
-        if ($code !== '') {
-            echo $code;
-        }
+        if ($code !== '') echo $code;
     }
     add_action('wp_footer', 'wpbb_render_global_footer_code', 100);
 }
 
-// Instead of direct enqueue
-add_action('wp_enqueue_scripts', function() {
-    // Inline critical CSS
-    $critical_css = '/* paste the CSS from above here, minified */';
-    wp_register_style('wpbb-critical', false);
-    wp_enqueue_style('wpbb-critical');
-    wp_add_inline_style('wpbb-critical', $critical_css);
-});
+
+if (!function_exists('wpbb_render_aggregated_block_css')) {
+    function wpbb_render_aggregated_block_css() {
+        global $wpbb_inline_block_css_buffer;
+        if (empty($wpbb_inline_block_css_buffer) || !is_array($wpbb_inline_block_css_buffer)) {
+            return;
+        }
+        $css = trim(implode('', array_unique(array_filter($wpbb_inline_block_css_buffer))));
+        if ($css !== '') {
+            echo '<style id="wpbb-inline-block-css">' . $css . '</style>';
+        }
+    }
+    add_action('wp_head', 'wpbb_render_aggregated_block_css', 98);
+}
+
+
+if (!function_exists('wpbb_render_frontend_container_width')) {
+    function wpbb_render_frontend_container_width() {
+        $max = trim((string) wpbb_get_option('frontend_container_max_width', '1400px'));
+        if ($max === '') {
+            return;
+        }
+
+        $max = preg_replace('/[^0-9a-zA-Z\-\.\%\(\), \/]/', '', $max);
+        if ($max === '') {
+            return;
+        }
+
+        $css = '.wpbb-row > .container{max-width:' . $max . ';}';
+
+        if (wpbb_get_option('aggregate_inline_block_css', 1)) {
+            global $wpbb_inline_block_css_buffer;
+            if (!isset($wpbb_inline_block_css_buffer) || !is_array($wpbb_inline_block_css_buffer)) {
+                $wpbb_inline_block_css_buffer = [];
+            }
+            $wpbb_inline_block_css_buffer[] = $css;
+            return;
+        }
+
+        echo '<style id="wpbb-container-width">' . $css . '</style>';
+    }
+    add_action('wp_head', 'wpbb_render_frontend_container_width', 97);
+}

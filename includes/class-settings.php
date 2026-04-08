@@ -16,7 +16,7 @@ final class WPBB_Settings {
             $out[$flag] = !empty($input[$flag]) ? 1 : 0;
         }
 
-        $out['bootstrap_css_mode'] = in_array(($input['bootstrap_css_mode'] ?? 'full'), ['full','custom'], true) ? $input['bootstrap_css_mode'] : 'full';
+        $out['bootstrap_css_mode'] = in_array(($input['bootstrap_css_mode'] ?? 'full'), ['full','custom','grid','utilities'], true) ? $input['bootstrap_css_mode'] : 'full';
         $allowed_bootstrap_css_components = ['reboot','grid','utilities'];
         $out['bootstrap_css_components'] = [];
         if (!empty($input['bootstrap_css_components']) && is_array($input['bootstrap_css_components'])) {

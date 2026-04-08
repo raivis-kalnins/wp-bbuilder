@@ -385,3 +385,11 @@
 .wpbb-row > .row{display:flex;flex-wrap:wrap;width:100%}
 
 .wpbb-row > .container > .row,.wpbb-row > .container-sm > .row,.wpbb-row > .container-md > .row,.wpbb-row > .container-lg > .row,.wpbb-row > .container-xl > .row,.wpbb-row > .container-xxl > .row,.wpbb-row > .container-fluid > .row{display:flex;flex-wrap:wrap;width:100%}
+
+
+.wpbb-alert,.wpbb-badge,.wpbb-breadcrumb,.wpbb-list-group,.wpbb-navbar,.wpbb-progress,.wpbb-section,.wpbb-spinner{width:100%}
+.wpbb-section{position:relative}
+.wpbb-section__intro{max-width:60rem}
+.wpbb-navbar .navbar{box-shadow:0 10px 30px rgba(15,23,42,.06)}
+.wpbb-progress .progress{height:.875rem;border-radius:999px;overflow:hidden;background:#e9ecef}
+.wpbb-badge-preview,.wpbb-spinner,.wpbb-breadcrumb,.wpbb-list-group,.wpbb-progress{padding:.25rem 0}

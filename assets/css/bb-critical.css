@@ -1,0 +1,1 @@
+:root{--wpbb-radius:1rem;--wpbb-shadow:0 10px 30px rgba(15,23,42,.08)}.wpbb-row,.wpbb-column,.wpbb-section,.wpbb-card-item,.wpbb-button-wrap{box-sizing:border-box}.wpbb-card-item.card,.wpbb-dynamic-form-wrap,.wpbb-swiper-slide,.wpbb-navbar .navbar{border-radius:var(--wpbb-radius)}img{max-width:100%;height:auto}.wpbb-empty-note{font-size:.95rem}

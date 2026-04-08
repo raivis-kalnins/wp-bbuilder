@@ -306,6 +306,129 @@
     return scss.replace(/&/g, selector);
   }
 
+  function wpbbDirectCompileScss(selector, scss) {
+    scss = String(scss || '').trim();
+    if (!scss) return '';
+    if (scss.indexOf('{') === -1) return selector + '{' + scss + '}';
+
+    scss = scss.replace(/\/\*[\s\S]*?\*\//g, '');
+
+    var vars = {};
+    scss = scss.replace(/\$([a-zA-Z0-9_-]+)\s*:\s*([^;]+);/g, function (_, name, value) {
+      vars[name] = String(value || '').trim();
+      return '';
+    });
+
+    Object.keys(vars).forEach(function (name) {
+      var pattern = new RegExp('\\$' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'g');
+      scss = scss.replace(pattern, vars[name]);
+    });
+
+    function normalizeSelector(parent, selectorText) {
+      return selectorText.split(',').map(function (part) {
+        part = part.trim();
+        if (!part) return '';
+        if (!parent) return part;
+        if (part.indexOf('&') !== -1) return part.replace(/&/g, parent);
+        return (parent + ' ' + part).trim();
+      }).filter(Boolean).join(',');
+    }
+
+    function extractNestedRanges(source) {
+      var ranges = [];
+      var i = 0;
+      while (i < source.length) {
+        while (i < source.length && /\s/.test(source.charAt(i))) i++;
+        var start = i;
+        while (i < source.length && source.charAt(i) !== '{' && source.charAt(i) !== '}') i++;
+        if (i < source.length && source.charAt(i) === '{') {
+          var depth = 1;
+          i++;
+          while (i < source.length && depth > 0) {
+            if (source.charAt(i) === '{') depth++;
+            if (source.charAt(i) === '}') depth--;
+            i++;
+          }
+          ranges.push([start, i]);
+        } else {
+          i++;
+        }
+      }
+      return ranges;
+    }
+
+    function flatten(source, parent) {
+      var css = '';
+      var len = source.length;
+      var i = 0;
+
+      while (i < len) {
+        while (i < len && /\s/.test(source.charAt(i))) i++;
+        if (i >= len) break;
+
+        var selStart = i;
+        while (i < len && source.charAt(i) !== '{' && source.charAt(i) !== '}') i++;
+        if (i >= len || source.charAt(i) === '}') break;
+
+        var selectorText = source.slice(selStart, i).trim();
+        i++;
+
+        var depth = 1;
+        var bodyStart = i;
+        while (i < len && depth > 0) {
+          if (source.charAt(i) === '{') depth++;
+          if (source.charAt(i) === '}') depth--;
+          i++;
+        }
+
+        var body = source.slice(bodyStart, Math.max(bodyStart, i - 1)).trim();
+        if (!selectorText) continue;
+
+        var fullSelector = normalizeSelector(parent, selectorText);
+
+        var ranges = extractNestedRanges(body);
+        var plain = '';
+        if (ranges.length) {
+          var cursor = 0;
+          ranges.forEach(function (range) {
+            plain += body.slice(cursor, range[0]) + ' ';
+            cursor = range[1];
+          });
+          plain += body.slice(cursor);
+        } else {
+          plain = body;
+        }
+
+        plain = plain
+          .replace(/\s*;\s*/g, ';')
+          .replace(/\s*:\s*/g, ':')
+          .replace(/^;+|;+$/g, '')
+          .trim();
+
+        if (plain) css += fullSelector + '{' + plain + '}';
+        if (body.indexOf('{') !== -1) css += flatten(body, fullSelector);
+      }
+      return css;
+    }
+
+    var wrapped = scss;
+    if (scss.charAt(0) === '&' || /^[a-zA-Z0-9.#:[\]&_-]/.test(scss) === false) {
+      wrapped = selector + '{' + scss + '}';
+    }
+
+    var result = flatten(wrapped, '');
+    if (!result) result = wrapped.replace(/&/g, selector);
+
+    return result
+      .replace(/\s+/g, ' ')
+      .replace(/\s*{\s*/g, '{')
+      .replace(/\s*}\s*/g, '}')
+      .replace(/\s*;\s*/g, ';')
+      .replace(/\s*:\s*/g, ':')
+      .replace(/\s*,\s*/g, ',')
+      .trim();
+  }
+
   var el = wp.element.createElement;
   var registerBlockType = wp.blocks.registerBlockType;
   var useBlockProps = wp.blockEditor.useBlockProps;
@@ -412,6 +535,7 @@
       customClasses: { type: 'string', default: '' },
       bootstrapSearchRow: { type: 'string', default: '' },
       scssBuildStamp: { type: 'string', default: '' },
+      compiledCss: { type: 'string', default: '' },
       maxWidth: { type: 'string', default: '' },
       maxWidthUnit: { type: 'string', default: 'px' },
       visibilityClass: { type: 'string', default: '' },
@@ -438,6 +562,7 @@
       uniqueId: { type: 'string', default: '' }, customCss: { type: 'string', default: '' }, customScss: { type: 'string', default: '' }
     }),
     edit: function (props) {
+      wpbbEnsureUniqueId(props, 'wpbb-row');
       var className = wpbbJoinClasses([
         'wpbb-row', 'row',
         props.attributes.gutterX || '',
@@ -467,12 +592,26 @@
         el(TextControl, { key: 'maxWidth', label: 'Max width', value: props.attributes.maxWidth, onChange: function (v) { props.setAttributes({ maxWidth: v }); } }),
         el(TextControl, { key: 'uniqueId', label: 'Unique ID', value: props.attributes.uniqueId || '', help: 'Auto-generated, but you can change it.', onChange: function (v) { props.setAttributes({ uniqueId: v }); } }),
         el('div', { key: 'customStyles', className: 'wpbb-code-editor-preview' }, [
-          el(TextareaControl, { key: 'customScss', label: 'Custom SCSS', className: 'wpbb-code-editor', help: 'Use & for this block scope', value: props.attributes.customScss || '', onChange: function (v) { props.setAttributes({ customScss: v }); } }),
+          el(TextareaControl, { key: 'customScss', label: 'Custom SCSS', className: 'wpbb-plain-code-editor', help: 'Use & for this block scope', value: props.attributes.customScss || '', onChange: function (v) { props.setAttributes({ customScss: v, compiledCss: '' }); } }),
           el('div', { key: 'buildBar', className: 'wpbb-scss-build-bar' }, [
-            el(Button, { key: 'buildBtn', variant: 'secondary', onClick: function () { props.setAttributes({ scssBuildStamp: String(Date.now()) }); } }, 'Build SCSS'),
-            el('span', { key: 'note', className: 'wpbb-scss-build-note' }, 'Build refreshes the compiled preview below')
+            el(Button, { key: 'buildBtn', variant: 'secondary', onClick: function () {
+              var selector = '#' + (props.attributes.uniqueId || wpbbEnsureUniqueId(props, 'wpbb-row'));
+              var css = wpbbDirectCompileScss(selector, props.attributes.customScss || '');
+              props.setAttributes({ compiledCss: css, scssBuildStamp: String(Date.now()) });
+            } }, 'Build SCSS'),
+            el('span', { key: 'note', className: 'wpbb-scss-build-note' }, (props.attributes.compiledCss ? 'Built successfully below' : 'Click Build SCSS after typing'))
           ]),
-          el(TextareaControl, { key: 'compiledPreview', label: 'Compiled CSS preview', className: 'wpbb-code-editor', value: wpbbGetBuildPreview(props, 'row'), readOnly: true })
+          el('div', { key: 'compiledPreviewWrap', className: 'wpbb-code-preview-wrap' }, [
+            el('label', { key: 'compiledPreviewLabel', style: { display: 'block', fontWeight: '600', marginBottom: '6px' } }, 'Compiled CSS preview'),
+            el('textarea', {
+              key: 'compiledPreview',
+              className: 'wpbb-code-editor wpbb-code-editor--compiled-preview',
+              value: props.attributes.compiledCss || '',
+              readOnly: true,
+              rows: 8,
+              style: { width: '100%', fontFamily: 'monospace' }
+            })
+          ])
         ]),
         el(SelectControl, { key: 'visibilityClass', label: 'Extra visibility class', value: props.attributes.visibilityClass, options: [{ label: 'None', value: '' }, { label: 'd-none', value: 'd-none' }, { label: 'd-none d-md-block', value: 'd-none d-md-block' }, { label: 'd-md-none', value: 'd-md-none' }], onChange: function (v) { props.setAttributes({ visibilityClass: v }); } }),
         visibilitySwitches(props),
@@ -511,6 +650,7 @@
       customClasses: { type: 'string', default: '' },
       bootstrapSearchColumn: { type: 'string', default: '' },
       scssBuildStamp: { type: 'string', default: '' },
+      compiledCss: { type: 'string', default: '' },
       utilityClasses: { type: 'string', default: '' },
       orderClass: { type: 'string', default: '' },
       verticalAlign: { type: 'string', default: '' },
@@ -590,12 +730,26 @@
         wpbbCustomClassField(props, 'columnCustomClasses'),
         el(TextControl, { key: 'uniqueId', label: 'Unique ID', value: props.attributes.uniqueId || '', onChange: function (v) { props.setAttributes({ uniqueId: v }); } }),
         el('div', { key: 'customStyles', className: 'wpbb-code-editor-preview' }, [
-          el(TextareaControl, { key: 'customScss', label: 'Custom SCSS', className: 'wpbb-code-editor', help: 'Use & for this block scope', value: props.attributes.customScss || '', onChange: function (v) { props.setAttributes({ customScss: v }); } }),
+          el(TextareaControl, { key: 'customScss', label: 'Custom SCSS', className: 'wpbb-plain-code-editor', help: 'Use & for this block scope', value: props.attributes.customScss || '', onChange: function (v) { props.setAttributes({ customScss: v, compiledCss: '' }); } }),
           el('div', { key: 'buildBar', className: 'wpbb-scss-build-bar' }, [
-            el(Button, { key: 'buildBtn', variant: 'secondary', onClick: function () { props.setAttributes({ scssBuildStamp: String(Date.now()) }); } }, 'Build SCSS'),
-            el('span', { key: 'note', className: 'wpbb-scss-build-note' }, 'Build refreshes the compiled preview below')
+            el(Button, { key: 'buildBtn', variant: 'secondary', onClick: function () {
+              var selector = '#' + (props.attributes.uniqueId || wpbbEnsureUniqueId(props, 'wpbb-col'));
+              var css = wpbbDirectCompileScss(selector, props.attributes.customScss || '');
+              props.setAttributes({ compiledCss: css, scssBuildStamp: String(Date.now()) });
+            } }, 'Build SCSS'),
+            el('span', { key: 'note', className: 'wpbb-scss-build-note' }, (props.attributes.compiledCss ? 'Built successfully below' : 'Click Build SCSS after typing'))
           ]),
-          el(TextareaControl, { key: 'compiledPreview', label: 'Compiled CSS preview', className: 'wpbb-code-editor', value: wpbbGetBuildPreview(props, 'column'), readOnly: true })
+          el('div', { key: 'compiledPreviewWrap', className: 'wpbb-code-preview-wrap' }, [
+            el('label', { key: 'compiledPreviewLabel', style: { display: 'block', fontWeight: '600', marginBottom: '6px' } }, 'Compiled CSS preview'),
+            el('textarea', {
+              key: 'compiledPreview',
+              className: 'wpbb-code-editor wpbb-code-editor--compiled-preview',
+              value: props.attributes.compiledCss || '',
+              readOnly: true,
+              rows: 8,
+              style: { width: '100%', fontFamily: 'monospace' }
+            })
+          ])
         ]),
         el(SelectControl, { key: 'orderClass', label: 'Order', value: props.attributes.orderClass, options: [{ label: 'Default', value: '' }, { label: 'order-1', value: 'order-1' }, { label: 'order-2', value: 'order-2' }, { label: 'order-3', value: 'order-3' }, { label: 'order-first', value: 'order-first' }, { label: 'order-last', value: 'order-last' }], onChange: function (v) { props.setAttributes({ orderClass: v }); } }),
         el(SelectControl, { key: 'visibilityClass', label: 'Extra visibility class', value: props.attributes.visibilityClass, options: [{ label: 'None', value: '' }, { label: 'd-none', value: 'd-none' }, { label: 'd-none d-md-block', value: 'd-none d-md-block' }, { label: 'd-md-none', value: 'd-md-none' }], onChange: function (v) { props.setAttributes({ visibilityClass: v }); } }),
@@ -1115,5 +1269,263 @@
     },
     save:function(){ return el(InnerBlocks.Content); }
   });
+
+
+
+registerBlockType('wpbb/alert', {
+  title:'Alert',
+  icon:'warning',
+  category:'wpbb',
+  attributes:{
+    text:{type:'string',default:'Heads up! This is a fast, accessible alert block.'},
+    variant:{type:'string',default:'primary'},
+    dismissible:{type:'boolean',default:false}
+  },
+  edit:function(props){
+    return el(wp.element.Fragment,{},
+      el(InspectorControls,{},
+        el(PanelBody,{title:'Alert settings',initialOpen:true},[
+          el(SelectControl,{key:'variant',label:'Variant',value:props.attributes.variant||'primary',options:[
+            {label:'Primary',value:'primary'},{label:'Success',value:'success'},{label:'Warning',value:'warning'},{label:'Danger',value:'danger'},{label:'Info',value:'info'}
+          ],onChange:function(v){props.setAttributes({variant:v});}}),
+          el(ToggleControl,{key:'dismiss',label:'Dismissible',checked:!!props.attributes.dismissible,onChange:function(v){props.setAttributes({dismissible:v});}})
+        ])
+      ),
+      el('div',useBlockProps({className:'alert alert-' + (props.attributes.variant||'primary')}),
+        el(RichText,{tagName:'div',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}})
+      )
+    );
+  },
+  save:function(){ return null; }
+});
+
+registerBlockType('wpbb/badge', {
+  title:'Badge',
+  icon:'tag',
+  category:'wpbb',
+  attributes:{
+    text:{type:'string',default:'New'},
+    variant:{type:'string',default:'primary'},
+    pill:{type:'boolean',default:true}
+  },
+  edit:function(props){
+    return el(wp.element.Fragment,{},
+      el(InspectorControls,{},
+        el(PanelBody,{title:'Badge settings',initialOpen:true},[
+          el(TextControl,{key:'text',label:'Text',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}}),
+          el(SelectControl,{key:'variant',label:'Variant',value:props.attributes.variant||'primary',options:[
+            {label:'Primary',value:'primary'},{label:'Secondary',value:'secondary'},{label:'Success',value:'success'},{label:'Warning',value:'warning'},{label:'Danger',value:'danger'}
+          ],onChange:function(v){props.setAttributes({variant:v});}}),
+          el(ToggleControl,{key:'pill',label:'Rounded pill',checked:props.attributes.pill!==false,onChange:function(v){props.setAttributes({pill:v});}})
+        ])
+      ),
+      el('div',useBlockProps({className:'wpbb-badge-preview'}),
+        el('span',{className:'badge text-bg-' + (props.attributes.variant||'primary') + (props.attributes.pill!==false ? ' rounded-pill' : '')}, props.attributes.text || 'New')
+      )
+    );
+  },
+  save:function(){ return null; }
+});
+
+registerBlockType('wpbb/breadcrumb', {
+  title:'Breadcrumb',
+  icon:'editor-ol',
+  category:'wpbb',
+  attributes:{
+    itemsJson:{type:'string',default:'[{"label":"Home","url":"/"},{"label":"Library","url":"#"},{"label":"Current page","url":""}]'}
+  },
+  edit:function(props){
+    var items;
+    try { items = JSON.parse(props.attributes.itemsJson || '[]'); } catch(e) { items = []; }
+    var previewItems = items.length ? items : [{label:'Home'},{label:'Current page'}];
+    return el(wp.element.Fragment,{},
+      el(InspectorControls,{},
+        el(PanelBody,{title:'Breadcrumb items',initialOpen:true},[
+          el(TextareaControl,{key:'items',label:'Items JSON',value:props.attributes.itemsJson||'',onChange:function(v){props.setAttributes({itemsJson:v});}})
+        ])
+      ),
+      el('div',useBlockProps({className:'wpbb-breadcrumb-preview'}),
+        el('nav',{'aria-label':'Breadcrumb'},
+          el('ol',{className:'breadcrumb mb-0'},
+            previewItems.map(function(item,index){
+              var isLast = index === previewItems.length - 1;
+              return el('li',{key:index,className:'breadcrumb-item' + (isLast ? ' active' : '')}, item.label || 'Item');
+            })
+          )
+        )
+      )
+    );
+  },
+  save:function(){ return null; }
+});
+
+registerBlockType('wpbb/list-group', {
+  title:'List Group',
+  icon:'list-view',
+  category:'wpbb',
+  attributes:{
+    itemsJson:{type:'string',default:'[{"text":"Fast loading","active":true},{"text":"Bootstrap components"},{"text":"Server-side rendering"}]'},
+    flush:{type:'boolean',default:false},
+    numbered:{type:'boolean',default:false}
+  },
+  edit:function(props){
+    var items;
+    try { items = JSON.parse(props.attributes.itemsJson || '[]'); } catch(e) { items = []; }
+    var previewItems = items.length ? items : [{text:'Item'}];
+    return el(wp.element.Fragment,{},
+      el(InspectorControls,{},
+        el(PanelBody,{title:'List group',initialOpen:true},[
+          el(TextareaControl,{key:'items',label:'Items JSON',value:props.attributes.itemsJson||'',onChange:function(v){props.setAttributes({itemsJson:v});}}),
+          el(ToggleControl,{key:'flush',label:'Flush',checked:!!props.attributes.flush,onChange:function(v){props.setAttributes({flush:v});}}),
+          el(ToggleControl,{key:'numbered',label:'Numbered',checked:!!props.attributes.numbered,onChange:function(v){props.setAttributes({numbered:v});}})
+        ])
+      ),
+      el('div',useBlockProps({className:'list-group' + (props.attributes.flush ? ' list-group-flush' : '') + (props.attributes.numbered ? ' list-group-numbered' : '')}),
+        previewItems.map(function(item,index){
+          return el('div',{key:index,className:'list-group-item' + (item.active ? ' active' : '')}, item.text || 'Item');
+        })
+      )
+    );
+  },
+  save:function(){ return null; }
+});
+
+registerBlockType('wpbb/navbar', {
+  title:'Navbar',
+  icon:'menu',
+  category:'wpbb',
+  attributes:{
+    brand:{type:'string',default:'BBuilder'},
+    brandUrl:{type:'string',default:'/'},
+    expand:{type:'string',default:'lg'},
+    scheme:{type:'string',default:'light'},
+    bgClass:{type:'string',default:'bg-light'},
+    itemsJson:{type:'string',default:'[{"label":"Home","url":"/","active":true},{"label":"Docs","url":"#"},{"label":"Pricing","url":"#"}]'}
+  },
+  edit:function(props){
+    var items;
+    try { items = JSON.parse(props.attributes.itemsJson || '[]'); } catch(e) { items = []; }
+    var previewItems = items.length ? items : [{label:'Home'}];
+    return el(wp.element.Fragment,{},
+      el(InspectorControls,{},
+        el(PanelBody,{title:'Navbar settings',initialOpen:true},[
+          el(TextControl,{key:'brand',label:'Brand',value:props.attributes.brand||'',onChange:function(v){props.setAttributes({brand:v});}}),
+          el(TextControl,{key:'brandUrl',label:'Brand URL',value:props.attributes.brandUrl||'/',onChange:function(v){props.setAttributes({brandUrl:v});}}),
+          el(SelectControl,{key:'expand',label:'Expand breakpoint',value:props.attributes.expand||'lg',options:[{label:'sm',value:'sm'},{label:'md',value:'md'},{label:'lg',value:'lg'},{label:'xl',value:'xl'}],onChange:function(v){props.setAttributes({expand:v});}}),
+          el(SelectControl,{key:'scheme',label:'Color scheme',value:props.attributes.scheme||'light',options:[{label:'Light',value:'light'},{label:'Dark',value:'dark'}],onChange:function(v){props.setAttributes({scheme:v});}}),
+          el(TextControl,{key:'bgClass',label:'Background class',value:props.attributes.bgClass||'bg-light',onChange:function(v){props.setAttributes({bgClass:v});}}),
+          el(TextareaControl,{key:'items',label:'Items JSON',value:props.attributes.itemsJson||'',onChange:function(v){props.setAttributes({itemsJson:v});}})
+        ])
+      ),
+      el('div',useBlockProps({className:'navbar navbar-expand-' + (props.attributes.expand||'lg') + ' ' + (props.attributes.bgClass||'bg-light') + ' rounded-4 px-3 py-2'}),
+        el('div',{className:'container-fluid p-0'}, [
+          el('strong',{key:'brand',className:'navbar-brand m-0'}, props.attributes.brand||'BBuilder'),
+          el('ul',{key:'links',className:'navbar-nav ms-auto flex-row gap-3'},
+            previewItems.map(function(item,index){
+              return el('li',{key:index,className:'nav-item'}, el('span',{className:'nav-link' + (item.active ? ' active' : '')}, item.label || 'Link'));
+            })
+          )
+        ])
+      )
+    );
+  },
+  save:function(){ return null; }
+});
+
+registerBlockType('wpbb/progress', {
+  title:'Progress',
+  icon:'performance',
+  category:'wpbb',
+  attributes:{
+    value:{type:'number',default:72},
+    label:{type:'string',default:'Performance'},
+    variant:{type:'string',default:'success'},
+    striped:{type:'boolean',default:false},
+    animated:{type:'boolean',default:false}
+  },
+  edit:function(props){
+    var barClasses = 'progress-bar bg-' + (props.attributes.variant||'success') + (props.attributes.striped ? ' progress-bar-striped' : '') + (props.attributes.animated ? ' progress-bar-animated' : '');
+    return el(wp.element.Fragment,{},
+      el(InspectorControls,{},
+        el(PanelBody,{title:'Progress settings',initialOpen:true},[
+          el(TextControl,{key:'label',label:'Label',value:props.attributes.label||'',onChange:function(v){props.setAttributes({label:v});}}),
+          el(RangeControl,{key:'value',label:'Value',value:props.attributes.value||0,min:0,max:100,onChange:function(v){props.setAttributes({value:v||0});}}),
+          el(SelectControl,{key:'variant',label:'Variant',value:props.attributes.variant||'success',options:[{label:'Success',value:'success'},{label:'Primary',value:'primary'},{label:'Info',value:'info'},{label:'Warning',value:'warning'},{label:'Danger',value:'danger'}],onChange:function(v){props.setAttributes({variant:v});}}),
+          el(ToggleControl,{key:'striped',label:'Striped',checked:!!props.attributes.striped,onChange:function(v){props.setAttributes({striped:v});}}),
+          el(ToggleControl,{key:'animated',label:'Animated',checked:!!props.attributes.animated,onChange:function(v){props.setAttributes({animated:v});}})
+        ])
+      ),
+      el('div',useBlockProps({className:'wpbb-progress-preview'}), [
+        el('div',{key:'meta',className:'d-flex justify-content-between small mb-2'}, [
+          el('span',{key:'l'}, props.attributes.label||'Progress'),
+          el('strong',{key:'v'}, String(props.attributes.value||0) + '%')
+        ]),
+        el('div',{key:'bar',className:'progress'},
+          el('div',{className:barClasses,style:{width:String(props.attributes.value||0)+'%'}}, String(props.attributes.value||0) + '%')
+        )
+      ])
+    );
+  },
+  save:function(){ return null; }
+});
+
+registerBlockType('wpbb/section', {
+  title:'Section',
+  icon:'cover-image',
+  category:'wpbb',
+  attributes:{
+    title:{type:'string',default:'Section'},
+    lead:{type:'string',default:'Use this semantic section wrapper for hero areas, feature strips, and content bands.'},
+    containerClass:{type:'string',default:'container'},
+    backgroundClass:{type:'string',default:'py-5'}
+  },
+  edit:function(props){
+    return el(wp.element.Fragment,{},
+      el(InspectorControls,{},
+        el(PanelBody,{title:'Section settings',initialOpen:true},[
+          el(TextControl,{key:'title',label:'Title',value:props.attributes.title||'',onChange:function(v){props.setAttributes({title:v});}}),
+          el(TextareaControl,{key:'lead',label:'Lead',value:props.attributes.lead||'',onChange:function(v){props.setAttributes({lead:v});}}),
+          el(SelectControl,{key:'container',label:'Container',value:props.attributes.containerClass||'container',options:[{label:'container',value:'container'},{label:'container-fluid',value:'container-fluid'},{label:'container-lg',value:'container-lg'}],onChange:function(v){props.setAttributes({containerClass:v});}}),
+          el(TextControl,{key:'bg',label:'Wrapper classes',value:props.attributes.backgroundClass||'py-5',onChange:function(v){props.setAttributes({backgroundClass:v});}})
+        ])
+      ),
+      el('section',useBlockProps({className:'wpbb-section-preview ' + (props.attributes.backgroundClass||'py-5')}),
+        el('div',{className:props.attributes.containerClass||'container'}, [
+          el(RichText,{key:'title',tagName:'h2',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}),
+          el(RichText,{key:'lead',tagName:'p',value:props.attributes.lead,onChange:function(v){props.setAttributes({lead:v});}}),
+          el(InnerBlocks,{key:'content',allowedBlocks:['core/paragraph','core/heading','core/list','wpbb/button','wpbb/row','wpbb/cards','wpbb/list-group','wpbb/alert']})
+        ])
+      )
+    );
+  },
+  save:function(){ return el(InnerBlocks.Content); }
+});
+
+registerBlockType('wpbb/spinner', {
+  title:'Spinner',
+  icon:'update',
+  category:'wpbb',
+  attributes:{
+    type:{type:'string',default:'border'},
+    variant:{type:'string',default:'primary'},
+    label:{type:'string',default:'Loading'}
+  },
+  edit:function(props){
+    var klass = (props.attributes.type||'border') === 'grow' ? 'spinner-grow' : 'spinner-border';
+    return el(wp.element.Fragment,{},
+      el(InspectorControls,{},
+        el(PanelBody,{title:'Spinner settings',initialOpen:true},[
+          el(SelectControl,{key:'type',label:'Type',value:props.attributes.type||'border',options:[{label:'Border',value:'border'},{label:'Grow',value:'grow'}],onChange:function(v){props.setAttributes({type:v});}}),
+          el(SelectControl,{key:'variant',label:'Variant',value:props.attributes.variant||'primary',options:[{label:'Primary',value:'primary'},{label:'Secondary',value:'secondary'},{label:'Success',value:'success'},{label:'Warning',value:'warning'},{label:'Danger',value:'danger'}],onChange:function(v){props.setAttributes({variant:v});}}),
+          el(TextControl,{key:'label',label:'Accessible label',value:props.attributes.label||'Loading',onChange:function(v){props.setAttributes({label:v});}})
+        ])
+      ),
+      el('div',useBlockProps({className:'text-' + (props.attributes.variant||'primary')}),
+        el('div',{className:klass,role:'status'}, el('span',{className:'visually-hidden'}, props.attributes.label || 'Loading'))
+      )
+    );
+  },
+  save:function(){ return null; }
+});
 
 })(window.wp);
