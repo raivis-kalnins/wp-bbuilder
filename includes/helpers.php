@@ -10,12 +10,13 @@ function wpbb_defaults() {
             'tab-item' => 1,'table' => 1,'tabs' => 1,'video' => 1,'swiper' => 1,
             'weather' => 1,'varda-dienas' => 1,'ajax-search' => 1,'pricecards' => 1,'catalogue' => 1,
             'code-display' => 1,'countdown-timer' => 1,'chart' => 1,'fun-fact' => 1,'mailchimp' => 1,'bootstrap-div' => 1,
+            'feature-list' => 1,'timeline' => 1,'custom-embed' => 1,'ai-content' => 1,'login-register' => 1,
         ],
         'disable_core_group' => 1,'disable_core_columns' => 1,'disable_core_column' => 1,
         'disable_core_table' => 1,'disable_core_embed' => 0,'disable_core_gallery' => 0,
         'disable_core_image' => 0,'disable_core_cover' => 0,'disable_core_media_text' => 0,
         'disable_core_buttons' => 0,'disable_core_button' => 0,
-        'load_bootstrap_css' => 1,'load_bootstrap_js' => 0,'save_entries' => 1,'show_entries_menu' => 0,
+        'load_bootstrap_css' => 1,'load_bootstrap_js' => 0,'force_bootstrap_enqueue' => 0,'save_entries' => 1,'show_entries_menu' => 0,
         'bootstrap_css_mode' => 'grid',
         'bootstrap_css_components' => ['reboot','grid','utilities'],
         'default_recipient_email' => get_option('admin_email'),
@@ -25,7 +26,7 @@ function wpbb_defaults() {
         'button_class' => 'btn btn-primary','form_class' => 'wpbb-form','admin_max_width' => '1400px','frontend_container_max_width' => '1400px',
         'hcaptcha_site_key' => '','hcaptcha_secret_key' => '','recaptcha_site_key' => '','recaptcha_secret_key' => '',
         'default_label_color' => '#334155','default_input_border_color' => '#cbd5e1','default_button_bg' => '#2563eb','default_button_text' => '#ffffff',
-        'bootstrap_optimize_frontend' => 1,'bootstrap_enable_utilities' => 1,'bootstrap_allow_custom_classes' => 1,'aggregate_inline_block_css' => 1,
+        'bootstrap_optimize_frontend' => 1,'bootstrap_enable_utilities' => 1,'bootstrap_allow_custom_classes' => 1,'aggregate_inline_block_css' => 1,'admin_scss' => '','admin_compiled_css' => '',
         'whatsapp_phone' => '',
         'whatsapp_message' => 'Hi, I would like to chat.',
         'whatsapp_position' => 'bottom-right',
@@ -61,7 +62,7 @@ function wpbb_is_block_enabled($slug) {
     return empty($enabled) || !empty($enabled[$slug]);
 }
 function wpbb_get_blocks_list() {
-    return ['accordion','accordion-item','alert','badge','breadcrumb','button','card','cards','column','cta-card','cta-section','dynamic-form','google-map','list-group','menu-option','navbar','progress','row','section','sitemap','soc-follow-block','soc-share','spinner','tab-item','table','tabs','video','swiper','weather','varda-dienas','ajax-search','pricecards','catalogue','code-display','countdown-timer','chart','fun-fact','mailchimp','bootstrap-div'];
+    return ['accordion','accordion-item','alert','badge','breadcrumb','button','card','cards','column','cta-card','cta-section','dynamic-form','google-map','list-group','menu-option','navbar','progress','row','section','sitemap','soc-follow-block','soc-share','spinner','tab-item','table','tabs','video','swiper','weather','varda-dienas','ajax-search','pricecards','catalogue','code-display','countdown-timer','chart','fun-fact','mailchimp','bootstrap-div','feature-list','timeline','custom-embed','ai-content','login-register'];
 }
 function wpbb_get_acf_blocks_list() { return ['wpbb-hero','wpbb-gallery']; }
 function wpbb_parse_fields_json($json) {

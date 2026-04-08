@@ -8,7 +8,17 @@
       textarea.dataset.wpbbEditorReady = '1';
       try {
         var instance = wp.codeEditor.initialize(textarea, (window.wpbbEditorEnhancer && window.wpbbEditorEnhancer.scss) || { codemirror: { mode: 'text/x-scss', lineNumbers: true, lineWrapping: true } });
-        if (textarea.readOnly && instance && instance.codemirror) instance.codemirror.setOption('readOnly', true);
+        if (instance && instance.codemirror) {
+          textarea.wpbbCodeMirror = instance.codemirror;
+          if (textarea.readOnly) instance.codemirror.setOption('readOnly', true);
+          instance.codemirror.on('change', function(cm){
+            try {
+              textarea.value = cm.getValue();
+              textarea.dispatchEvent(new Event('input', { bubbles: true }));
+              textarea.dispatchEvent(new Event('change', { bubbles: true }));
+            } catch (err) {}
+          });
+        }
       } catch (e) {}
     });
   }

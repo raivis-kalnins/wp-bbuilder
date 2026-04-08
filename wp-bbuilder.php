@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WP BBuilder
  * Description: Lightweight Bootstrap-oriented Gutenberg blocks optimized for Core Web Vitals and modular front-end loading.
- * Version: 4.2.1
+ * Version: 4.9.3
  * Author: Raivis Kalnins
  * Text Domain: wp-bbuilder
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('WPBB_VERSION', '4.2.1');
+define('WPBB_VERSION', '4.9.3');
 define('WPBB_PLUGIN_FILE', __FILE__);
 define('WPBB_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WPBB_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -115,4 +115,31 @@ if (!function_exists('wpbb_render_frontend_container_width')) {
         echo '<style id="wpbb-container-width">' . $css . '</style>';
     }
     add_action('wp_head', 'wpbb_render_frontend_container_width', 97);
+}
+
+
+if (!function_exists('wpbb_render_admin_compiled_css')) {
+    function wpbb_render_admin_compiled_css() {
+        if (!is_admin()) return;
+        $css = (string) wpbb_get_option('admin_compiled_css', '');
+        if ($css !== '') {
+            echo '<style id="wpbb-admin-compiled-css">' . $css . '</style>';
+        }
+    }
+    add_action('admin_head', 'wpbb_render_admin_compiled_css', 99);
+}
+
+
+if (!function_exists('wpbb_force_bootstrap_enqueue')) {
+    function wpbb_force_bootstrap_enqueue() {
+        if (is_admin()) return;
+        if (!wpbb_get_option('force_bootstrap_enqueue', 0)) return;
+        if (wpbb_get_option('load_bootstrap_css', 1)) {
+            wp_enqueue_style('wpbb-bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css', [], '5.3.3');
+        }
+        if (wpbb_get_option('load_bootstrap_js', 0)) {
+            wp_enqueue_script('wpbb-bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js', [], '5.3.3', true);
+        }
+    }
+    add_action('wp_enqueue_scripts', 'wpbb_force_bootstrap_enqueue', 1);
 }

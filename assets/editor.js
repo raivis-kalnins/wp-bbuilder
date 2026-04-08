@@ -63,49 +63,183 @@
       el('div', { className: 'wpbb-responsive-group__label', key: 'label' }, labelText),
       el('div', { className: 'wpbb-responsive-side-field wpbb-responsive-side-field--single', key: 'field' }, [
         el('div', { className: 'wpbb-responsive-side-field__controls', key: 'controls' }, [
-          el(TextControl, {
+          el('input', {
             key: 'value',
-            className: 'wpbb-responsive-side-field__value',
+            className: 'wpbb-spacing-native-input',
+            type: 'text',
+            inputMode: parsed.unit === 'auto' ? 'text' : 'decimal',
             value: parsed.number,
-            placeholder: '0',
+            placeholder: parsed.unit === 'auto' ? '' : '0',
             disabled: parsed.unit === 'auto',
-            onChange: function (v) {
+            onInput: function (event) {
+              var v = event && event.target ? event.target.value : '';
+              var next = {};
+              next[valueKey] = wpbbBuildSpacingValue(v, parsed.unit);
+              next[unitKey] = parsed.unit;
+              props.setAttributes(next);
+            },
+            onChange: function (event) {
+              var v = event && event.target ? event.target.value : '';
               var next = {};
               next[valueKey] = wpbbBuildSpacingValue(v, parsed.unit);
               next[unitKey] = parsed.unit;
               props.setAttributes(next);
             }
           }),
-          el(SelectControl, {
+          el('select', {
             key: 'unit',
-            className: 'wpbb-responsive-side-field__unit',
+            className: 'wpbb-spacing-native-select',
             value: parsed.unit,
-            options: [
-              { label: 'px', value: 'px' },
-              { label: '%', value: '%' },
-              { label: 'em', value: 'em' },
-              { label: 'rem', value: 'rem' },
-              { label: 'vw', value: 'vw' },
-              { label: 'vh', value: 'vh' },
-              { label: 'auto', value: 'auto' }
-            ],
-            onChange: function (unit) {
+            onChange: function (event) {
+              var unit = event && event.target ? event.target.value : 'px';
               var next = {};
               next[valueKey] = wpbbBuildSpacingValue(parsed.number, unit);
               next[unitKey] = unit;
               props.setAttributes(next);
             }
-          })
+          }, [
+            el('option', { key: 'px', value: 'px' }, 'px'),
+            el('option', { key: '%', value: '%' }, '%'),
+            el('option', { key: 'em', value: 'em' }, 'em'),
+            el('option', { key: 'rem', value: 'rem' }, 'rem'),
+            el('option', { key: 'vw', value: 'vw' }, 'vw'),
+            el('option', { key: 'vh', value: 'vh' }, 'vh'),
+            el('option', { key: 'auto', value: 'auto' }, 'auto')
+          ])
         ])
       ])
     ]);
   }
 
+  function wpbbReadScssFromPanelButton(buttonEl, fallbackValue) {
+    try {
+      var panel = buttonEl && buttonEl.closest ? buttonEl.closest('.wpbb-code-editor-preview') : null;
+      var textarea = panel ? panel.querySelector('textarea') : null;
+      if (!textarea) return fallbackValue || '';
+      if (textarea.nextSibling && textarea.nextSibling.CodeMirror && typeof textarea.nextSibling.CodeMirror.getValue === 'function') {
+        return textarea.nextSibling.CodeMirror.getValue();
+      }
+      if (textarea.wpbbCodeMirror && typeof textarea.wpbbCodeMirror.getValue === 'function') {
+        return textarea.wpbbCodeMirror.getValue();
+      }
+      return textarea.value || fallbackValue || '';
+    } catch (err) {}
+    return fallbackValue || '';
+  }
 
-  function wpbbGetBuildPreview(props, kind) {
-    var ensuredId = props.attributes.uniqueId || wpbbEnsureUniqueId(props, 'wpbb-' + kind);
-    var stamp = props.attributes.scssBuildStamp || '';
-    return wpbbCompileScopedScssPreview('#' + ensuredId, props.attributes.customScss || '') + (stamp ? '' : '');
+  function wpbbEditorBgStyle(attrs) {
+    var style = {};
+    if (attrs.backgroundImageUrl) {
+      style.backgroundImage = 'url(' + attrs.backgroundImageUrl + ')';
+      style.backgroundSize = attrs.backgroundSize || 'cover';
+      style.backgroundPosition = attrs.backgroundPosition || 'center center';
+      style.backgroundRepeat = 'no-repeat';
+      style.backgroundAttachment = attrs.backgroundAttachment || 'scroll';
+    }
+    if (attrs.backgroundColor) {
+      style.backgroundColor = attrs.backgroundColor;
+    }
+    return style;
+  }
+
+  function wpbbOverlayNode(attrs) {
+    if (!attrs.overlayColor || Number(attrs.overlayOpacity || 0) <= 0) return null;
+    return el('div', {
+      className: 'wpbb-editor-overlay',
+      style: {
+        position: 'absolute',
+        inset: '0',
+        pointerEvents: 'none',
+        background: attrs.overlayColor,
+        opacity: Number(attrs.overlayOpacity || 0)
+      }
+    });
+  }
+
+
+  function wpbbPreviewSocialIcon(name) {
+    var map = {
+      facebook: 'M13.5 22v-8h2.7l.4-3h-3.1V9.1c0-.9.3-1.6 1.7-1.6h1.6V4.8c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 4v2.3H8v3h2.7v8h2.8z',
+      instagram: 'M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2.2A2.8 2.8 0 0 0 4.2 7v10A2.8 2.8 0 0 0 7 19.8h10a2.8 2.8 0 0 0 2.8-2.8V7A2.8 2.8 0 0 0 17 4.2H7zm10.5 1.6a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2.2A2.8 2.8 0 1 0 12 14.8 2.8 2.8 0 0 0 12 9.2z',
+      linkedin: 'M6.94 8.5H4V20h2.94V8.5zM5.47 4A1.72 1.72 0 1 0 5.5 7.44 1.72 1.72 0 0 0 5.47 4zM20 12.9c0-3.1-1.66-4.54-3.88-4.54-1.8 0-2.6.99-3.05 1.68V8.5H10.1c.04 1 .04 11.5 0 11.5h2.97v-6.42c0-.34.02-.68.12-.92.27-.68.88-1.38 1.91-1.38 1.35 0 1.89 1.03 1.89 2.54V20H20v-7.1z',
+      x: 'M18.9 3H21l-4.6 5.2L21.8 21h-5.7l-4.5-5.8L6.5 21H4.4l5-5.7L2.2 3H8l4.1 5.4L18.9 3zm-2 16h1.6L7 4.9H5.3L16.9 19z',
+      youtube: 'M23 12s0-3.5-.45-5.2a2.7 2.7 0 0 0-1.9-1.9C18.9 4.4 12 4.4 12 4.4s-6.9 0-8.65.5a2.7 2.7 0 0 0-1.9 1.9C1 8.5 1 12 1 12s0 3.5.45 5.2a2.7 2.7 0 0 0 1.9 1.9c1.75.5 8.65.5 8.65.5s6.9 0 8.65-.5a2.7 2.7 0 0 0 1.9-1.9C23 15.5 23 12 23 12zM10 15.5v-7l6 3.5-6 3.5z',
+      whatsapp: 'M20.5 3.5A11.8 11.8 0 0 0 1.8 17.7L.5 23.5l5.9-1.3A11.8 11.8 0 1 0 20.5 3.5zm-8.7 18a9.7 9.7 0 0 1-4.9-1.3l-.4-.2-3.5.8.8-3.4-.2-.4a9.7 9.7 0 1 1 8.2 4.5zm5.3-7.2c-.3-.1-1.8-.9-2.1-1s-.5-.1-.7.1-.8 1-1 1.1-.4.2-.7 0a7.9 7.9 0 0 1-2.3-1.4 8.8 8.8 0 0 1-1.6-2c-.2-.3 0-.5.1-.7l.5-.6.2-.4a.8.8 0 0 0 0-.5c-.1-.1-.7-1.7-1-2.3-.2-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.8.4c-.3.3-1 1-1 2.4s1 2.7 1.2 2.9c.1.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.4.2 1.9.1.6-.1 1.8-.8 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.1-.3-.2-.6-.3z',
+      email: 'M3 5h18a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm0 2v.5l9 5.6 9-5.6V7H3zm18 10V9.8l-8.5 5.3a1 1 0 0 1-1 0L3 9.8V17h18z'
+    };
+    return el('span', { className: 'wpbb-social-preview-badge wpbb-social-preview-badge--icon' }, el('svg', { viewBox: '0 0 24 24', width: 18, height: 18, 'aria-hidden': 'true' }, el('path', { fill: 'currentColor', d: map[name] || map.email })));
+  }
+
+  function wpbbShadowOptions() {
+    return [
+      { label: 'None', value: '' },
+      { label: 'Small', value: 'shadow-sm' },
+      { label: 'Regular', value: 'shadow' },
+      { label: 'Large', value: 'shadow-lg' }
+    ];
+  }
+
+  function wpbbBackgroundControls(props, kind) {
+    return [
+      colorInput('Background color', props.attributes.backgroundColor || '', function (v) { props.setAttributes({ backgroundColor: v }); }, kind + '-bg-color'),
+      el(TextControl, { key: kind + '-bg-image', label: 'Background image URL', value: props.attributes.backgroundImageUrl || '', onChange: function (v) { props.setAttributes({ backgroundImageUrl: v }); } }),
+      el(MediaUploadCheck, { key: kind + '-bg-media-check' },
+        el(MediaUpload, {
+          onSelect: function (media) { props.setAttributes({ backgroundImageUrl: (media && media.url) ? media.url : '' }); },
+          allowedTypes: ['image'],
+          render: function (obj) {
+            return el('div', { className: 'wpbb-media-buttons' }, [
+              el(Button, { key: 'open', variant: 'secondary', onClick: obj.open }, props.attributes.backgroundImageUrl ? 'Replace background image' : 'Select background image'),
+              props.attributes.backgroundImageUrl ? el(Button, { key: 'clear', variant: 'tertiary', onClick: function(){ props.setAttributes({ backgroundImageUrl: '' }); } }, 'Remove image') : null
+            ]);
+          }
+        })
+      ),
+      el(SelectControl, {
+        key: kind + '-bg-size',
+        label: 'Background size',
+        value: props.attributes.backgroundSize || 'cover',
+        options: [
+          { label: 'Cover', value: 'cover' },
+          { label: 'Contain', value: 'contain' },
+          { label: 'Auto', value: 'auto' }
+        ],
+        onChange: function (v) { props.setAttributes({ backgroundSize: v }); }
+      }),
+      el(SelectControl, {
+        key: kind + '-bg-position',
+        label: 'Background position',
+        value: props.attributes.backgroundPosition || 'center center',
+        options: [
+          { label: 'Center center', value: 'center center' },
+          { label: 'Top center', value: 'top center' },
+          { label: 'Bottom center', value: 'bottom center' },
+          { label: 'Center left', value: 'center left' },
+          { label: 'Center right', value: 'center right' }
+        ],
+        onChange: function (v) { props.setAttributes({ backgroundPosition: v }); }
+      }),
+      el(SelectControl, {
+        key: kind + '-bg-attachment',
+        label: 'Background attachment',
+        value: props.attributes.backgroundAttachment || 'scroll',
+        options: [
+          { label: 'Scroll', value: 'scroll' },
+          { label: 'Fixed / parallax', value: 'fixed' }
+        ],
+        onChange: function (v) { props.setAttributes({ backgroundAttachment: v }); }
+      }),
+      colorInput('Overlay color', props.attributes.overlayColor || '', function (v) { props.setAttributes({ overlayColor: v }); }, kind + '-overlay-color'),
+      el(RangeControl, {
+        key: kind + '-overlay-opacity',
+        label: 'Overlay opacity',
+        value: Number(props.attributes.overlayOpacity || 0),
+        min: 0,
+        max: 1,
+        step: 0.05,
+        onChange: function (v) { props.setAttributes({ overlayOpacity: Number(v || 0) }); }
+      })
+    ];
   }
 
   function wpbbResponsiveSpacingField(props, prefix, bp, side) {
@@ -115,37 +249,46 @@
     return el('div', { key: key, className: 'wpbb-responsive-side-field' }, [
       el('label', { key: 'label', className: 'wpbb-responsive-side-field__label' }, side.toLowerCase()),
       el('div', { key: 'controls', className: 'wpbb-responsive-side-field__controls' }, [
-        el(TextControl, {
+        el('input', {
           key: 'value',
-          className: 'wpbb-responsive-side-field__value',
+          className: 'wpbb-spacing-native-input',
+          type: 'text',
+          inputMode: parsed.unit === 'auto' ? 'text' : 'decimal',
           value: parsed.number,
           placeholder: parsed.unit === 'auto' ? '' : '0',
           disabled: parsed.unit === 'auto',
-          onChange: function (v) {
+          onInput: function (event) {
+            var v = event && event.target ? event.target.value : '';
+            var next = {};
+            next[key] = wpbbBuildSpacingValue(v, parsed.unit);
+            props.setAttributes(next);
+          },
+          onChange: function (event) {
+            var v = event && event.target ? event.target.value : '';
             var next = {};
             next[key] = wpbbBuildSpacingValue(v, parsed.unit);
             props.setAttributes(next);
           }
         }),
-        el(SelectControl, {
+        el('select', {
           key: 'unit',
-          className: 'wpbb-responsive-side-field__unit',
+          className: 'wpbb-spacing-native-select',
           value: parsed.unit,
-          options: [
-            { label: 'px', value: 'px' },
-            { label: '%', value: '%' },
-            { label: 'em', value: 'em' },
-            { label: 'rem', value: 'rem' },
-            { label: 'vw', value: 'vw' },
-            { label: 'vh', value: 'vh' },
-            { label: 'auto', value: 'auto' }
-          ],
-          onChange: function (unit) {
+          onChange: function (event) {
+            var unit = event && event.target ? event.target.value : 'px';
             var next = {};
             next[key] = wpbbBuildSpacingValue(parsed.number, unit);
             props.setAttributes(next);
           }
-        })
+        }, [
+          el('option', { key: 'px', value: 'px' }, 'px'),
+          el('option', { key: '%', value: '%' }, '%'),
+          el('option', { key: 'em', value: 'em' }, 'em'),
+          el('option', { key: 'rem', value: 'rem' }, 'rem'),
+          el('option', { key: 'vw', value: 'vw' }, 'vw'),
+          el('option', { key: 'vh', value: 'vh' }, 'vh'),
+          el('option', { key: 'auto', value: 'auto' }, 'auto')
+        ])
       ])
     ]);
   }
@@ -434,6 +577,9 @@
   var useBlockProps = wp.blockEditor.useBlockProps;
   var InspectorControls = wp.blockEditor.InspectorControls;
   var Button = wp.components.Button;
+  var ColorPicker = wp.components.ColorPicker;
+  var MediaUpload = wp.blockEditor.MediaUpload;
+  var MediaUploadCheck = wp.blockEditor.MediaUploadCheck;
   var InnerBlocks = wp.blockEditor.InnerBlocks;
   var RichText = wp.blockEditor.RichText;
   var PanelBody = wp.components.PanelBody;
@@ -450,21 +596,19 @@
   }
 
   function colorInput(labelText, value, onChange, key) {
-    return el('div', { key: key || labelText, style: { marginBottom: '12px' } }, [
+    return el('div', { key: key || labelText, style: { marginBottom: '12px' }, className: 'wpbb-color-control' }, [
       el('label', { key: 'l', style: { display: 'block', fontWeight: '600', marginBottom: '6px' } }, labelText),
-      el('input', {
-        key: 'c',
-        type: 'color',
-        value: value && /^#/.test(value) ? value : '#000000',
-        onChange: function (e) { onChange(e.target.value); },
-        style: { width: '100%', height: '36px' }
-      }),
-      el(TextControl, {
-        key: 't',
-        label: 'Transparent / rgba / custom',
-        value: value || '',
-        onChange: onChange
-      })
+      el('div', { key: 'picker', className: 'wpbb-color-control__picker' }, [
+        el(ColorPicker, {
+          key: 'cp',
+          color: value || '#000000',
+          enableAlpha: true,
+          onChangeComplete: function (next) {
+            var out = next && next.rgb ? ('rgba(' + next.rgb.r + ',' + next.rgb.g + ',' + next.rgb.b + ',' + next.rgb.a + ')') : (next.hex || value || '');
+            onChange(out);
+          }
+        })
+      ])
     ]);
   }
 
@@ -536,6 +680,13 @@
       bootstrapSearchRow: { type: 'string', default: '' },
       scssBuildStamp: { type: 'string', default: '' },
       compiledCss: { type: 'string', default: '' },
+      backgroundColor: { type: 'string', default: '' },
+      backgroundImageUrl: { type: 'string', default: '' },
+      backgroundSize: { type: 'string', default: 'cover' },
+      backgroundPosition: { type: 'string', default: 'center center' },
+      overlayColor: { type: 'string', default: '' },
+      overlayOpacity: { type: 'number', default: 0 },
+      backgroundAttachment: { type: 'string', default: 'scroll' },
       maxWidth: { type: 'string', default: '' },
       maxWidthUnit: { type: 'string', default: 'px' },
       visibilityClass: { type: 'string', default: '' },
@@ -576,28 +727,30 @@
       ]);
       var blockProps = useBlockProps({
         className: className,
-        style: {
+        style: Object.assign({
           width: '100%',
-          maxWidth: props.attributes.maxWidth || 'none',
+          maxWidth: (props.attributes.maxWidth ? String(props.attributes.maxWidth) + (props.attributes.maxWidthUnit || 'px') : 'none'),
           marginLeft: props.attributes.maxWidth ? 'auto' : undefined,
-          marginRight: props.attributes.maxWidth ? 'auto' : undefined
-        }
+          marginRight: props.attributes.maxWidth ? 'auto' : undefined,
+          position: 'relative',
+          overflow: 'hidden'
+        }, wpbbEditorBgStyle(props.attributes))
       });
       var controls = [
         el(SelectControl, { key: 'containerClass', label: 'Bootstrap container', value: props.attributes.containerClass, options: [{ label: 'None', value: '' }, { label: 'container', value: 'container' }, { label: 'container-sm', value: 'container-sm' }, { label: 'container-md', value: 'container-md' }, { label: 'container-lg', value: 'container-lg' }, { label: 'container-xl', value: 'container-xl' }, { label: 'container-xxl', value: 'container-xxl' }, { label: 'container-fluid', value: 'container-fluid' }], onChange: function (v) { props.setAttributes({ containerClass: v }); } }),
-        wpbbResponsiveSpacingGroup(props, 'padding', 'Padding'),
-        wpbbResponsiveSpacingGroup(props, 'margin', 'Margin'),
-        wpbbBootstrapClassSelector(props, 'row'),
-        wpbbCustomClassField(props, 'customClasses'),
-        el(TextControl, { key: 'maxWidth', label: 'Max width', value: props.attributes.maxWidth, onChange: function (v) { props.setAttributes({ maxWidth: v }); } }),
-        el(TextControl, { key: 'uniqueId', label: 'Unique ID', value: props.attributes.uniqueId || '', help: 'Auto-generated, but you can change it.', onChange: function (v) { props.setAttributes({ uniqueId: v }); } }),
-        el('div', { key: 'customStyles', className: 'wpbb-code-editor-preview' }, [
-          el(TextareaControl, { key: 'customScss', label: 'Custom SCSS', className: 'wpbb-plain-code-editor', help: 'Use & for this block scope', value: props.attributes.customScss || '', onChange: function (v) { props.setAttributes({ customScss: v, compiledCss: '' }); } }),
+        el(PanelBody, { title: 'Spacing', initialOpen: false }, [wpbbResponsiveSpacingGroup(props, 'padding', 'Padding'), wpbbResponsiveSpacingGroup(props, 'margin', 'Margin')]),
+        el(PanelBody, { title: 'Classes', initialOpen: false }, [wpbbBootstrapClassSelector(props, 'row'), wpbbCustomClassField(props, 'customClasses')]),
+        el(PanelBody, { title: 'Layout', initialOpen: false }, [wpbbValueWithUnitField(props, 'maxWidth', 'maxWidthUnit', 'Max width')]),
+        el(TextControl, { key: 'uniqueId', label: 'Unique ID', value: props.attributes.uniqueId || '', help: 'Auto-generated, but you can change it.', onChange: function (v) { props.setAttributes({ uniqueId: v }); } })
+      ].concat([el(PanelBody, { title: 'Background', initialOpen: false }, wpbbBackgroundControls(props, 'row'))]).concat([
+        el(PanelBody, { title: 'Custom SCSS', initialOpen: false }, [el('div', { key: 'customStyles', className: 'wpbb-code-editor-preview' }, [
+          el(TextareaControl, { key: 'customScss', label: 'Custom SCSS', className: 'wpbb-code-editor wpbb-code-editor--scss', help: 'Use & for this block scope', value: props.attributes.customScss || '', onChange: function (v) { props.setAttributes({ customScss: v, compiledCss: '' }); } }),
           el('div', { key: 'buildBar', className: 'wpbb-scss-build-bar' }, [
-            el(Button, { key: 'buildBtn', variant: 'secondary', onClick: function () {
+            el(Button, { key: 'buildBtn', variant: 'secondary', onClick: function (event) {
+              var scss = wpbbReadScssFromPanelButton(event && event.target ? event.target : null, props.attributes.customScss || '');
               var selector = '#' + (props.attributes.uniqueId || wpbbEnsureUniqueId(props, 'wpbb-row'));
-              var css = wpbbDirectCompileScss(selector, props.attributes.customScss || '');
-              props.setAttributes({ compiledCss: css, scssBuildStamp: String(Date.now()) });
+              var css = wpbbDirectCompileScss(selector, scss);
+              props.setAttributes({ customScss: scss, compiledCss: css || '', scssBuildStamp: String(Date.now()) });
             } }, 'Build SCSS'),
             el('span', { key: 'note', className: 'wpbb-scss-build-note' }, (props.attributes.compiledCss ? 'Built successfully below' : 'Click Build SCSS after typing'))
           ]),
@@ -611,21 +764,23 @@
               rows: 8,
               style: { width: '100%', fontFamily: 'monospace' }
             })
-          ])
-        ]),
-        el(SelectControl, { key: 'visibilityClass', label: 'Extra visibility class', value: props.attributes.visibilityClass, options: [{ label: 'None', value: '' }, { label: 'd-none', value: 'd-none' }, { label: 'd-none d-md-block', value: 'd-none d-md-block' }, { label: 'd-md-none', value: 'd-md-none' }], onChange: function (v) { props.setAttributes({ visibilityClass: v }); } }),
+          ])])]),
+        el(PanelBody, { title: 'Visibility & Motion', initialOpen: false }, [el(SelectControl, { key: 'visibilityClass', label: 'Extra visibility class', value: props.attributes.visibilityClass, options: [{ label: 'None', value: '' }, { label: 'd-none', value: 'd-none' }, { label: 'd-none d-md-block', value: 'd-none d-md-block' }, { label: 'd-md-none', value: 'd-md-none' }], onChange: function (v) { props.setAttributes({ visibilityClass: v }); } }),
         visibilitySwitches(props),
         el(SelectControl, { key: 'animationClass', label: 'Animation', value: props.attributes.animationClass, options: [{ label: 'None', value: '' }, { label: 'anim-fade-in', value: 'anim-fade-in' }, { label: 'anim-fade-up', value: 'anim-fade-up' }, { label: 'anim-zoom-in', value: 'anim-zoom-in' }, { label: 'Fade Left', value: 'anim-fade-left' }, { label: 'Fade Right', value: 'anim-fade-right' }], onChange: function (v) { props.setAttributes({ animationClass: v }); } }),
         el(SelectControl, { key: 'gutterX', label: 'Horizontal gap', value: props.attributes.gutterX, options: [{ label: 'gx-0', value: 'gx-0' }, { label: 'gx-1', value: 'gx-1' }, { label: 'gx-2', value: 'gx-2' }, { label: 'gx-3', value: 'gx-3' }, { label: 'gx-4', value: 'gx-4' }, { label: 'gx-5', value: 'gx-5' }], onChange: function (v) { props.setAttributes({ gutterX: v }); } }),
         el(SelectControl, { key: 'gutterY', label: 'Vertical gap', value: props.attributes.gutterY, options: [{ label: 'gy-0', value: 'gy-0' }, { label: 'gy-1', value: 'gy-1' }, { label: 'gy-2', value: 'gy-2' }, { label: 'gy-3', value: 'gy-3' }, { label: 'gy-4', value: 'gy-4' }, { label: 'gy-5', value: 'gy-5' }], onChange: function (v) { props.setAttributes({ gutterY: v }); } }),
-        el(SelectControl, { key: 'align', label: 'Alignment', value: props.attributes.align, options: [{ label: 'Default', value: '' }, { label: 'Start', value: 'start' }, { label: 'Center', value: 'center' }, { label: 'End', value: 'end' }, { label: 'Between', value: 'between' }], onChange: function (v) { props.setAttributes({ align: v }); } })
-      ];
+        el(SelectControl, { key: 'align', label: 'Alignment', value: props.attributes.align, options: [{ label: 'Default', value: '' }, { label: 'Start', value: 'start' }, { label: 'Center', value: 'center' }, { label: 'End', value: 'end' }, { label: 'Between', value: 'between' }], onChange: function (v) { props.setAttributes({ align: v }); } })])
+      ]);
       return el(wp.element.Fragment, {},
         el(InspectorControls, {}, el(PanelBody, { title: 'Row settings', initialOpen: true }, controls)),
         el('div', blockProps,
           props.attributes.customScss ? el('style', {}, wpbbCompileScopedScssPreview('#' + (props.attributes.uniqueId || 'preview-row'), props.attributes.customScss || '')) : null,
-          label('ROW ' + (props.attributes.uniqueId || '')),
-          el('div', { className: wpbbJoinClasses([props.attributes.containerClass || '']), style: { width: '100%' } }, el('div', { className: 'row', style: { width: '100%' } }, el(InnerBlocks, { allowedBlocks: ['wpbb/column'], orientation: 'horizontal' })))
+          wpbbOverlayNode(props.attributes),
+          el('div', { style: { position: 'relative', zIndex: 1, width: '100%' } }, [
+            label('ROW ' + (props.attributes.uniqueId || '')),
+            el('div', { className: wpbbJoinClasses([props.attributes.containerClass || '']), style: { width: '100%' } }, el('div', { className: 'row', style: { width: '100%' } }, el(InnerBlocks, { allowedBlocks: ['wpbb/column'], orientation: 'horizontal' })))
+          ])
         )
       );
     },
@@ -645,12 +800,23 @@
       xl: { type: 'number', default: 0 },
       xxl: { type: 'number', default: 0 },
       uniqueId: { type: 'string', default: '' },
+      maxWidth: { type: 'string', default: '' },
+      maxWidthUnit: { type: 'string', default: 'px' },
       customScss: { type: 'string', default: '' },
       bootstrapClasses: { type: 'string', default: '' },
       customClasses: { type: 'string', default: '' },
       bootstrapSearchColumn: { type: 'string', default: '' },
       scssBuildStamp: { type: 'string', default: '' },
       compiledCss: { type: 'string', default: '' },
+      backgroundColor: { type: 'string', default: '' },
+      backgroundImageUrl: { type: 'string', default: '' },
+      backgroundSize: { type: 'string', default: 'cover' },
+      backgroundPosition: { type: 'string', default: 'center center' },
+      overlayColor: { type: 'string', default: '' },
+      overlayOpacity: { type: 'number', default: 0 },
+      backgroundAttachment: { type: 'string', default: 'scroll' },
+      boxShadowClass: { type: 'string', default: '' },
+      boxShadowColor: { type: 'string', default: '' },
       utilityClasses: { type: 'string', default: '' },
       orderClass: { type: 'string', default: '' },
       verticalAlign: { type: 'string', default: '' },
@@ -686,9 +852,10 @@
       cls = cls.concat(wpbbClassArray(props.attributes.bootstrapClasses || ''));
       cls = cls.concat(wpbbClassArray(props.attributes.customClasses || ''));
       cls = cls.concat(wpbbClassArray(props.attributes.utilityClasses || ''));
+      cls = cls.concat(wpbbClassArray(props.attributes.boxShadowClass || ''));
       var basis = (props.attributes.xxl || props.attributes.xl || props.attributes.lg || props.attributes.md || props.attributes.sm || props.attributes.xs || 12);
       var pct = Math.max(1, Math.min(12, basis)) / 12 * 100;
-      var blockProps = useBlockProps({ className: wpbbUniqueClassList(cls).join(' '), style: { flex: '0 0 ' + pct + '%', maxWidth: pct + '%', boxSizing: 'border-box' } });
+      var blockProps = useBlockProps({ className: wpbbUniqueClassList(cls).join(' '), style: Object.assign({ flex: '0 0 ' + pct + '%', maxWidth: (props.attributes.maxWidth ? String(props.attributes.maxWidth) + (props.attributes.maxWidthUnit || 'px') : (pct + '%')), boxSizing: 'border-box', position: 'relative', overflow: 'hidden', boxShadow: props.attributes.boxShadowColor && props.attributes.boxShadowClass ? ('0 10px 28px ' + props.attributes.boxShadowColor) : undefined }, wpbbEditorBgStyle(props.attributes)) });
 
       function sizeControl(bp, labelText) {
         return el(RangeControl, {
@@ -724,18 +891,18 @@
           { label: 'Center', value: 'mx-auto' },
           { label: 'Auto right', value: 'ms-auto' }
         ], onChange: function (v) { props.setAttributes({ horizontalAlign: v }); } }),
-        wpbbResponsiveSpacingGroup(props, 'padding', 'Padding'),
-        wpbbResponsiveSpacingGroup(props, 'margin', 'Margin'),
-        wpbbBootstrapClassSelector(props, 'column'),
-        wpbbCustomClassField(props, 'columnCustomClasses'),
-        el(TextControl, { key: 'uniqueId', label: 'Unique ID', value: props.attributes.uniqueId || '', onChange: function (v) { props.setAttributes({ uniqueId: v }); } }),
-        el('div', { key: 'customStyles', className: 'wpbb-code-editor-preview' }, [
-          el(TextareaControl, { key: 'customScss', label: 'Custom SCSS', className: 'wpbb-plain-code-editor', help: 'Use & for this block scope', value: props.attributes.customScss || '', onChange: function (v) { props.setAttributes({ customScss: v, compiledCss: '' }); } }),
+        el(PanelBody, { title: 'Spacing', initialOpen: false }, [wpbbResponsiveSpacingGroup(props, 'padding', 'Padding'), wpbbResponsiveSpacingGroup(props, 'margin', 'Margin')]),
+        el(PanelBody, { title: 'Classes', initialOpen: false }, [wpbbBootstrapClassSelector(props, 'column'), wpbbCustomClassField(props, 'columnCustomClasses')]),
+        el(PanelBody, { title: 'Layout', initialOpen: false }, [el(TextControl, { key: 'uniqueId', label: 'Unique ID', value: props.attributes.uniqueId || '', onChange: function (v) { props.setAttributes({ uniqueId: v }); } }), wpbbValueWithUnitField(props, 'maxWidth', 'maxWidthUnit', 'Max width'), el(SelectControl, { key: 'boxShadowClass', label: 'Box shadow', value: props.attributes.boxShadowClass || '', options: wpbbShadowOptions(), onChange: function (v) { props.setAttributes({ boxShadowClass: v }); } }), colorInput('Box shadow color', props.attributes.boxShadowColor || '', function (v) { props.setAttributes({ boxShadowColor: v }); }, 'column-shadow-color')])
+      ].concat([el(PanelBody, { title: 'Background', initialOpen: false }, wpbbBackgroundControls(props, 'column'))]).concat([
+        el(PanelBody, { title: 'Custom SCSS', initialOpen: false }, [el('div', { key: 'customStyles', className: 'wpbb-code-editor-preview' }, [
+          el(TextareaControl, { key: 'customScss', label: 'Custom SCSS', className: 'wpbb-code-editor wpbb-code-editor--scss', help: 'Use & for this block scope', value: props.attributes.customScss || '', onChange: function (v) { props.setAttributes({ customScss: v, compiledCss: '' }); } }),
           el('div', { key: 'buildBar', className: 'wpbb-scss-build-bar' }, [
-            el(Button, { key: 'buildBtn', variant: 'secondary', onClick: function () {
+            el(Button, { key: 'buildBtn', variant: 'secondary', onClick: function (event) {
+              var scss = wpbbReadScssFromPanelButton(event && event.target ? event.target : null, props.attributes.customScss || '');
               var selector = '#' + (props.attributes.uniqueId || wpbbEnsureUniqueId(props, 'wpbb-col'));
-              var css = wpbbDirectCompileScss(selector, props.attributes.customScss || '');
-              props.setAttributes({ compiledCss: css, scssBuildStamp: String(Date.now()) });
+              var css = wpbbDirectCompileScss(selector, scss);
+              props.setAttributes({ customScss: scss, compiledCss: css || '', scssBuildStamp: String(Date.now()) });
             } }, 'Build SCSS'),
             el('span', { key: 'note', className: 'wpbb-scss-build-note' }, (props.attributes.compiledCss ? 'Built successfully below' : 'Click Build SCSS after typing'))
           ]),
@@ -749,20 +916,22 @@
               rows: 8,
               style: { width: '100%', fontFamily: 'monospace' }
             })
-          ])
-        ]),
-        el(SelectControl, { key: 'orderClass', label: 'Order', value: props.attributes.orderClass, options: [{ label: 'Default', value: '' }, { label: 'order-1', value: 'order-1' }, { label: 'order-2', value: 'order-2' }, { label: 'order-3', value: 'order-3' }, { label: 'order-first', value: 'order-first' }, { label: 'order-last', value: 'order-last' }], onChange: function (v) { props.setAttributes({ orderClass: v }); } }),
+          ])])]),
+        el(PanelBody, { title: 'Order, Visibility & Motion', initialOpen: false }, [el(SelectControl, { key: 'orderClass', label: 'Order', value: props.attributes.orderClass, options: [{ label: 'Default', value: '' }, { label: 'order-1', value: 'order-1' }, { label: 'order-2', value: 'order-2' }, { label: 'order-3', value: 'order-3' }, { label: 'order-first', value: 'order-first' }, { label: 'order-last', value: 'order-last' }], onChange: function (v) { props.setAttributes({ orderClass: v }); } }),
         el(SelectControl, { key: 'visibilityClass', label: 'Extra visibility class', value: props.attributes.visibilityClass, options: [{ label: 'None', value: '' }, { label: 'd-none', value: 'd-none' }, { label: 'd-none d-md-block', value: 'd-none d-md-block' }, { label: 'd-md-none', value: 'd-md-none' }], onChange: function (v) { props.setAttributes({ visibilityClass: v }); } }),
         visibilitySwitches(props),
-        el(SelectControl, { key: 'animationClass', label: 'Animation', value: props.attributes.animationClass, options: [{ label: 'None', value: '' }, { label: 'anim-fade-in', value: 'anim-fade-in' }, { label: 'anim-fade-up', value: 'anim-fade-up' }, { label: 'anim-zoom-in', value: 'anim-zoom-in' }, { label: 'Fade Left', value: 'anim-fade-left' }, { label: 'Fade Right', value: 'anim-fade-right' }], onChange: function (v) { props.setAttributes({ animationClass: v }); } })
-      ];
+        el(SelectControl, { key: 'animationClass', label: 'Animation', value: props.attributes.animationClass, options: [{ label: 'None', value: '' }, { label: 'anim-fade-in', value: 'anim-fade-in' }, { label: 'anim-fade-up', value: 'anim-fade-up' }, { label: 'anim-zoom-in', value: 'anim-zoom-in' }, { label: 'Fade Left', value: 'anim-fade-left' }, { label: 'Fade Right', value: 'anim-fade-right' }], onChange: function (v) { props.setAttributes({ animationClass: v }); } })])
+      ]);
 
       return el(wp.element.Fragment, {},
         el(InspectorControls, {}, el(PanelBody, { title: 'Column settings', initialOpen: true }, controls)),
         el('div', blockProps,
           props.attributes.customScss ? el('style', {}, wpbbCompileScopedScssPreview('#' + (props.attributes.uniqueId || 'preview-column'), props.attributes.customScss || '')) : null,
-          label('COLUMN ' + (props.attributes.uniqueId || '')),
-          el(InnerBlocks)
+          wpbbOverlayNode(props.attributes),
+          el('div', { style: { position: 'relative', zIndex: 1 } }, [
+            label('COLUMN ' + (props.attributes.uniqueId || '')),
+            el(InnerBlocks)
+          ])
         )
       );
     },
@@ -849,9 +1018,44 @@
     save: function () { return null; }
   });
 
-  registerBlockType('wpbb/card', { title:'Card', icon:'id', category:'wpbb', edit:containerEdit('CARD'), save:function(){ return el(InnerBlocks.Content); } });
+  registerBlockType('wpbb/card', {
+    title:'Card', icon:'id', category:'wpbb',
+    attributes:{ boxShadowClass:{type:'string',default:'shadow-sm'}, backgroundColor:{type:'string',default:''}, borderColor:{type:'string',default:''}, borderRadius:{type:'string',default:'12px'} },
+    edit:function(props){
+      var blockProps = useBlockProps({ className:'card ' + (props.attributes.boxShadowClass || 'shadow-sm'), style:{ background:props.attributes.backgroundColor||undefined, borderColor:props.attributes.borderColor||undefined, borderRadius:props.attributes.borderRadius||'12px' }});
+      return el(wp.element.Fragment,{},
+        el(InspectorControls,{},el(PanelBody,{title:'Card settings',initialOpen:true},[
+          el(SelectControl,{key:'boxShadowClass',label:'Box shadow',value:props.attributes.boxShadowClass||'shadow-sm',options:wpbbShadowOptions(),onChange:function(v){props.setAttributes({boxShadowClass:v});}}),
+          colorInput('Background color', props.attributes.backgroundColor || '', function(v){ props.setAttributes({backgroundColor:v}); }, 'card-bg'),
+          colorInput('Border color', props.attributes.borderColor || '', function(v){ props.setAttributes({borderColor:v}); }, 'card-border'),
+          el(TextControl,{key:'borderRadius',label:'Border radius',value:props.attributes.borderRadius||'12px',onChange:function(v){props.setAttributes({borderRadius:v});}})
+        ])),
+        el('div', blockProps, [label('CARD'), el('div',{className:'card-body'}, el(InnerBlocks))])
+      );
+    },
+    save:function(){ return el(InnerBlocks.Content); }
+  });
   registerBlockType('wpbb/cards', { title:'Cards', icon:'grid-view', category:'wpbb', edit:containerEdit('CARDS',['wpbb/cta-card']), save:function(){ return el(InnerBlocks.Content); } });
-  registerBlockType('wpbb/accordion', { title:'Accordion', icon:'menu', category:'wpbb', edit:containerEdit('ACCORDION',['wpbb/accordion-item']), save:function(){ return el(InnerBlocks.Content); } });
+  registerBlockType('wpbb/accordion', {
+    title:'Accordion', icon:'menu', category:'wpbb',
+    attributes:{ flush:{type:'boolean',default:false}, alwaysOpen:{type:'boolean',default:false}, boxShadowClass:{type:'string',default:''}, backgroundColor:{type:'string',default:''}, borderColor:{type:'string',default:''} },
+    edit:function(props){
+      return el(wp.element.Fragment,{},
+        el(InspectorControls,{},el(PanelBody,{title:'Accordion settings',initialOpen:true},[
+          el(ToggleControl,{key:'flush',label:'Flush style',checked:!!props.attributes.flush,onChange:function(v){props.setAttributes({flush:v});}}),
+          el(ToggleControl,{key:'alwaysOpen',label:'Always open items',checked:!!props.attributes.alwaysOpen,onChange:function(v){props.setAttributes({alwaysOpen:v});}}),
+          el(SelectControl,{key:'boxShadowClass',label:'Box shadow',value:props.attributes.boxShadowClass||'',options:wpbbShadowOptions(),onChange:function(v){props.setAttributes({boxShadowClass:v});}}),
+          colorInput('Background color', props.attributes.backgroundColor || '', function(v){ props.setAttributes({backgroundColor:v}); }, 'accordion-bg'),
+          colorInput('Border color', props.attributes.borderColor || '', function(v){ props.setAttributes({borderColor:v}); }, 'accordion-border')
+        ])),
+        el('div', useBlockProps({className:'wpbb-accordion-editor-preview ' + (props.attributes.flush ? 'accordion-flush ' : '') + (props.attributes.boxShadowClass || ''), style:{background:props.attributes.backgroundColor||undefined,borderColor:props.attributes.borderColor||undefined}}), [
+          label('ACCORDION'),
+          el('div',{className:'accordion ' + (props.attributes.flush ? 'accordion-flush' : '')}, el(InnerBlocks,{allowedBlocks:['wpbb/accordion-item']}))
+        ])
+      );
+    },
+    save:function(){ return el(InnerBlocks.Content); }
+  });
   registerBlockType('wpbb/accordion-item', {
     title:'Accordion Item',
     icon:'excerpt-view',
@@ -892,7 +1096,7 @@
     icon:'table-col-after',
     category:'wpbb',
     attributes:{
-      csvText:{type:'string',default:'Name,Role\nJohn,Designer\nAnna,Developer'},
+      csvText:{type:'string',default:'ID,Name,Role\n1,John,Designer\n2,Anna,Developer'},
       csvFileName:{type:'string',default:''},
       delimiter:{type:'string',default:','},
       useFirstRowHeader:{type:'boolean',default:true},
@@ -1015,7 +1219,7 @@
           return el('div', { key:'field_' + index, className:'wpbb-mini-card' }, [
             el(TextControl, { key:'label', label:'Label', value:field.label || '', onChange:function(v){ updateField(index,'label',v); } }),
             el(TextControl, { key:'name', label:'Name', value:field.name || '', onChange:function(v){ updateField(index,'name',v); } }),
-            el(SelectControl, { key:'type', label:'Type', value:field.type || 'text', options:[{label:'Text',value:'text'},{label:'Email',value:'email'},{label:'Phone',value:'phone'},{label:'Select',value:'select'},{label:'Textarea',value:'textarea'}], onChange:function(v){ updateField(index,'type',v); } }),
+            el(SelectControl, { key:'type', label:'Type', value:field.type || 'text', options:[{label:'Description',value:'text'},{label:'Email',value:'email'},{label:'Phone',value:'phone'},{label:'Select',value:'select'},{label:'Textarea',value:'textarea'}], onChange:function(v){ updateField(index,'type',v); } }),
             el(TextControl, { key:'placeholder', label:'Placeholder', value:field.placeholder || '', onChange:function(v){ updateField(index,'placeholder',v); } }),
             field.type === 'select' ? el(TextareaControl, { key:'options', label:'Options (one per line)', value:field.options || '', onChange:function(v){ updateField(index,'options',v); } }) : null,
             el(RangeControl, { key:'width', label:'Width /12', value:field.width || 6, min:1, max:12, onChange:function(v){ updateField(index,'width',v || 6); } }),
@@ -1059,7 +1263,7 @@
       return el(wp.element.Fragment,{},
         el(InspectorControls,{},el(PanelBody,{title:'CTA Card settings',initialOpen:true},[
           el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}),
-          el(TextareaControl,{key:'text',label:'Text',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}}),
+          el(TextareaControl,{key:'text',label:'Description',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}}),
           el(TextControl,{key:'buttonText',label:'Button text',value:props.attributes.buttonText,onChange:function(v){props.setAttributes({buttonText:v});}}),
           el(TextControl,{key:'buttonUrl',label:'Button URL',value:props.attributes.buttonUrl,onChange:function(v){props.setAttributes({buttonUrl:v});}}),
           colorInput('Background color',props.attributes.bgColor,function(v){props.setAttributes({bgColor:v});},'cta-bg'),
@@ -1099,7 +1303,7 @@
     attributes:{ title:{type:'string',default:'CTA Section'}, text:{type:'string',default:'Call to action text'}, buttonText:{type:'string',default:'Get started'}, buttonUrl:{type:'string',default:'#'}, bgColor:{type:'string',default:''}, textColor:{type:'string',default:''}, backgroundImage:{type:'string',default:''}, parallax:{type:'boolean',default:false} },
     edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'CTA Section settings',initialOpen:true},[
       el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}),
-      el(TextareaControl,{key:'text',label:'Text',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}}),
+      el(TextareaControl,{key:'text',label:'Description',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}}),
       el(TextControl,{key:'buttonText',label:'Button text',value:props.attributes.buttonText,onChange:function(v){props.setAttributes({buttonText:v});}}),
       el(TextControl,{key:'buttonUrl',label:'Button URL',value:props.attributes.buttonUrl,onChange:function(v){props.setAttributes({buttonUrl:v});}}),
       el(TextControl,{key:'backgroundImage',label:'Background image URL',value:props.attributes.backgroundImage,onChange:function(v){props.setAttributes({backgroundImage:v});}}),
@@ -1126,7 +1330,7 @@
     attributes:{ title:{type:'string',default:'Menu Item'}, text:{type:'string',default:''}, badge:{type:'string',default:''}, bgColor:{type:'string',default:''}, textColor:{type:'string',default:''} },
     edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Menu Option settings',initialOpen:true},[
       el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}),
-      el(TextareaControl,{key:'text',label:'Text',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}}),
+      el(TextareaControl,{key:'text',label:'Description',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}}),
       el(TextControl,{key:'badge',label:'Badge',value:props.attributes.badge,onChange:function(v){props.setAttributes({badge:v});}}), el(TextControl,{key:'menuSlug',label:'Menu slug / name',value:props.attributes.menuSlug,onChange:function(v){props.setAttributes({menuSlug:v});}}), el(ToggleControl,{key:'schemaEnable',label:'Enable schema.org MenuItem',checked:!!props.attributes.schemaEnable,onChange:function(v){props.setAttributes({schemaEnable:v});}}), el(TextControl,{key:'price',label:'Optional price',value:props.attributes.price,onChange:function(v){props.setAttributes({price:v});}}),
       colorInput('Background color',props.attributes.bgColor,function(v){props.setAttributes({bgColor:v});},'menu-bg'),
       colorInput('Text color',props.attributes.textColor,function(v){props.setAttributes({textColor:v});},'menu-text')
@@ -1154,7 +1358,7 @@
       el(TextControl,{key:'instagram',label:'Instagram URL',value:props.attributes.instagram,onChange:function(v){props.setAttributes({instagram:v});}}),
       el(TextControl,{key:'linkedin',label:'LinkedIn URL',value:props.attributes.linkedin,onChange:function(v){props.setAttributes({linkedin:v});}}),
       el(TextControl,{key:'x',label:'X URL',value:props.attributes.x,onChange:function(v){props.setAttributes({x:v});}}), el(TextControl,{key:'youtube',label:'YouTube URL',value:props.attributes.youtube||'',onChange:function(v){props.setAttributes({youtube:v});}}), el(TextControl,{key:'whatsapp',label:'WhatsApp URL',value:props.attributes.whatsapp||'',onChange:function(v){props.setAttributes({whatsapp:v});}}), colorInput('Icon background',props.attributes.iconBgColor,function(v){props.setAttributes({iconBgColor:v});},'followbg'), colorInput('Icon color',props.attributes.iconTextColor,function(v){props.setAttributes({iconTextColor:v});},'followtxt'), el(SelectControl,{key:'socialStyle',label:'Style',value:props.attributes.socialStyle||'icons',options:[{label:'Icons',value:'icons'},{label:'Normal',value:'normal'}],onChange:function(v){props.setAttributes({socialStyle:v});}})
-    ])), el('div',useBlockProps({className:'wpbb-soc-follow wpbb-social-preview-card'}),label('SOC FOLLOW'),el('div',{className:'wpbb-social-preview-icons'},[el('span',{className:'wpbb-social-preview-badge'},'f'),el('span',{className:'wpbb-social-preview-badge'},'ig'),el('span',{className:'wpbb-social-preview-badge'},'in'),el('span',{className:'wpbb-social-preview-badge'},'x'),el('span',{className:'wpbb-social-preview-badge'},'yt'),el('span',{className:'wpbb-social-preview-badge'},'tt'),el('span',{className:'wpbb-social-preview-badge'},'pi'),el('span',{className:'wpbb-social-preview-badge'},'wa'),el('span',{className:'wpbb-social-preview-badge'},'@')]))); },
+    ])), el('div',useBlockProps({className:'wpbb-soc-follow wpbb-social-preview-card'}),label('SOC FOLLOW'),el('div',{className:'wpbb-social-preview-icons'},[wpbbPreviewSocialIcon('facebook'),wpbbPreviewSocialIcon('instagram'),wpbbPreviewSocialIcon('linkedin'),wpbbPreviewSocialIcon('x'),wpbbPreviewSocialIcon('youtube'),wpbbPreviewSocialIcon('whatsapp'),wpbbPreviewSocialIcon('email')]))); },
     save:function(){ return null; }
   });
 
@@ -1166,7 +1370,7 @@
       el(SelectControl,{key:'iconStyle',label:'Icon style',value:props.attributes.iconStyle,options:[{label:'Icons',value:'icons'},{label:'Normal',value:'buttons'}],onChange:function(v){props.setAttributes({iconStyle:v});}}), colorInput('Icon background',props.attributes.iconBgColor,function(v){props.setAttributes({iconBgColor:v});},'sharebg'), colorInput('Icon color',props.attributes.iconTextColor,function(v){props.setAttributes({iconTextColor:v});},'sharetxt'), el(ToggleControl,{key:'shareFacebook',label:'Facebook',checked:props.attributes.shareFacebook!==false,onChange:function(v){props.setAttributes({shareFacebook:v});}}), el(ToggleControl,{key:'shareX',label:'X',checked:props.attributes.shareX!==false,onChange:function(v){props.setAttributes({shareX:v});}}), el(ToggleControl,{key:'shareLinkedIn',label:'LinkedIn',checked:props.attributes.shareLinkedIn!==false,onChange:function(v){props.setAttributes({shareLinkedIn:v});}}), el(ToggleControl,{key:'shareWhatsApp',label:'WhatsApp',checked:props.attributes.shareWhatsApp!==false,onChange:function(v){props.setAttributes({shareWhatsApp:v});}}), el(ToggleControl,{key:'shareEmail',label:'Email',checked:props.attributes.shareEmail!==false,onChange:function(v){props.setAttributes({shareEmail:v});}})
     ])), el('div',useBlockProps({className:'wpbb-soc-share'}),label('SOC SHARE'),
       props.attributes.title + ' ',
-      props.attributes.iconStyle === 'icons' ? el('span',{className:'wpbb-social-preview-icons'},[el('span',{className:'wpbb-social-preview-badge'},'f'),el('span',{className:'wpbb-social-preview-badge'},'x'),el('span',{className:'wpbb-social-preview-badge'},'in'),el('span',{className:'wpbb-social-preview-badge'},'wa'),el('span',{className:'wpbb-social-preview-badge'},'@')]) : 'Facebook X LinkedIn WhatsApp Email'
+      props.attributes.iconStyle === 'icons' ? el('span',{className:'wpbb-social-preview-icons'},[wpbbPreviewSocialIcon('facebook'),wpbbPreviewSocialIcon('x'),wpbbPreviewSocialIcon('linkedin'),wpbbPreviewSocialIcon('whatsapp'),wpbbPreviewSocialIcon('email')]) : 'Facebook X LinkedIn WhatsApp Email'
     )); },
     save:function(){ return null; }
   });
@@ -1202,12 +1406,12 @@
           el(ToggleControl,{key:'autoplay',label:'Autoplay',checked:!!props.attributes.autoplay,onChange:function(v){props.setAttributes({autoplay:v});}}),
           el(ToggleControl,{key:'pag',label:'Pagination',checked:!!props.attributes.showPagination,onChange:function(v){props.setAttributes({showPagination:v});}}),
           el(ToggleControl,{key:'nav',label:'Navigation',checked:!!props.attributes.showNavigation,onChange:function(v){props.setAttributes({showNavigation:v});}}),
-          el(SelectControl,{key:'style',label:'Demo style',value:props.attributes.demoStyle||'cards',options:[{label:'Cards',value:'cards'},{label:'Text',value:'text'},{label:'Minimal',value:'minimal'}],onChange:function(v){props.setAttributes({demoStyle:v});}})
+          el(SelectControl,{key:'style',label:'Demo style',value:props.attributes.demoStyle||'cards',options:[{label:'Cards',value:'cards'},{label:'Description',value:'text'},{label:'Minimal',value:'minimal'}],onChange:function(v){props.setAttributes({demoStyle:v});}})
         ].concat(slides.map(function(slide,index){
           return el('div',{key:'slide'+index,className:'wpbb-mini-card'},[
-            el(SelectControl,{key:'type',label:'Type',value:slide.type||'text',options:[{label:'Text',value:'text'},{label:'Card',value:'card'},{label:'Video',value:'video'}],onChange:function(v){updateSlide(index,'type',v);}}),
+            el(SelectControl,{key:'type',label:'Type',value:slide.type||'text',options:[{label:'Description',value:'text'},{label:'Card',value:'card'},{label:'Video',value:'video'}],onChange:function(v){updateSlide(index,'type',v);}}),
             el(TextControl,{key:'title',label:'Title',value:slide.title||'',onChange:function(v){updateSlide(index,'title',v);}}),
-            el(TextareaControl,{key:'text',label:'Text',value:slide.text||'',onChange:function(v){updateSlide(index,'text',v);}}),
+            el(TextareaControl,{key:'text',label:'Description',value:slide.text||'',onChange:function(v){updateSlide(index,'text',v);}}),
             el(TextControl,{key:'video',label:'Video URL',value:slide.video||'',onChange:function(v){updateSlide(index,'video',v);}}),
             el(Button,{key:'rm',variant:'secondary',onClick:function(){removeSlide(index);}},'Remove slide')
           ]);
@@ -1232,19 +1436,125 @@
 
   registerBlockType('wpbb/ajax-search', { title:'Ajax Search', icon:'search', category:'wpbb', attributes:{ title:{type:'string',default:'Meklēšana'}, placeholder:{type:'string',default:'Meklēt...'}, resultsLimit:{type:'number',default:10}, searchWooBy:{type:'string',default:'title'}, sortBy:{type:'string',default:'relevance'}, showExcerpt:{type:'boolean',default:true}, showPrice:{type:'boolean',default:true}, showButton:{type:'boolean',default:true} }, edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Ajax Search',initialOpen:true},[ el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}), el(TextControl,{key:'placeholder',label:'Placeholder',value:props.attributes.placeholder,onChange:function(v){props.setAttributes({placeholder:v});}}), el(RangeControl,{key:'limit',label:'Results',value:props.attributes.resultsLimit||10,min:1,max:10,onChange:function(v){props.setAttributes({resultsLimit:v||10});}}), el(SelectControl,{key:'mode',label:'Woo search by',value:props.attributes.searchWooBy||'title',options:[{label:'Title',value:'title'},{label:'ID',value:'id'},{label:'SKU',value:'sku'}],onChange:function(v){props.setAttributes({searchWooBy:v});}}), el(SelectControl,{key:'sort',label:'Sort',value:props.attributes.sortBy||'relevance',options:[{label:'Relevance',value:'relevance'},{label:'Date',value:'date'},{label:'Title',value:'title'}],onChange:function(v){props.setAttributes({sortBy:v});}}), el(ToggleControl,{key:'showExcerpt',label:'Show excerpt',checked:props.attributes.showExcerpt!==false,onChange:function(v){props.setAttributes({showExcerpt:v});}}), el(ToggleControl,{key:'showPrice',label:'Show price',checked:props.attributes.showPrice!==false,onChange:function(v){props.setAttributes({showPrice:v});}}), el(ToggleControl,{key:'showButton',label:'Show search page button',checked:!!props.attributes.showButton,onChange:function(v){props.setAttributes({showButton:v});}}) ])), el('div',useBlockProps({className:'wpbb-ajax-search'}),label('AJAX SEARCH'),props.attributes.placeholder)); }, save:function(){ return null; } });
 
-  registerBlockType('wpbb/pricecards', { title:'Pricecards', icon:'index-card', category:'wpbb', attributes:{ title:{type:'string',default:'Cenas'}, cardsJson:{type:'string',default:''}, styleVariant:{type:'string',default:'default'}, currency:{type:'string',default:'€'} }, edit:function(props){ var cards=[]; try{cards=JSON.parse(props.attributes.cardsJson||'[]')}catch(e){cards=[]} if(!cards.length) cards=[{title:'Basic',price:'9',period:'/mo',text:'Apraksts',button:'Izvēlēties',featured:false},{title:'Pro',price:'29',period:'/mo',text:'Apraksts',button:'Izvēlēties',featured:true}]; function save(next){ props.setAttributes({cardsJson:JSON.stringify(next)}); } function upd(i,k,v){ var next=cards.slice(); next[i]=Object.assign({}, next[i], ((o={})=>{o[k]=v; return o;})()); save(next); } function add(){ var next=cards.slice(); next.push({title:'New',price:'€0',text:'Apraksts',button:'Poga'}); save(next); } return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Pricecards',initialOpen:true},[ el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}), el(TextControl,{key:'currency',label:'Currency',value:props.attributes.currency||'€',onChange:function(v){props.setAttributes({currency:v});}}), el(SelectControl,{key:'style',label:'Style',value:props.attributes.styleVariant||'default',options:[{label:'Default',value:'default'},{label:'Soft',value:'soft'},{label:'Outline',value:'outline'}],onChange:function(v){props.setAttributes({styleVariant:v});}}) ].concat(cards.map(function(card,i){ return el('div',{key:i,className:'wpbb-mini-card'},[ el(TextControl,{key:'t',label:'Title',value:card.title||'',onChange:function(v){upd(i,'title',v);}}), el(TextControl,{key:'p',label:'Price',value:card.price||'',onChange:function(v){upd(i,'price',v);}}), el(TextareaControl,{key:'x',label:'Text',value:card.text||'',onChange:function(v){upd(i,'text',v);}}), el(TextControl,{key:'per',label:'Period',value:card.period||'',onChange:function(v){upd(i,'period',v);}}), el(ToggleControl,{key:'f',label:'Featured',checked:!!card.featured,onChange:function(v){upd(i,'featured',v);}}), el(TextControl,{key:'b',label:'Button',value:card.button||'',onChange:function(v){upd(i,'button',v);}}) ]);})).concat([el(Button,{key:'a',variant:'secondary',onClick:add},'Add card')]))), el('div',useBlockProps({className:'wpbb-pricecards'}),label('PRICECARDS'),props.attributes.title)); }, save:function(){ return null; } });
+  registerBlockType('wpbb/pricecards', { title:'Pricing cards', icon:'index-card', category:'wpbb', attributes:{ title:{type:'string',default:'Pricing'}, subtitle:{type:'string',default:''}, cardsJson:{type:'string',default:''}, styleVariant:{type:'string',default:'default'}, currency:{type:'string',default:'€'}, boxShadowClass:{type:'string',default:'shadow-sm'} }, edit:function(props){ var cards=[]; try{cards=JSON.parse(props.attributes.cardsJson||'[]')}catch(e){cards=[]} if(!cards.length) cards=[{title:'Basic',price:'9',period:'/mo',text:'Short plan description',button:'Choose plan',featured:false},{title:'Pro',price:'29',period:'/mo',text:'Short plan description',button:'Choose plan',featured:true}]; function save(next){ props.setAttributes({cardsJson:JSON.stringify(next)}); } function upd(i,k,v){ var next=cards.slice(); next[i]=Object.assign({}, next[i], ((o={})=>{o[k]=v; return o;})()); save(next); } function add(){ var next=cards.slice(); next.push({title:'New',price:'0',text:'Short plan description',button:'Choose plan'}); save(next); } return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Pricing cards',initialOpen:true},[ el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}), el(TextControl,{key:'currency',label:'Currency',value:props.attributes.currency||'€',onChange:function(v){props.setAttributes({currency:v});}}), el(TextControl,{key:'subtitle',label:'Subtitle',value:props.attributes.subtitle||'',onChange:function(v){props.setAttributes({subtitle:v});}}), el(SelectControl,{key:'style',label:'Style',value:props.attributes.styleVariant||'default',options:[{label:'Default',value:'default'},{label:'Soft',value:'soft'},{label:'Outline',value:'outline'}],onChange:function(v){props.setAttributes({styleVariant:v});}}), el(SelectControl,{key:'boxShadowClass',label:'Card shadow',value:props.attributes.boxShadowClass||'shadow-sm',options:wpbbShadowOptions(),onChange:function(v){props.setAttributes({boxShadowClass:v});}}) ].concat(cards.map(function(card,i){ return el('div',{key:i,className:'wpbb-mini-card'},[ el(TextControl,{key:'t',label:'Title',value:card.title||'',onChange:function(v){upd(i,'title',v);}}), el(TextControl,{key:'p',label:'Price',value:card.price||'',onChange:function(v){upd(i,'price',v);}}), el(TextareaControl,{key:'x',label:'Description',value:card.text||'',onChange:function(v){upd(i,'text',v);}}), el(TextControl,{key:'per',label:'Period',value:card.period||'',onChange:function(v){upd(i,'period',v);}}), el(ToggleControl,{key:'f',label:'Featured',checked:!!card.featured,onChange:function(v){upd(i,'featured',v);}}), el(TextControl,{key:'b',label:'Button text',value:card.button||'',onChange:function(v){upd(i,'button',v);}}) ]);})).concat([el(Button,{key:'a',variant:'secondary',onClick:add},'Add pricing card')]))), el('div',useBlockProps({className:'wpbb-pricecards wpbb-pricecards-editor'}),[label('PRICECARDS'),el('h3',{className:'wpbb-pricecards-editor__title'},props.attributes.title),props.attributes.subtitle?el('div',{className:'wpbb-pricecards-editor__subtitle'},props.attributes.subtitle):null,el('div',{className:'wpbb-pricecards-editor__grid'},cards.map(function(card,i){return el('div',{key:i,className:'wpbb-pricecards-editor__card ' + (props.attributes.boxShadowClass||'shadow-sm') + (card.featured?' is-featured':'')},[el('div',{className:'wpbb-pricecards-editor__card-title'},card.title||''),el('div',{className:'wpbb-pricecards-editor__card-price'},(props.attributes.currency||'€') + (card.price||'')),card.period?el('div',{className:'wpbb-pricecards-editor__card-period'},card.period):null,el('div',{className:'wpbb-pricecards-editor__card-text'},card.text||''),el('div',{className:'wpbb-pricecards-editor__card-button'},card.button||'Button')]);}))])); }, save:function(){ return null; } });
 
   registerBlockType('wpbb/catalogue', { title:'Catalogue', icon:'screenoptions', category:'wpbb', attributes:{ title:{type:'string',default:'Katalogs'}, category:{type:'string',default:''}, postsToShow:{type:'number',default:6}, postType:{type:'string',default:'post'}, taxonomy:{type:'string',default:'category'}, sortBy:{type:'string',default:'date'}, sortOrder:{type:'string',default:'DESC'}, showImage:{type:'boolean',default:true}, showExcerpt:{type:'boolean',default:true} }, edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Catalogue',initialOpen:true},[ el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}), el(TextControl,{key:'cat',label:'Category/term slug',value:props.attributes.category||'',onChange:function(v){props.setAttributes({category:v});}}), el(SelectControl,{key:'pt',label:'Post type',value:props.attributes.postType||'post',options:[{label:'Post',value:'post'},{label:'Portfolio',value:'portfolio'}],onChange:function(v){props.setAttributes({postType:v});}}), el(SelectControl,{key:'tax',label:'Taxonomy',value:props.attributes.taxonomy||'category',options:[{label:'Category',value:'category'},{label:'Portfolio Category',value:'portfolio_category'}],onChange:function(v){props.setAttributes({taxonomy:v});}}), el(RangeControl,{key:'pts',label:'Posts to show',value:props.attributes.postsToShow||6,min:1,max:12,onChange:function(v){props.setAttributes({postsToShow:v||6});}}), el(SelectControl,{key:'sortBy',label:'Sort by',value:props.attributes.sortBy||'date',options:[{label:'Date',value:'date'},{label:'Title',value:'title'},{label:'Menu order',value:'menu_order'}],onChange:function(v){props.setAttributes({sortBy:v});}}), el(SelectControl,{key:'sortOrder',label:'Order',value:props.attributes.sortOrder||'DESC',options:[{label:'DESC',value:'DESC'},{label:'ASC',value:'ASC'}],onChange:function(v){props.setAttributes({sortOrder:v});}}), el(ToggleControl,{key:'showImage',label:'Show image',checked:props.attributes.showImage!==false,onChange:function(v){props.setAttributes({showImage:v});}}), el(ToggleControl,{key:'showExcerpt',label:'Show excerpt',checked:props.attributes.showExcerpt!==false,onChange:function(v){props.setAttributes({showExcerpt:v});}}) ])), el('div',useBlockProps({className:'wpbb-catalogue'}),label('CATALOGUE'),props.attributes.title)); }, save:function(){ return null; } });
 
   registerBlockType('wpbb/code-display', { title:'Code Display', icon:'editor-code', category:'wpbb', attributes:{ title:{type:'string',default:'Code'}, code:{type:'string',default:''}, language:{type:'string',default:'html'} }, edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Code Display',initialOpen:true},[ el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}), el(SelectControl,{key:'lang',label:'Language',value:props.attributes.language||'html',options:[{label:'HTML',value:'html'},{label:'CSS',value:'css'},{label:'JS',value:'javascript'},{label:'PHP',value:'php'}],onChange:function(v){props.setAttributes({language:v});}}), el(TextareaControl,{key:'code',label:'Code',value:props.attributes.code||'',onChange:function(v){props.setAttributes({code:v});}}) ])), el('div',useBlockProps({className:'wpbb-code-display'}),label('CODE'),el('pre',{},props.attributes.code || '<code>...</code>'))); }, save:function(){ return null; } });
 
-  registerBlockType('wpbb/countdown-timer', { title:'Countdown Timer', icon:'clock', category:'wpbb', attributes:{ title:{type:'string',default:'Countdown'}, targetDate:{type:'string',default:'2030-01-01T00:00:00'} }, edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Countdown',initialOpen:true},[ el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}), el(TextControl,{key:'date',label:'Target date',value:props.attributes.targetDate,onChange:function(v){props.setAttributes({targetDate:v});}}) ])), el('div',useBlockProps({className:'wpbb-countdown-timer'}),label('COUNTDOWN TIMER'),props.attributes.targetDate)); }, save:function(){ return null; } });
+  registerBlockType('wpbb/countdown-timer', {
+    title:'Countdown Timer', icon:'clock', category:'wpbb',
+    attributes:{ title:{type:'string',default:'Countdown'}, targetDate:{type:'string',default:'2030-01-01T00:00:00'}, styleVariant:{type:'string',default:'default'}, accentColor:{type:'string',default:'#2563eb'}, backgroundColor:{type:'string',default:''}, textColor:{type:'string',default:''}, boxShadowClass:{type:'string',default:'shadow-sm'}, labelDays:{type:'string',default:'Days'}, labelHours:{type:'string',default:'Hours'}, labelMinutes:{type:'string',default:'Minutes'}, labelSeconds:{type:'string',default:'Seconds'} },
+    edit:function(props){
+      return el(wp.element.Fragment,{},
+        el(InspectorControls,{},el(PanelBody,{title:'Countdown Timer',initialOpen:true},[
+          el(TextControl,{key:'title',label:'Title',value:props.attributes.title||'',onChange:function(v){props.setAttributes({title:v});}}),
+          el(TextControl,{key:'target',label:'Target date/time',value:props.attributes.targetDate||'',onChange:function(v){props.setAttributes({targetDate:v});}}),
+          el(SelectControl,{key:'variant',label:'Style',value:props.attributes.styleVariant||'default',options:[{label:'Default',value:'default'},{label:'Soft',value:'soft'},{label:'Dark',value:'dark'}],onChange:function(v){props.setAttributes({styleVariant:v});}}),
+          el(SelectControl,{key:'shadow',label:'Box shadow',value:props.attributes.boxShadowClass||'shadow-sm',options:wpbbShadowOptions(),onChange:function(v){props.setAttributes({boxShadowClass:v});}}),
+          colorInput('Accent color', props.attributes.accentColor || '#2563eb', function(v){ props.setAttributes({accentColor:v}); }, 'cd-accent'),
+          colorInput('Background color', props.attributes.backgroundColor || '', function(v){ props.setAttributes({backgroundColor:v}); }, 'cd-bg'),
+          colorInput('Text color', props.attributes.textColor || '', function(v){ props.setAttributes({textColor:v}); }, 'cd-text')
+        ])),
+        el('div',useBlockProps({className:'wpbb-countdown-editor card ' + (props.attributes.boxShadowClass||'shadow-sm') + ' wpbb-countdown-editor--' + (props.attributes.styleVariant||'default'), style:{background:props.attributes.backgroundColor||undefined,color:props.attributes.textColor||undefined}}),[
+          label('COUNTDOWN'),
+          el('h3',{className:'card-title'},props.attributes.title || 'Countdown'),
+          el('div',{className:'wpbb-countdown-editor__grid'},[
+            el('div',{className:'wpbb-countdown-editor__box',style:{borderColor:props.attributes.accentColor||'#2563eb'}},[el('strong',{},'12'),el('span',{},props.attributes.labelDays||'Days')]),
+            el('div',{className:'wpbb-countdown-editor__box',style:{borderColor:props.attributes.accentColor||'#2563eb'}},[el('strong',{},'08'),el('span',{},props.attributes.labelHours||'Hours')]),
+            el('div',{className:'wpbb-countdown-editor__box',style:{borderColor:props.attributes.accentColor||'#2563eb'}},[el('strong',{},'42'),el('span',{},props.attributes.labelMinutes||'Minutes')]),
+            el('div',{className:'wpbb-countdown-editor__box',style:{borderColor:props.attributes.accentColor||'#2563eb'}},[el('strong',{},'09'),el('span',{},props.attributes.labelSeconds||'Seconds')])
+          ])
+        ])
+      );
+    },
+    save:function(){ return null; }
+  });
 
-  registerBlockType('wpbb/chart', { title:'Chart', icon:'chart-bar', category:'wpbb', attributes:{ title:{type:'string',default:'Chart'}, chartType:{type:'string',default:'bar'}, chartDataJson:{type:'string',default:'{"labels":["Jan","Feb","Mar"],"datasets":[{"label":"Sales","data":[12,19,7]}]}'}, chartOptionsJson:{type:'string',default:'{"responsive":true,"plugins":{"legend":{"display":true}}}'} }, edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Chart',initialOpen:true},[ el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}), el(SelectControl,{key:'type',label:'Type',value:props.attributes.chartType||'bar',options:[{label:'Bar',value:'bar'},{label:'Line',value:'line'},{label:'Pie',value:'pie'}],onChange:function(v){props.setAttributes({chartType:v});}}), el(TextareaControl,{key:'data',label:'Chart data JSON',value:props.attributes.chartDataJson||'',help:'Example: {"labels":["Jan","Feb"],"datasets":[{"label":"Sales","data":[12,19]}]}',onChange:function(v){props.setAttributes({chartDataJson:v});}}), el(TextareaControl,{key:'opts',label:'Chart options JSON',value:props.attributes.chartOptionsJson||'',help:'Example: {"responsive":true,"plugins":{"legend":{"display":true}}}',onChange:function(v){props.setAttributes({chartOptionsJson:v});}}) ])), el('div',useBlockProps({className:'wpbb-chart'}),label('CHART'),props.attributes.title)); }, save:function(){ return null; } });
+  registerBlockType('wpbb/chart', {
+    title:'Chart', icon:'chart-bar', category:'wpbb',
+    attributes:{ title:{type:'string',default:'Chart'}, chartType:{type:'string',default:'bar'}, chartDataJson:{type:'string',default:'{"labels":["Jan","Feb","Mar"],"datasets":[{"label":"Sales","data":[12,19,7],"backgroundColor":["#2563eb","#60a5fa","#93c5fd"]}]}'}, chartOptionsJson:{type:'string',default:'{"responsive":true,"plugins":{"legend":{"display":true}}}'}, height:{type:'string',default:'320px'} },
+    edit:function(props){
+      function previewNodes(){
+        try {
+          var d = JSON.parse(props.attributes.chartDataJson || '{}');
+          var arr = (d.datasets && d.datasets[0] && d.datasets[0].data) ? d.datasets[0].data : [12,19,7];
+          var max = Math.max.apply(null, arr.concat([1]));
+          if ((props.attributes.chartType || 'bar') === 'line') {
+            return el('div',{className:'wpbb-chart-editor__line'}, arr.slice(0,8).map(function(v,i){
+              return el('span',{key:i,style:{bottom:(Math.max(8, (Number(v||0)/max)*100))+'%'}});
+            }));
+          }
+          if ((props.attributes.chartType || 'bar') === 'pie' || (props.attributes.chartType || 'bar') === 'doughnut') {
+            return el('div',{className:'wpbb-chart-editor__pie' + ((props.attributes.chartType || 'bar') === 'doughnut' ? ' is-doughnut' : '')});
+          }
+          return el('div',{className:'wpbb-chart-editor__bars'},
+            arr.slice(0,8).map(function(v,i){ return el('span',{key:i,style:{height:(20 + (Number(v||0)/max)*140)+'px'}}); })
+          );
+        } catch(err) {
+          return el('div',{className:'wpbb-chart-editor__bars'},[
+            el('span',{key:0,style:{height:'80px'}}),
+            el('span',{key:1,style:{height:'120px'}}),
+            el('span',{key:2,style:{height:'60px'}})
+          ]);
+        }
+      }
+      return el(wp.element.Fragment,{},
+        el(InspectorControls,{},el(PanelBody,{title:'Chart',initialOpen:true},[
+          el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}),
+          el(SelectControl,{key:'type',label:'Type',value:props.attributes.chartType||'bar',options:[{label:'Bar',value:'bar'},{label:'Line',value:'line'},{label:'Pie',value:'pie'},{label:'Doughnut',value:'doughnut'}],onChange:function(v){props.setAttributes({chartType:v});}}),
+          el(TextControl,{key:'height',label:'Height',value:props.attributes.height||'320px',onChange:function(v){props.setAttributes({height:v});}}),
+          el(TextareaControl,{key:'data',label:'Chart data JSON',value:props.attributes.chartDataJson||'',help:'Labels + datasets JSON',onChange:function(v){props.setAttributes({chartDataJson:v});}}),
+          el(TextareaControl,{key:'opts',label:'Chart options JSON',value:props.attributes.chartOptionsJson||'',help:'Chart.js options JSON',onChange:function(v){props.setAttributes({chartOptionsJson:v});}})
+        ])),
+        el('div',useBlockProps({className:'wpbb-chart wpbb-chart-editor card'}),[
+          label('CHART'),
+          el('h3',{className:'card-title'},props.attributes.title || 'Chart'),
+          el('div',{className:'wpbb-chart-editor__mock wpbb-chart-editor__mock--' + (props.attributes.chartType||'bar'),style:{height:props.attributes.height||'320px'}},[
+            previewNodes()
+          ])
+        ])
+      );
+    },
+    save:function(){ return null; }
+  });
 
   registerBlockType('wpbb/fun-fact', { title:'Fun Fact', icon:'star-filled', category:'wpbb', attributes:{ number:{type:'string',default:'100+'}, label:{type:'string',default:'Projects'}, icon:{type:'string',default:'⭐'}, styleVariant:{type:'string',default:'default'} }, edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Fun Fact',initialOpen:true},[ el(TextControl,{key:'num',label:'Number',value:props.attributes.number,onChange:function(v){props.setAttributes({number:v});}}), el(TextControl,{key:'label',label:'Label',value:props.attributes.label,onChange:function(v){props.setAttributes({label:v});}}), el(TextControl,{key:'icon',label:'Icon',value:props.attributes.icon,onChange:function(v){props.setAttributes({icon:v});}}), el(SelectControl,{key:'variant',label:'Style',value:props.attributes.styleVariant||'default',options:[{label:'Default',value:'default'},{label:'Soft',value:'soft'}],onChange:function(v){props.setAttributes({styleVariant:v});}}) ])), el('div',useBlockProps({className:'wpbb-fun-fact'}),label('FUN FACT'),props.attributes.number + ' ' + props.attributes.label)); }, save:function(){ return null; } });
 
-  registerBlockType('wpbb/mailchimp', { title:'MailChimp', icon:'email', category:'wpbb', attributes:{ title:{type:'string',default:'Subscribe'}, text:{type:'string',default:'Join our newsletter'}, actionUrl:{type:'string',default:''}, audienceFieldName:{type:'string',default:'EMAIL'}, showNameField:{type:'boolean',default:false}, buttonText:{type:'string',default:'Subscribe'} }, edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'MailChimp',initialOpen:true},[ el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}), el(TextareaControl,{key:'text',label:'Text',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}}), el(TextControl,{key:'action',label:'Action URL',value:props.attributes.actionUrl||'',onChange:function(v){props.setAttributes({actionUrl:v});}}), el(TextControl,{key:'aud',label:'Audience field name',value:props.attributes.audienceFieldName||'EMAIL',onChange:function(v){props.setAttributes({audienceFieldName:v});}}), el(ToggleControl,{key:'showName',label:'Show name field',checked:!!props.attributes.showNameField,onChange:function(v){props.setAttributes({showNameField:v});}}), el(TextControl,{key:'btn',label:'Button text',value:props.attributes.buttonText||'',onChange:function(v){props.setAttributes({buttonText:v});}}) ])), el('div',useBlockProps({className:'wpbb-mailchimp'}),label('MAILCHIMP'),props.attributes.title)); }, save:function(){ return null; } });
+  registerBlockType('wpbb/mailchimp', {
+    title:'MailChimp', icon:'email', category:'wpbb',
+    attributes:{ title:{type:'string',default:'Subscribe'}, text:{type:'string',default:'Join our newsletter'}, actionUrl:{type:'string',default:''}, audienceFieldName:{type:'string',default:'EMAIL'}, showNameField:{type:'boolean',default:false}, buttonText:{type:'string',default:'Subscribe'}, styleVariant:{type:'string',default:'soft'}, useHcaptcha:{type:'boolean',default:false}, submitBg:{type:'string',default:'#2563eb'}, submitColor:{type:'string',default:'#ffffff'} },
+    edit:function(props){
+      return el(wp.element.Fragment,{},
+        el(InspectorControls,{},el(PanelBody,{title:'MailChimp',initialOpen:true},[
+          el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}),
+          el(TextareaControl,{key:'text',label:'Description',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}}),
+          el(TextControl,{key:'action',label:'MailChimp form action URL',value:props.attributes.actionUrl||'',onChange:function(v){props.setAttributes({actionUrl:v});}}),
+          el(TextControl,{key:'aud',label:'Audience field name',value:props.attributes.audienceFieldName||'EMAIL',onChange:function(v){props.setAttributes({audienceFieldName:v});}}),
+          el(ToggleControl,{key:'showName',label:'Show name field',checked:!!props.attributes.showNameField,onChange:function(v){props.setAttributes({showNameField:v});}}),
+          el(ToggleControl,{key:'hcap',label:'Show hCaptcha note',checked:!!props.attributes.useHcaptcha,onChange:function(v){props.setAttributes({useHcaptcha:v});}}),
+          el(SelectControl,{key:'style',label:'Style',value:props.attributes.styleVariant||'soft',options:[{label:'Default',value:'default'},{label:'Soft',value:'soft'},{label:'Outline',value:'outline'}],onChange:function(v){props.setAttributes({styleVariant:v});}}),
+          colorInput('Button background', props.attributes.submitBg || '#2563eb', function(v){ props.setAttributes({submitBg:v}); }, 'mc-bg'),
+          colorInput('Button text', props.attributes.submitColor || '#ffffff', function(v){ props.setAttributes({submitColor:v}); }, 'mc-color'),
+          el(TextControl,{key:'btn',label:'Button text',value:props.attributes.buttonText||'',onChange:function(v){props.setAttributes({buttonText:v});}})
+        ])),
+        el('div',useBlockProps({className:'wpbb-mailchimp-editor wpbb-dynamic-form-wrap style-' + (props.attributes.styleVariant||'soft')}),[
+          label('MAILCHIMP'),
+          el('h3',{className:'wpbb-form-title'},props.attributes.title || 'Subscribe'),
+          el('p',{},props.attributes.text || 'Join our newsletter'),
+          el('div',{className:'wpbb-mailchimp-editor__form'},[
+            props.attributes.showNameField ? el('input',{className:'form-control',placeholder:'Name'}) : null,
+            el('div',{className:'wpbb-mailchimp-editor__row'},[
+              el('input',{className:'form-control',placeholder:'Email'}),
+              el('button',{className:'btn btn-primary',style:{background:props.attributes.submitBg||'#2563eb',color:props.attributes.submitColor||'#fff',borderColor:props.attributes.submitBg||'#2563eb'}},props.attributes.buttonText || 'Subscribe')
+            ]),
+            props.attributes.useHcaptcha ? el('div',{className:'wpbb-captcha-note'},'hCaptcha enabled') : null
+          ])
+        ])
+      );
+    },
+    save:function(){ return null; }
+  });
 
   registerBlockType('wpbb/bootstrap-div', {
     title:'Bootstrap Div', icon:'screenoptions', category:'wpbb',
@@ -1312,7 +1622,7 @@ registerBlockType('wpbb/badge', {
     return el(wp.element.Fragment,{},
       el(InspectorControls,{},
         el(PanelBody,{title:'Badge settings',initialOpen:true},[
-          el(TextControl,{key:'text',label:'Text',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}}),
+          el(TextControl,{key:'text',label:'Description',value:props.attributes.text,onChange:function(v){props.setAttributes({text:v});}}),
           el(SelectControl,{key:'variant',label:'Variant',value:props.attributes.variant||'primary',options:[
             {label:'Primary',value:'primary'},{label:'Secondary',value:'secondary'},{label:'Success',value:'success'},{label:'Warning',value:'warning'},{label:'Danger',value:'danger'}
           ],onChange:function(v){props.setAttributes({variant:v});}}),
@@ -1523,6 +1833,150 @@ registerBlockType('wpbb/spinner', {
       el('div',useBlockProps({className:'text-' + (props.attributes.variant||'primary')}),
         el('div',{className:klass,role:'status'}, el('span',{className:'visually-hidden'}, props.attributes.label || 'Loading'))
       )
+    );
+  },
+  save:function(){ return null; }
+});
+
+
+registerBlockType('wpbb/feature-list', {
+  title:'Feature List', icon:'yes', category:'wpbb',
+  attributes:{ title:{type:'string',default:'Features'}, itemsJson:{type:'string',default:''}, iconColor:{type:'string',default:'#2563eb'} },
+  edit:function(props){
+    var items=[]; try{ items=JSON.parse(props.attributes.itemsJson||'[]'); }catch(e){ items=[]; }
+    if(!items.length) items=[{title:'Fast setup',text:'Launch quickly with reusable UI.'},{title:'Better UX',text:'Clear value points for marketing pages.'},{title:'Flexible styling',text:'Works with Bootstrap blocks.'}];
+    function save(next){ props.setAttributes({itemsJson:JSON.stringify(next)}); }
+    function upd(i,k,v){ var next=items.slice(); next[i]=Object.assign({}, next[i], ((o={})=>{o[k]=v; return o;})()); save(next); }
+    function add(){ var next=items.slice(); next.push({title:'New feature',text:'Describe this feature.'}); save(next); }
+    return el(wp.element.Fragment,{},
+      el(InspectorControls,{},el(PanelBody,{title:'Feature List settings',initialOpen:true},[
+        el(TextControl,{key:'title',label:'Title',value:props.attributes.title||'',onChange:function(v){props.setAttributes({title:v});}}),
+        colorInput('Icon color', props.attributes.iconColor || '#2563eb', function(v){ props.setAttributes({iconColor:v}); }, 'feature-icon-color')
+      ].concat(items.map(function(item,i){ return el('div',{key:i,className:'wpbb-mini-card'},[
+        el(TextControl,{key:'t',label:'Title',value:item.title||'',onChange:function(v){upd(i,'title',v);}}),
+        el(TextareaControl,{key:'x',label:'Description',value:item.text||'',onChange:function(v){upd(i,'text',v);}})
+      ]);})).concat([el(Button,{key:'a',variant:'secondary',onClick:add},'Add feature')]))),
+      el('div',useBlockProps({className:'wpbb-feature-list-editor'}),[
+        label('FEATURE LIST'),
+        el('h3',{},props.attributes.title||'Features'),
+        el('div',{className:'wpbb-feature-list-editor__items'},items.map(function(item,i){
+          return el('div',{key:i,className:'wpbb-feature-list-editor__item'},[
+            el('span',{className:'wpbb-feature-list-editor__icon',style:{color:props.attributes.iconColor||'#2563eb'}},'✓'),
+            el('div',{},[
+              el('div',{className:'wpbb-feature-list-editor__title'},item.title||''),
+              el('div',{className:'wpbb-feature-list-editor__text'},item.text||'')
+            ])
+          ]);
+        }))
+      ])
+    );
+  },
+  save:function(){ return null; }
+});
+
+registerBlockType('wpbb/timeline', {
+  title:'Timeline', icon:'clock', category:'wpbb',
+  attributes:{ title:{type:'string',default:'Timeline'}, layout:{type:'string',default:'vertical'}, itemsJson:{type:'string',default:''} },
+  edit:function(props){
+    var items=[]; try{ items=JSON.parse(props.attributes.itemsJson||'[]'); }catch(e){ items=[]; }
+    if(!items.length) items=[{date:'2024',title:'Discovery',text:'Research and planning.'},{date:'2025',title:'Build',text:'Implementation and launch.'}];
+    function save(next){ props.setAttributes({itemsJson:JSON.stringify(next)}); }
+    function upd(i,k,v){ var next=items.slice(); next[i]=Object.assign({}, next[i], ((o={})=>{o[k]=v; return o;})()); save(next); }
+    function add(){ var next=items.slice(); next.push({date:'2026',title:'Next step',text:'Describe milestone.'}); save(next); }
+    return el(wp.element.Fragment,{},
+      el(InspectorControls,{},el(PanelBody,{title:'Timeline settings',initialOpen:true},[
+        el(TextControl,{key:'title',label:'Title',value:props.attributes.title||'',onChange:function(v){props.setAttributes({title:v});}}),
+        el(SelectControl,{key:'layout',label:'Layout',value:props.attributes.layout||'vertical',options:[{label:'Vertical',value:'vertical'},{label:'Horizontal',value:'horizontal'}],onChange:function(v){props.setAttributes({layout:v});}})
+      ].concat(items.map(function(item,i){ return el('div',{key:i,className:'wpbb-mini-card'},[
+        el(TextControl,{key:'d',label:'Date',value:item.date||'',onChange:function(v){upd(i,'date',v);}}),
+        el(TextControl,{key:'t',label:'Title',value:item.title||'',onChange:function(v){upd(i,'title',v);}}),
+        el(TextareaControl,{key:'x',label:'Description',value:item.text||'',onChange:function(v){upd(i,'text',v);}})
+      ]);})).concat([el(Button,{key:'a',variant:'secondary',onClick:add},'Add item')]))),
+      el('div',useBlockProps({className:'wpbb-timeline-editor wpbb-timeline-editor--' + (props.attributes.layout||'vertical')}),[
+        label('TIMELINE'),
+        el('h3',{},props.attributes.title||'Timeline'),
+        el('div',{className:'wpbb-timeline-editor__items'},items.map(function(item,i){
+          return el('div',{key:i,className:'wpbb-timeline-editor__item'},[
+            el('div',{className:'wpbb-timeline-editor__dot'}),
+            el('div',{className:'wpbb-timeline-editor__content'},[
+              el('div',{className:'wpbb-timeline-editor__date'},item.date||''),
+              el('div',{className:'wpbb-timeline-editor__title'},item.title||''),
+              el('div',{className:'wpbb-timeline-editor__text'},item.text||'')
+            ])
+          ]);
+        }))
+      ])
+    );
+  },
+  save:function(){ return null; }
+});
+
+registerBlockType('wpbb/custom-embed', {
+  title:'Custom Embed', icon:'embed-generic', category:'wpbb',
+  attributes:{ title:{type:'string',default:'Embed'}, embedUrl:{type:'string',default:''}, embedHtml:{type:'string',default:''}, height:{type:'string',default:'420px'} },
+  edit:function(props){
+    return el(wp.element.Fragment,{},
+      el(InspectorControls,{},el(PanelBody,{title:'Custom Embed settings',initialOpen:true},[
+        el(TextControl,{key:'title',label:'Title',value:props.attributes.title||'',onChange:function(v){props.setAttributes({title:v});}}),
+        el(TextControl,{key:'url',label:'Embed URL',value:props.attributes.embedUrl||'',onChange:function(v){props.setAttributes({embedUrl:v});}}),
+        el(TextareaControl,{key:'html',label:'Embed HTML / iframe',value:props.attributes.embedHtml||'',onChange:function(v){props.setAttributes({embedHtml:v});}}),
+        el(TextControl,{key:'h',label:'Height',value:props.attributes.height||'420px',onChange:function(v){props.setAttributes({height:v});}})
+      ])),
+      el('div',useBlockProps({className:'wpbb-custom-embed-editor'}),[
+        label('CUSTOM EMBED'),
+        el('div',{className:'wpbb-custom-embed-editor__box',style:{minHeight:props.attributes.height||'420px'}}, props.attributes.embedUrl || props.attributes.embedHtml ? 'Embed preview placeholder' : 'Add embed URL or HTML')
+      ])
+    );
+  },
+  save:function(){ return null; }
+});
+
+registerBlockType('wpbb/ai-content', {
+  title:'AI Content', icon:'admin-comments', category:'wpbb',
+  attributes:{ title:{type:'string',default:'AI Content'}, shortDescription:{type:'string',default:''}, prompt:{type:'string',default:''}, generatedText:{type:'string',default:''}, provider:{type:'string',default:'custom-api'} },
+  edit:function(props){
+    return el(wp.element.Fragment,{},
+      el(InspectorControls,{},el(PanelBody,{title:'AI Content settings',initialOpen:true},[
+        el(TextControl,{key:'title',label:'Title',value:props.attributes.title||'',onChange:function(v){props.setAttributes({title:v});}}),
+        el(TextControl,{key:'provider',label:'Provider label',value:props.attributes.provider||'custom-api',onChange:function(v){props.setAttributes({provider:v});}}),
+        el(TextareaControl,{key:'short',label:'Short description',value:props.attributes.shortDescription||'',help:'Use a short description to auto-generate a starter text.',onChange:function(v){props.setAttributes({shortDescription:v});}}),
+        el(TextareaControl,{key:'prompt',label:'Prompt',value:props.attributes.prompt||'',onChange:function(v){props.setAttributes({prompt:v});}}),
+        el(Button,{key:'gen',variant:'secondary',onClick:function(){
+          var base = (props.attributes.shortDescription || props.attributes.prompt || '').trim();
+          if (!base) return;
+          var generated = 'Draft content based on: ' + base + '\n\nThis section can be connected to a real AI API later.';
+          props.setAttributes({generatedText: generated});
+        }},'Generate starter text'),
+        el(TextareaControl,{key:'generated',label:'Generated content',value:props.attributes.generatedText||'',onChange:function(v){props.setAttributes({generatedText:v});}})
+      ])),
+      el('div',useBlockProps({className:'wpbb-ai-content-editor'}),[
+        label('AI CONTENT'),
+        el('div',{className:'wpbb-ai-content-editor__meta'},'Provider: ' + (props.attributes.provider||'custom-api')),
+        el('div',{className:'wpbb-ai-content-editor__body'}, props.attributes.generatedText || 'Generated content preview')
+      ])
+    );
+  },
+  save:function(){ return null; }
+});
+
+registerBlockType('wpbb/login-register', {
+  title:'Login / Register', icon:'lock', category:'wpbb',
+  attributes:{ title:{type:'string',default:'Account Access'}, showRegister:{type:'boolean',default:true}, styleVariant:{type:'string',default:'split'} },
+  edit:function(props){
+    return el(wp.element.Fragment,{},
+      el(InspectorControls,{},el(PanelBody,{title:'Login / Register settings',initialOpen:true},[
+        el(TextControl,{key:'title',label:'Title',value:props.attributes.title||'',onChange:function(v){props.setAttributes({title:v});}}),
+        el(SelectControl,{key:'style',label:'Layout',value:props.attributes.styleVariant||'split',options:[{label:'Split',value:'split'},{label:'Stacked',value:'stacked'}],onChange:function(v){props.setAttributes({styleVariant:v});}}),
+        el(ToggleControl,{key:'register',label:'Show register form',checked:props.attributes.showRegister!==false,onChange:function(v){props.setAttributes({showRegister:v});}})
+      ])),
+      el('div',useBlockProps({className:'wpbb-auth-editor wpbb-auth-editor--' + (props.attributes.styleVariant||'split')}),[
+        label('LOGIN / REGISTER'),
+        el('h3',{},props.attributes.title||'Account Access'),
+        el('div',{className:'wpbb-auth-editor__grid'},[
+          el('div',{className:'wpbb-auth-editor__panel'},'Login form preview'),
+          props.attributes.showRegister!==false ? el('div',{className:'wpbb-auth-editor__panel'},'Register form preview') : null
+        ])
+      ])
     );
   },
   save:function(){ return null; }

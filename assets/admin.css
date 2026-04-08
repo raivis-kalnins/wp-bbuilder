@@ -86,3 +86,52 @@
 }
 .CodeMirror-linenumber{color:#64748b !important}
 .CodeMirror-cursor{border-left:1px solid #111827 !important}
+
+
+/* float-like masonry without big gaps */
+.wpbb-admin-grid{
+  column-width:340px;
+  column-gap:14px;
+  display:block !important;
+}
+.wpbb-card{
+  display:inline-block;
+  width:100%;
+  margin:0 0 14px;
+  break-inside:avoid;
+  vertical-align:top;
+}
+.wpbb-card[draggable="true"]{cursor:grab}
+.wpbb-card.is-dragging{opacity:.5;transform:scale(.99)}
+.wpbb-card.drop-before{box-shadow:0 0 0 2px #2563eb inset}
+.wpbb-card.drop-after{box-shadow:0 0 0 2px #16a34a inset}
+
+
+/* tighter floating dashboard spacing */
+.wpbb-admin-grid{
+  column-gap:10px !important;
+}
+.wpbb-card{
+  margin:0 0 10px !important;
+}
+
+
+/* requested dashboard sizing */
+.wpbb-admin-wrap{
+  max-width:1800px !important;
+  overflow-x:hidden;
+  padding:40px;
+}
+.wpbb-admin-grid{
+  gap:10px 40px !important;
+  column-width:400px !important;
+  max-width:100%;
+}
+.wpbb-card{
+  margin:0 0 10px !important;
+}
+
+
+/* admin compiler CodeMirror */
+#admin-scss .CodeMirror{min-height:260px}
+#admin-scss .wpbb-build-status{display:inline-block;margin-left:8px;font-weight:700}

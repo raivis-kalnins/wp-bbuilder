@@ -35,7 +35,17 @@ document.addEventListener('DOMContentLoaded', function(){
     var lang = el.dataset.lang || 'lv';
     var tempEl = el.querySelector('.wpbb-weather-temp');
     var noteEl = el.querySelector('.wpbb-weather-note');
-    if (!key) { if (noteEl) noteEl.textContent = 'Add API key in settings/block.'; return; }
+    if (!key) {
+      fetch('https://wttr.in/' + encodeURIComponent(location) + '?format=j1')
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+          var current = data && data.current_condition && data.current_condition[0] ? data.current_condition[0] : null;
+          if (current && tempEl) tempEl.textContent = Math.round(parseFloat(current.temp_C || '0')) + '°C';
+          if (noteEl) noteEl.textContent = current ? (current.weatherDesc && current.weatherDesc[0] ? current.weatherDesc[0].value : 'Live weather') : 'Weather unavailable';
+        })
+        .catch(function(){ if (noteEl) noteEl.textContent = 'Weather unavailable'; });
+      return;
+    }
     fetch('https://api.openweathermap.org/data/2.5/weather?q=' + encodeURIComponent(location) + '&appid=' + encodeURIComponent(key) + '&units=metric&lang=' + encodeURIComponent(lang))
       .then(function(r){ return r.json(); })
       .then(function(data){

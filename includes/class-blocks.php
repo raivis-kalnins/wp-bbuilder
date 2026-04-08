@@ -42,9 +42,9 @@ final class WPBB_Blocks {
             'facebook' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M13.5 22v-8h2.7l.4-3h-3.1V9.1c0-.9.3-1.6 1.7-1.6h1.6V4.8c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 4v2.3H8v3h2.7v8h2.8z"/></svg>',
             'instagram' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2.2A2.8 2.8 0 0 0 4.2 7v10A2.8 2.8 0 0 0 7 19.8h10a2.8 2.8 0 0 0 2.8-2.8V7A2.8 2.8 0 0 0 17 4.2H7zm10.5 1.6a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2.2A2.8 2.8 0 1 0 12 14.8 2.8 2.8 0 0 0 12 9.2z"/></svg>',
             'linkedin' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M6.94 8.5H4V20h2.94V8.5zM5.47 4A1.72 1.72 0 1 0 5.5 7.44 1.72 1.72 0 0 0 5.47 4zM20 12.9c0-3.1-1.66-4.54-3.88-4.54-1.8 0-2.6.99-3.05 1.68V8.5H10.1c.04 1 .04 11.5 0 11.5h2.97v-6.42c0-.34.02-.68.12-.92.27-.68.88-1.38 1.91-1.38 1.35 0 1.89 1.03 1.89 2.54V20H20v-7.1z"/></svg>',
-            'x' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.9 3H21l-4.6 5.2L21.8 21h-5.7l-4.5-5.8L6.5 21H4.4l5-5.7L2.2 3H8l4.1 5.4L18.9 3zm-2 16h1.6L7 4.9H5.3L16.9 19z"/></svg>',
+            'x' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.24 2H21l-6.56 7.5L22 22h-5.93l-4.64-6.05L6.13 22H3.36l7.02-8.02L2 2h6.08l4.19 5.53L18.24 2zm-1.04 18h1.64L7.19 3.9H5.48L17.2 20z"/></svg>',
             'youtube' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M23 12s0-3.5-.45-5.2a2.7 2.7 0 0 0-1.9-1.9C18.9 4.4 12 4.4 12 4.4s-6.9 0-8.65.5a2.7 2.7 0 0 0-1.9 1.9C1 8.5 1 12 1 12s0 3.5.45 5.2a2.7 2.7 0 0 0 1.9 1.9c1.75.5 8.65.5 8.65.5s6.9 0 8.65-.5a2.7 2.7 0 0 0 1.9-1.9C23 15.5 23 12 23 12zM10 15.5v-7l6 3.5-6 3.5z"/></svg>',
-            'whatsapp' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M20.5 3.5A11.8 11.8 0 0 0 1.8 17.7L.5 23.5l5.9-1.3A11.8 11.8 0 1 0 20.5 3.5zm-8.7 18a9.7 9.7 0 0 1-4.9-1.3l-.4-.2-3.5.8.8-3.4-.2-.4a9.7 9.7 0 1 1 8.2 4.5zm5.3-7.2c-.3-.1-1.8-.9-2.1-1s-.5-.1-.7.1-.8 1-1 1.1-.4.2-.7 0a7.9 7.9 0 0 1-2.3-1.4 8.8 8.8 0 0 1-1.6-2c-.2-.3 0-.5.1-.7l.5-.6.2-.4a.8.8 0 0 0 0-.5c-.1-.1-.7-1.7-1-2.3-.2-.6-.5-.5-.7-.5h-.6a1.2 1.2 0 0 0-.8.4c-.3.3-1 1-1 2.4s1 2.7 1.2 2.9c.1.2 2 3 4.8 4.2.7.3 1.2.5 1.6.6.7.2 1.4.2 1.9.1.6-.1 1.8-.8 2.1-1.5.3-.7.3-1.4.2-1.5-.1-.1-.3-.2-.6-.3z"/></svg>',
+            'whatsapp' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M16.6 14.3c-.3-.2-1.8-.9-2-.9-.3-.1-.4-.1-.6.2s-.7.9-.8 1c-.1.1-.3.2-.5.1-.3-.2-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.4-1.6-.1-.3 0-.4.1-.5l.4-.5.2-.4c.1-.1.1-.3 0-.4 0-.1-.6-1.5-.8-2-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.3-.8.8-.8 1.9s.8 2.1.9 2.3c.1.2 1.6 2.4 3.8 3.4 2.3 1 2.3.7 2.8.7.4-.1 1.5-.6 1.7-1.1.2-.6.2-1 .1-1.1-.1-.1-.3-.2-.6-.3zM12 2.2A9.8 9.8 0 0 0 3.7 17.3L2.2 21.8l4.6-1.5A9.8 9.8 0 1 0 12 2.2zm0 17.8c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-2.7.9.9-2.6-.2-.3A8 8 0 1 1 12 20z"/></svg>',
             'email' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3 5h18a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm0 2v.5l9 5.6 9-5.6V7H3zm18 10V9.8l-8.5 5.3a1 1 0 0 1-1 0L3 9.8V17h18z"/></svg>',
         ];
         return $icons[$name] ?? '<span class="wpbb-social-icon__glyph">*</span>';
@@ -406,6 +406,16 @@ public function register_assets() {
                 $args['render_callback'] = [$this, 'render_mailchimp_block'];
             } elseif ($slug === 'bootstrap-div') {
                 $args['render_callback'] = [$this, 'render_bootstrap_div_block'];
+            } elseif ($slug === 'feature-list') {
+                $args['render_callback'] = [$this, 'render_feature_list_block'];
+            } elseif ($slug === 'timeline') {
+                $args['render_callback'] = [$this, 'render_timeline_block'];
+            } elseif ($slug === 'custom-embed') {
+                $args['render_callback'] = [$this, 'render_custom_embed_block'];
+            } elseif ($slug === 'ai-content') {
+                $args['render_callback'] = [$this, 'render_ai_content_block'];
+            } elseif ($slug === 'login-register') {
+                $args['render_callback'] = [$this, 'render_login_register_block'];
             } elseif ($slug === 'row') {
                 $args['render_callback'] = [$this, 'render_row_block'];
             } elseif ($slug === 'column') {
@@ -481,7 +491,7 @@ public function register_assets() {
                     'bootstrapClasses' => ['type' => 'string', 'default' => ''],
                     'customClasses' => ['type' => 'string', 'default' => ''],
                     'utilityClasses' => ['type' => 'string', 'default' => ''],
-                    'spacingSm' => ['type' => 'string', 'default' => ''],'spacingMd' => ['type' => 'string', 'default' => ''],'spacingLg' => ['type' => 'string', 'default' => ''],'spacingXl' => ['type' => 'string', 'default' => ''],'spacingXxl' => ['type' => 'string', 'default' => ''],'paddingSm' => ['type' => 'string', 'default' => ''],'paddingMd' => ['type' => 'string', 'default' => ''],'paddingLg' => ['type' => 'string', 'default' => ''],'paddingXl' => ['type' => 'string', 'default' => ''],'paddingXxl' => ['type' => 'string', 'default' => ''],'marginSm' => ['type' => 'string', 'default' => ''],'marginMd' => ['type' => 'string', 'default' => ''],'marginLg' => ['type' => 'string', 'default' => ''],'marginXl' => ['type' => 'string', 'default' => ''],'marginXxl' => ['type' => 'string', 'default' => ''],'uniqueId' => ['type' => 'string', 'default' => ''],'customCss' => ['type' => 'string', 'default' => ''],'customScss' => ['type' => 'string', 'default' => ''],
+                    'spacingSm' => ['type' => 'string', 'default' => ''],'spacingMd' => ['type' => 'string', 'default' => ''],'spacingLg' => ['type' => 'string', 'default' => ''],'spacingXl' => ['type' => 'string', 'default' => ''],'spacingXxl' => ['type' => 'string', 'default' => ''],'paddingSm' => ['type' => 'string', 'default' => ''],'paddingMd' => ['type' => 'string', 'default' => ''],'paddingLg' => ['type' => 'string', 'default' => ''],'paddingXl' => ['type' => 'string', 'default' => ''],'paddingXxl' => ['type' => 'string', 'default' => ''],'marginSm' => ['type' => 'string', 'default' => ''],'marginMd' => ['type' => 'string', 'default' => ''],'marginLg' => ['type' => 'string', 'default' => ''],'marginXl' => ['type' => 'string', 'default' => ''],'marginXxl' => ['type' => 'string', 'default' => ''],'uniqueId' => ['type' => 'string', 'default' => ''],'customCss' => ['type' => 'string', 'default' => ''],'customScss' => ['type' => 'string', 'default' => ''],'backgroundImageUrl' => ['type' => 'string', 'default' => ''],'backgroundSize' => ['type' => 'string', 'default' => 'cover'],'backgroundPosition' => ['type' => 'string', 'default' => 'center center'],'overlayColor' => ['type' => 'string', 'default' => ''],'overlayOpacity' => ['type' => 'number', 'default' => 0],'backgroundAttachment' => ['type' => 'string', 'default' => 'scroll'],
                     'paddingTop' => ['type' => 'number', 'default' => 0],
                     'paddingTopUnit' => ['type' => 'string', 'default' => 'px'],
                     'paddingRight' => ['type' => 'number', 'default' => 0],
@@ -521,8 +531,18 @@ public function register_assets() {
                     'xl' => ['type' => 'number', 'default' => 0],
                     'xxl' => ['type' => 'number', 'default' => 0],
                     'uniqueId' => ['type' => 'string', 'default' => ''],
+                    'maxWidth' => ['type' => 'string', 'default' => ''],
+                    'maxWidthUnit' => ['type' => 'string', 'default' => 'px'],
                     'customCss' => ['type' => 'string', 'default' => ''],
                     'customScss' => ['type' => 'string', 'default' => ''],
+                    'backgroundImageUrl' => ['type' => 'string', 'default' => ''],
+                    'backgroundSize' => ['type' => 'string', 'default' => 'cover'],
+                    'backgroundPosition' => ['type' => 'string', 'default' => 'center center'],
+                    'backgroundAttachment' => ['type' => 'string', 'default' => 'scroll'],
+                    'overlayColor' => ['type' => 'string', 'default' => ''],
+                    'overlayOpacity' => ['type' => 'number', 'default' => 0],
+                    'boxShadowClass' => ['type' => 'string', 'default' => ''],
+                    'boxShadowColor' => ['type' => 'string', 'default' => ''],
                     'orderClass' => ['type' => 'string', 'default' => ''],
                     'verticalAlign' => ['type' => 'string', 'default' => ''],
                     'horizontalAlign' => ['type' => 'string', 'default' => ''],
@@ -917,10 +937,13 @@ case 'spinner':
                 }
                 $uid = !empty($attributes['uniqueId']) ? sanitize_html_class($attributes['uniqueId']) : sanitize_html_class('wpbb-col-' . wp_unique_id());
                 $style = $this->wpbb_build_spacing_inline($attributes);
-                if (!empty($attributes['backgroundColor'])) $style .= 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';';
+                if (!empty($attributes['backgroundColor'])) $style .= 'background-color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';';
+        if (!empty($attributes['backgroundImageUrl'])) $style .= 'background-image:url(' . esc_url_raw((string)$attributes['backgroundImageUrl']) . ');background-size:' . preg_replace('/[^a-z% -]/i', '', (string)($attributes['backgroundSize'] ?? 'cover')) . ';background-position:' . preg_replace('/[^a-z% -]/i', '', (string)($attributes['backgroundPosition'] ?? 'center center')) . ';background-repeat:no-repeat;background-attachment:' . preg_replace('/[^a-z-]/i', '', (string)($attributes['backgroundAttachment'] ?? 'scroll')) . ';';
                 if (!empty($attributes['textColor'])) $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['textColor']) . ';';
                 if (!empty($attributes['borderRadius'])) $style .= 'border-radius:' . preg_replace('/[^0-9.%a-zA-Z-]/', '', (string)$attributes['borderRadius']) . ';';
-                if (!empty($attributes['customStyle'])) $style .= (string)$attributes['customStyle'];
+        if (!empty($attributes['boxShadowColor']) && !empty($attributes['boxShadowClass'])) $style .= 'box-shadow:0 10px 28px ' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['boxShadowColor']) . ';';
+                if (!empty($attributes['maxWidth'])) { $mwRaw = trim((string)$attributes['maxWidth']); $mwu = preg_replace('/[^a-z%]/i', '', (string)($attributes['maxWidthUnit'] ?? '')); if ($mwu === '') $mwu = 'px'; if ($mwRaw === 'auto') { $style .= 'max-width:auto;'; } else { $mwNum = preg_replace('/[^0-9.\-]/', '', $mwRaw); if ($mwNum !== '') { $style .= 'max-width:' . $mwNum . $mwu . ';'; } } }
+        if (!empty($attributes['customStyle'])) $style .= (string)$attributes['customStyle'];
                 $cssTag = !empty($attributes['customCss']) ? '<style>#' . $uid . '{' . wp_strip_all_tags((string)$attributes['customCss']) . '}</style>' : '';
                 $scssTag = !empty($attributes['customScss']) ? $this->wpbb_capture_style_tag($this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss'])) : '';
                 $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_filter($classes)) . $extra, 'style' => $style, 'id' => $uid]);
@@ -986,6 +1009,16 @@ case 'spinner':
                     'showMenuTitle' => ['type' => 'boolean', 'default' => false],
                     'className' => ['type' => 'string', 'default' => ''],
                 ];
+            case 'feature-list':
+                return ['title'=>['type'=>'string','default'=>'Features'],'itemsJson'=>['type'=>'string','default'=>''],'iconColor'=>['type'=>'string','default'=>'#2563eb']];
+            case 'timeline':
+                return ['title'=>['type'=>'string','default'=>'Timeline'],'layout'=>['type'=>'string','default'=>'vertical'],'itemsJson'=>['type'=>'string','default'=>'']];
+            case 'custom-embed':
+                return ['title'=>['type'=>'string','default'=>'Embed'],'embedUrl'=>['type'=>'string','default'=>''],'embedHtml'=>['type'=>'string','default'=>''],'height'=>['type'=>'string','default'=>'420px']];
+            case 'ai-content':
+                return ['title'=>['type'=>'string','default'=>'AI Content'],'shortDescription'=>['type'=>'string','default'=>''],'prompt'=>['type'=>'string','default'=>''],'generatedText'=>['type'=>'string','default'=>''],'provider'=>['type'=>'string','default'=>'custom-api']];
+            case 'login-register':
+                return ['title'=>['type'=>'string','default'=>'Account Access'],'showRegister'=>['type'=>'boolean','default'=>true],'styleVariant'=>['type'=>'string','default'=>'split']];
             case 'bootstrap-div':
                 return [
                     'tagName' => ['type' => 'string', 'default' => 'div'],
@@ -1325,44 +1358,94 @@ public function render_spinner_block($attributes, $content, $block) {
 }
 
     public function render_table_block($attributes, $content, $block) {
-        wp_enqueue_style('wpbb-datatables');
-        wp_enqueue_script('wpbb-datatables');
-        wp_enqueue_script('wpbb-datatables-bs5');
-        wp_enqueue_script('wpbb-table-init');
-        $csv = (string) ($attributes['csvText'] ?? '');
-        $delimiter = !empty($attributes['delimiter']) ? $attributes['delimiter'] : ',';
-        $rows = preg_split('/\r\n|\r|\n/', trim($csv));
-        $parsed = [];
-        foreach ($rows as $row) {
-            if ($row === '') continue;
-            $parsed[] = str_getcsv($row, $delimiter);
+        $csv = trim((string) ($attributes['csvText'] ?? ''));
+        if ($csv === '') return '';
+
+        // Normalize all newline formats saved by block attributes
+        $csv = str_replace(["\\\\r\\\\n", "\\\\n", "\\\\r"], "\n", $csv);
+        $csv = str_replace(["\\r\\n", "\\n", "\\r"], "\n", $csv);
+        $csv = str_replace(["\r\n", "\r"], "\n", $csv);
+
+        $delimiter = !empty($attributes['delimiter']) ? (string)$attributes['delimiter'] : ',';
+        $lines = explode("\n", $csv);
+        $rows = [];
+        foreach ($lines as $line) {
+            if (trim($line) === '') continue;
+            $rows[] = str_getcsv($line, $delimiter);
         }
-        if (empty($parsed)) return '';
-        $useHeader = !empty($attributes['useFirstRowHeader']);
-        $headers = $useHeader ? array_shift($parsed) : [];
-        $table_classes = trim((string) ($attributes['tableClass'] ?? 'table'));
-        if (!empty($attributes['small'])) $table_classes .= ' table-sm';
-        if (!empty($attributes['bordered'])) $table_classes .= ' table-bordered';
+        if (empty($rows)) return '';
+
+        $use_header = !empty($attributes['useFirstRowHeader']);
+        $headers = $use_header ? array_shift($rows) : [];
+        $col_count = !empty($headers) ? count($headers) : 0;
+        foreach ($rows as $row) {
+            $col_count = max($col_count, count((array)$row));
+        }
+        if ($col_count < 1) return '';
+
+        if ($use_header && empty($headers)) {
+            $headers = array_fill(0, $col_count, '');
+        } elseif (!empty($headers) && count($headers) < $col_count) {
+            $headers = array_pad($headers, $col_count, '');
+        }
+
+        $table_classes = trim((string) ($attributes['tableClass'] ?? ''));
+        if ($table_classes === '') {
+            $table_classes = 'table table-striped table-hover align-middle';
+        } elseif (strpos(' ' . $table_classes . ' ', ' table ') === false) {
+            $table_classes = 'table ' . $table_classes;
+        }
+        if (!empty($attributes['small']) && strpos($table_classes, 'table-sm') === false) {
+            $table_classes .= ' table-sm';
+        }
+        if (!empty($attributes['bordered']) && strpos($table_classes, 'table-bordered') === false) {
+            $table_classes .= ' table-bordered';
+        }
+
         $table_html = '<table class="' . esc_attr(trim($table_classes)) . '">';
-        if ($useHeader && !empty($headers)) {
+        if ($use_header) {
             $table_html .= '<thead><tr>';
-            foreach ($headers as $header) $table_html .= '<th>' . esc_html($header) . '</th>';
+            foreach ($headers as $header) {
+                $table_html .= '<th scope="col">' . esc_html($header) . '</th>';
+            }
             $table_html .= '</tr></thead>';
         }
+
         $table_html .= '<tbody>';
-        foreach ($parsed as $row) {
+        foreach ($rows as $row) {
+            $row = array_pad((array)$row, $col_count, '');
             $table_html .= '<tr>';
-            foreach ($row as $cell) $table_html .= '<td>' . esc_html($cell) . '</td>';
+            foreach ($row as $cell) {
+                $table_html .= '<td>' . esc_html($cell) . '</td>';
+            }
             $table_html .= '</tr>';
         }
         $table_html .= '</tbody></table>';
+
         if (!empty($attributes['responsive'])) {
             $table_html = '<div class="table-responsive">' . $table_html . '</div>';
         }
-        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-table-block', 'data-datatable' => !empty($attributes['datatable']) ? '1' : '0', 'data-searching' => !empty($attributes['datatableSearch']) ? '1' : '0', 'data-paging' => !empty($attributes['datatablePaging']) ? '1' : '0', 'data-ordering' => !empty($attributes['datatableOrdering']) ? '1' : '0', 'data-info' => !empty($attributes['datatableInfo']) ? '1' : '0', 'data-lengthchange' => !empty($attributes['datatableLengthChange']) ? '1' : '0']);
+
+        $wrapper_args = ['class' => 'wpbb-table-block'];
+
+        if (!empty($attributes['datatable'])) {
+            wp_enqueue_style('wpbb-datatables');
+            wp_enqueue_script('jquery');
+            wp_enqueue_script('wpbb-datatables');
+            wp_enqueue_script('wpbb-datatables-bs5');
+            wp_enqueue_script('wpbb-table-init');
+
+            $wrapper_args['data-datatable'] = '1';
+            $wrapper_args['data-searching'] = !empty($attributes['datatableSearch']) ? '1' : '0';
+            $wrapper_args['data-paging'] = !empty($attributes['datatablePaging']) ? '1' : '0';
+            $wrapper_args['data-ordering'] = !empty($attributes['datatableOrdering']) ? '1' : '0';
+            $wrapper_args['data-info'] = !empty($attributes['datatableInfo']) ? '1' : '0';
+            $wrapper_args['data-lengthchange'] = !empty($attributes['datatableLengthChange']) ? '1' : '0';
+        }
+
+        $wrapper = get_block_wrapper_attributes($wrapper_args);
         return '<div ' . $wrapper . '>' . $table_html . '</div>';
     }
-
 
     public function render_swiper_block($attributes, $content, $block) {
         wp_enqueue_style('wpbb-swiper');
@@ -1614,20 +1697,42 @@ public function enqueue_frontend_assets() {
 
     public function render_weather_block($attributes, $content, $block) {
         wp_enqueue_script('wpbb-chart-view');
-        $title = esc_html($attributes['title'] ?? 'Laikapstākļi');
-        $location = esc_attr($attributes['location'] ?? 'Rīga');
-        $lang = esc_attr($attributes['lang'] ?? 'lv');
+        $title = esc_html($attributes['title'] ?? 'Weather');
+        $location = esc_attr($attributes['location'] ?? 'London');
+        $lang = esc_attr($attributes['lang'] ?? 'en');
         $apiKey = esc_attr($attributes['apiKey'] ?? wpbb_get_option('weather_api_key', ''));
         $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-weather card', 'data-location' => $location, 'data-lang' => $lang, 'data-api-key' => $apiKey]);
-        return "<div {$wrapper}><div class=\"card-body\"><h3 class=\"card-title\">{$title}</h3><div class=\"wpbb-weather-location\">{$location}</div><div class=\"wpbb-weather-temp\">--°C</div><div class=\"wpbb-weather-note\">Loading weather...</div></div></div>";
+        return "<div {$wrapper}><div class=\"card-body\"><h3 class=\"card-title\">{$title}</h3><div class=\"wpbb-weather-location\">{$location}</div><div class=\"wpbb-weather-temp\">--°C</div><div class=\"wpbb-weather-note\">Loading live weather...</div></div></div>";
     }
 
     public function render_varda_dienas_block($attributes, $content, $block) {
         $title = esc_html($attributes['title'] ?? 'Vārda dienas');
-        $dateText = esc_html($attributes['dateText'] ?? 'Šodien');
-        $names = esc_html($attributes['names'] ?? 'Vārdi šeit');
+        $today_key = wp_date('m-d');
+        $dateText = esc_html($attributes['dateText'] ?? wp_date('j. F'));
+        $manual_names = trim((string)($attributes['names'] ?? ''));
+        $json_names = [];
+        $json_raw = (string)($attributes['namesJson'] ?? '');
+
+        if ($json_raw !== '') {
+            $decoded = json_decode($json_raw, true);
+            if (is_array($decoded) && !empty($decoded[$today_key]) && is_array($decoded[$today_key])) {
+                $json_names = array_map('sanitize_text_field', $decoded[$today_key]);
+            }
+        }
+
+        if (empty($json_names)) {
+            $json_file = WPBB_PLUGIN_DIR . 'assets/json/varda-dienas.json';
+            if (file_exists($json_file)) {
+                $decoded = json_decode((string)file_get_contents($json_file), true);
+                if (is_array($decoded) && !empty($decoded[$today_key]) && is_array($decoded[$today_key])) {
+                    $json_names = array_map('sanitize_text_field', $decoded[$today_key]);
+                }
+            }
+        }
+
+        $names = !empty($json_names) ? implode(', ', $json_names) : ($manual_names !== '' ? $manual_names : 'Dana, Dans, Danute, Edgars');
         $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-varda-dienas card']);
-        return "<div {$wrapper}><div class=\"card-body\"><h3 class=\"card-title\">{$title}</h3><div class=\"small text-muted\">{$dateText}</div><div class=\"wpbb-varda-dienas-names\">{$names}</div></div></div>";
+        return '<div ' . $wrapper . '><div class="card-body"><h3 class="card-title">' . $title . '</h3><div class="small text-muted">' . $dateText . '</div><div class="wpbb-varda-dienas-names">' . esc_html($names) . '</div></div></div>';
     }
 
     public function render_ajax_search_block($attributes, $content, $block) {
@@ -1655,11 +1760,11 @@ public function enqueue_frontend_assets() {
     }
 
     public function render_pricecards_block($attributes, $content, $block) {
-        $title = esc_html($attributes['title'] ?? 'Cenas');
+        $title = esc_html($attributes['title'] ?? 'Pricing');
         $cards = wpbb_parse_fields_json($attributes['cardsJson'] ?? '');
         if (!$cards) $cards = [
-            ['title'=>'Basic','price'=>'9','period'=>'/mo','text'=>'Apraksts','button'=>'Izvēlēties','featured'=>false],
-            ['title'=>'Pro','price'=>'29','period'=>'/mo','text'=>'Apraksts','button'=>'Izvēlēties','featured'=>true]
+            ['title'=>'Basic','price'=>'9','period'=>'/mo','text'=>'Short plan description','button'=>'Choose plan','featured'=>false],
+            ['title'=>'Pro','price'=>'29','period'=>'/mo','text'=>'Short plan description','button'=>'Choose plan','featured'=>true]
         ];
         $variant = sanitize_html_class($attributes['styleVariant'] ?? 'default');
         $currency = esc_html($attributes['currency'] ?? '€');
@@ -1717,10 +1822,29 @@ public function enqueue_frontend_assets() {
     }
 
     public function render_countdown_timer_block($attributes, $content, $block) {
+        wp_enqueue_script('wpbb-chart-view');
         $title = esc_html($attributes['title'] ?? 'Countdown');
         $target = esc_attr($attributes['targetDate'] ?? '2030-01-01T00:00:00');
-        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-countdown-timer card', 'data-target-date' => $target]);
-        return "<div {$wrapper}><div class=\"card-body\"><h3 class=\"card-title\">{$title}</h3><div class=\"wpbb-countdown-timer__value\">00:00:00</div></div></div>";
+        $variant = sanitize_html_class($attributes['styleVariant'] ?? 'default');
+        $accent = preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)($attributes['accentColor'] ?? '#2563eb'));
+        $bg = preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)($attributes['backgroundColor'] ?? ''));
+        $text = preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)($attributes['textColor'] ?? ''));
+        $shadow = sanitize_html_class($attributes['boxShadowClass'] ?? 'shadow-sm');
+        $style = '';
+        if ($bg) $style .= 'background:' . $bg . ';';
+        if ($text) $style .= 'color:' . $text . ';';
+        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-countdown-timer wpbb-countdown-timer--' . $variant . ' card ' . $shadow, 'data-target-date' => $target, 'style' => $style]);
+        $labels = [
+            esc_html($attributes['labelDays'] ?? 'Days'),
+            esc_html($attributes['labelHours'] ?? 'Hours'),
+            esc_html($attributes['labelMinutes'] ?? 'Minutes'),
+            esc_html($attributes['labelSeconds'] ?? 'Seconds')
+        ];
+        $segments = '';
+        foreach ($labels as $lab) {
+            $segments .= '<div class="wpbb-countdown-timer__segment" style="border-color:' . esc_attr($accent) . '"><strong>00</strong><span>' . $lab . '</span></div>';
+        }
+        return "<div {$wrapper}><div class=\"card-body\"><h3 class=\"card-title\">{$title}</h3><div class=\"wpbb-countdown-timer__value\">{$segments}</div></div></div>";
     }
 
     public function render_chart_block($attributes, $content, $block) {
@@ -1728,8 +1852,10 @@ public function enqueue_frontend_assets() {
         $title = esc_html($attributes['title'] ?? 'Chart');
         $type = esc_attr($attributes['chartType'] ?? 'bar');
         $json = esc_attr($attributes['chartDataJson'] ?? '');
-        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-chart card', 'data-chart-type' => $type, 'data-chart-json' => $json]);
-        return "<div {$wrapper}><div class=\"card-body\"><h3 class=\"card-title\">{$title}</h3><div class=\"wpbb-chart__canvas\">Chart preview</div></div></div>";
+        $opts = esc_attr($attributes['chartOptionsJson'] ?? '');
+        $height = preg_replace('/[^0-9.%a-zA-Z-]/', '', (string)($attributes['height'] ?? '320px'));
+        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-chart card', 'data-chart-type' => $type, 'data-chart-json' => $json, 'data-chart-options' => $opts]);
+        return "<div {$wrapper}><div class=\"card-body\"><h3 class=\"card-title\">{$title}</h3><div class=\"wpbb-chart__canvas\" style=\"min-height:{$height}\">Chart preview</div></div></div>";
     }
 
     public function render_fun_fact_block($attributes, $content, $block) {
@@ -1748,9 +1874,14 @@ public function enqueue_frontend_assets() {
         $fieldName = esc_attr($attributes['audienceFieldName'] ?? 'EMAIL');
         $showName = !empty($attributes['showNameField']);
         $buttonText = esc_html($attributes['buttonText'] ?? 'Subscribe');
-        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-mailchimp card']);
-        $nameField = $showName ? '<input type="text" class="form-control" name="FNAME" placeholder="Name">' : '';
-        return "<div {$wrapper}><div class=\"card-body\"><h3 class=\"card-title\">{$title}</h3><p>{$text}</p><form class=\"wpbb-mailchimp-form\" method=\"post\" action=\"{$action}\" target=\"_blank\"><div class=\"row g-2\"><div class=\"col-12\">{$nameField}</div><div class=\"col-12\"><div class=\"input-group\"><input type=\"email\" class=\"form-control\" name=\"{$fieldName}\" placeholder=\"Email\"><button class=\"btn btn-primary\" type=\"submit\">{$buttonText}</button></div></div></div></form></div></div>";
+        $variant = sanitize_html_class($attributes['styleVariant'] ?? 'soft');
+        $useHcaptcha = !empty($attributes['useHcaptcha']);
+        $btnBg = preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)($attributes['submitBg'] ?? '#2563eb'));
+        $btnColor = preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)($attributes['submitColor'] ?? '#ffffff'));
+        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-mailchimp card wpbb-mailchimp--' . $variant]);
+        $nameField = $showName ? '<div class="col-12"><input type="text" class="form-control" name="FNAME" placeholder="Name"></div>' : '';
+        $hcaptcha = $useHcaptcha ? '<div class="wpbb-captcha-note">hCaptcha enabled. Add site key/secret in plugin settings for production.</div>' : '';
+        return "<div {$wrapper}><div class=\"card-body\"><h3 class=\"card-title\">{$title}</h3><p>{$text}</p><form class=\"wpbb-mailchimp-form\" method=\"post\" action=\"{$action}\" target=\"_blank\"><div class=\"row g-2\">{$nameField}<div class=\"col-12\"><div class=\"input-group\"><input type=\"email\" class=\"form-control\" name=\"{$fieldName}\" placeholder=\"Email\"><button class=\"btn btn-primary\" type=\"submit\" style=\"background:{$btnBg};border-color:{$btnBg};color:{$btnColor}\">{$buttonText}</button></div></div></div>{$hcaptcha}</form></div></div>";
     }
 
 
@@ -1816,7 +1947,8 @@ public function enqueue_frontend_assets() {
         if (!empty($attributes['align'])) $classes[] = 'justify-content-' . sanitize_html_class((string)$attributes['align']);
         $uid = !empty($attributes['uniqueId']) ? sanitize_html_class((string)$attributes['uniqueId']) : sanitize_html_class('wpbb-row-' . wp_unique_id());
         $style = $this->wpbb_build_spacing_inline($attributes);
-        if (!empty($attributes['backgroundColor'])) $style .= 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';';
+        if (!empty($attributes['backgroundColor'])) $style .= 'background-color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';';
+        if (!empty($attributes['backgroundImageUrl'])) $style .= 'background-image:url(' . esc_url_raw((string)$attributes['backgroundImageUrl']) . ');background-size:' . preg_replace('/[^a-z% -]/i', '', (string)($attributes['backgroundSize'] ?? 'cover')) . ';background-position:' . preg_replace('/[^a-z% -]/i', '', (string)($attributes['backgroundPosition'] ?? 'center center')) . ';background-repeat:no-repeat;background-attachment:' . preg_replace('/[^a-z-]/i', '', (string)($attributes['backgroundAttachment'] ?? 'scroll')) . ';';
         if (!empty($attributes['textColor'])) $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['textColor']) . ';';
         if (!empty($attributes['maxWidth'])) { $mwRaw = trim((string)$attributes['maxWidth']); $mwu = preg_replace('/[^a-z%]/i', '', (string)($attributes['maxWidthUnit'] ?? '')); if ($mwu === '') $mwu = 'px'; if ($mwRaw === 'auto') { $style .= 'max-width:auto;margin-left:auto;margin-right:auto;'; } else { $mwNum = preg_replace('/[^0-9.\-]/', '', $mwRaw); if ($mwNum !== '') { $style .= 'max-width:' . $mwNum . $mwu . ';margin-left:auto;margin-right:auto;'; } } }
         if (!empty($attributes['customStyle'])) $style .= (string)$attributes['customStyle'];
@@ -1827,9 +1959,26 @@ public function enqueue_frontend_assets() {
         $inner = '<div class="row">' . $content . '</div>';
         if (!empty($attributes['containerClass'])) {
             $container_class = implode(' ', array_values(array_unique(array_filter($this->wpbb_class_tokens_from_value($attributes['containerClass'])))));
-            $inner = '<div class="' . esc_attr($container_class) . '">' . $inner . '</div>';
+            $container_style = '';
+            if (strpos(' ' . $container_class . ' ', ' container ') !== false || strpos($container_class, 'container-') !== false) {
+                $frontend_max = trim((string) wpbb_get_option('frontend_container_max_width', '1400px'));
+                if ($frontend_max !== '') {
+                    $frontend_max = preg_replace('/[^0-9a-zA-Z\-\.\%\(\), \/]/', '', $frontend_max);
+                    if ($frontend_max !== '') {
+                        $container_style = ' style="max-width:' . esc_attr($frontend_max) . '"';
+                    }
+                }
+            }
+            $inner = '<div class="' . esc_attr($container_class) . '"' . $container_style . '>' . $inner . '</div>';
         }
-        return $spacingTag . $scssTag . '<div ' . $wrapper . '>' . $inner . '</div>';
+        $overlay = '';
+        if (!empty($attributes['overlayColor']) && !empty($attributes['overlayOpacity'])) {
+            $overlay = '<div class="wpbb-block-overlay" style="position:absolute;inset:0;pointer-events:none;background:' . esc_attr((string)$attributes['overlayColor']) . ';opacity:' . floatval($attributes['overlayOpacity']) . ';"></div>';
+            $inner = '<div class="wpbb-block-content" style="position:relative;z-index:1">' . $inner . '</div>';
+            $style .= 'position:relative;overflow:hidden;';
+            $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_values(array_unique(array_filter($classes)))), 'style' => $style, 'id' => $uid]);
+        }
+        return $spacingTag . $scssTag . '<div ' . $wrapper . '>' . $overlay . $inner . '</div>';
     }
 
     public function render_column_block($attributes, $content, $block) {
@@ -1840,7 +1989,7 @@ public function enqueue_frontend_assets() {
             if ($bp === 'xs' && $val <= 0) $val = 12;
             if ($val > 0) $classes[] = $prefix . '-' . $val;
         }
-        foreach (['orderClass','verticalAlign','horizontalAlign','visibilityClass','animationClass','paddingClass','marginClass','backgroundClass','displayClass','textUtilityClass','roundedClass','shadowClass','bootstrapClasses','utilityClasses','customClasses','className'] as $k) {
+        foreach (['orderClass','verticalAlign','horizontalAlign','visibilityClass','animationClass','paddingClass','marginClass','backgroundClass','displayClass','textUtilityClass','roundedClass','shadowClass','boxShadowClass','bootstrapClasses','utilityClasses','customClasses','className'] as $k) {
             if (empty($attributes[$k])) continue;
             $classes = array_merge($classes, $this->wpbb_class_tokens_from_value($attributes[$k]));
         }
@@ -1860,7 +2009,14 @@ public function enqueue_frontend_assets() {
             $container_class = implode(' ', $this->wpbb_class_tokens_from_value($attributes['containerClass']));
             $inner = '<div class="' . esc_attr($container_class) . '">' . $content . '</div>';
         }
-        return $spacingTag . $scssTag . '<div ' . $wrapper . '>' . $inner . '</div>';
+        $overlay = '';
+        if (!empty($attributes['overlayColor']) && !empty($attributes['overlayOpacity'])) {
+            $overlay = '<div class="wpbb-block-overlay" style="position:absolute;inset:0;pointer-events:none;background:' . esc_attr((string)$attributes['overlayColor']) . ';opacity:' . floatval($attributes['overlayOpacity']) . ';"></div>';
+            $inner = '<div class="wpbb-block-content" style="position:relative;z-index:1">' . $inner . '</div>';
+            $style .= 'position:relative;overflow:hidden;';
+            $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_values(array_unique(array_filter($classes)))), 'style' => $style, 'id' => $uid]);
+        }
+        return $spacingTag . $scssTag . '<div ' . $wrapper . '>' . $overlay . $inner . '</div>';
     }
 
     public function render_social_follow_block($attributes, $content, $block) {
@@ -1935,6 +2091,98 @@ public function enqueue_frontend_assets() {
     }
 
 
+
+    public function render_feature_list_block($attributes, $content, $block) {
+        $title = esc_html($attributes['title'] ?? 'Features');
+        $items = wpbb_parse_fields_json($attributes['itemsJson'] ?? '');
+        if (!$items) $items = [['title'=>'Fast setup','text'=>'Launch quickly with reusable UI.'],['title'=>'Clear messaging','text'=>'Highlight your strongest value points.']];
+        $icon_color = preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)($attributes['iconColor'] ?? '#2563eb'));
+        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-feature-list']);
+        $html = '<div ' . $wrapper . '>';
+        if ($title) $html .= '<h3>' . $title . '</h3>';
+        $html .= '<div class="wpbb-feature-list__grid">';
+        foreach ($items as $item) {
+            $html .= '<div class="wpbb-feature-item"><span class="wpbb-feature-item__icon" style="color:' . esc_attr($icon_color) . '">✓</span><div><div class="wpbb-feature-item__title">' . esc_html($item['title'] ?? '') . '</div><div class="wpbb-feature-item__text">' . esc_html($item['text'] ?? '') . '</div></div></div>';
+        }
+        $html .= '</div></div>';
+        return $html;
+    }
+
+    public function render_timeline_block($attributes, $content, $block) {
+        $title = esc_html($attributes['title'] ?? 'Timeline');
+        $layout = sanitize_html_class($attributes['layout'] ?? 'vertical');
+        $items = wpbb_parse_fields_json($attributes['itemsJson'] ?? '');
+        if (!$items) $items = [['date'=>'2024','title'=>'Discovery','text'=>'Research and planning.'],['date'=>'2025','title'=>'Launch','text'=>'Implementation and launch.']];
+        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-timeline wpbb-timeline--' . $layout]);
+        $html = '<div ' . $wrapper . '>';
+        if ($title) $html .= '<h3>' . $title . '</h3>';
+        $html .= '<div class="wpbb-timeline__items">';
+        foreach ($items as $item) {
+            $html .= '<div class="wpbb-timeline__item"><div class="wpbb-timeline__dot"></div><div class="wpbb-timeline__content"><div class="wpbb-timeline__date">' . esc_html($item['date'] ?? '') . '</div><div class="wpbb-timeline__title">' . esc_html($item['title'] ?? '') . '</div><div class="wpbb-timeline__text">' . esc_html($item['text'] ?? '') . '</div></div></div>';
+        }
+        $html .= '</div></div>';
+        return $html;
+    }
+
+    public function render_custom_embed_block($attributes, $content, $block) {
+        $title = esc_html($attributes['title'] ?? 'Embed');
+        $embed_url = esc_url($attributes['embedUrl'] ?? '');
+        $embed_html = (string)($attributes['embedHtml'] ?? '');
+        $height = preg_replace('/[^0-9.%a-zA-Z-]/', '', (string)($attributes['height'] ?? '420px'));
+        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-custom-embed']);
+        $body = '';
+        if ($embed_html !== '') {
+            $body = '<div class="wpbb-custom-embed__html">' . wp_kses($embed_html, ['iframe' => ['src'=>true,'width'=>true,'height'=>true,'style'=>true,'frameborder'=>true,'allow'=>true,'allowfullscreen'=>true,'loading'=>true,'referrerpolicy'=>true], 'div'=>['class'=>true,'style'=>true]]) . '</div>';
+        } elseif ($embed_url !== '') {
+            $body = '<iframe class="wpbb-custom-embed__frame" src="' . $embed_url . '" style="min-height:' . esc_attr($height) . '" loading="lazy"></iframe>';
+        } else {
+            $body = '<div class="wpbb-custom-embed__placeholder">Add embed URL or HTML.</div>';
+        }
+        return '<div ' . $wrapper . '>' . ($title ? '<h3>' . $title . '</h3>' : '') . $body . '</div>';
+    }
+
+    public function render_ai_content_block($attributes, $content, $block) {
+        $title = esc_html($attributes['title'] ?? 'AI Content');
+        $provider = esc_html($attributes['provider'] ?? 'custom-api');
+        $generated = wp_kses_post($attributes['generatedText'] ?? '');
+        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-ai-content']);
+        return '<div ' . $wrapper . '>' . ($title ? '<h3>' . $title . '</h3>' : '') . '<div class="wpbb-ai-content__meta">Provider: ' . $provider . '</div><div class="wpbb-ai-content__help">Quick start: use a free OpenAI-compatible endpoint such as Groq or OpenRouter. Add endpoint, model, and API key in the block settings.</div><div class="wpbb-ai-content__body">' . ($generated ?: 'No generated content yet.') . '</div></div>';
+    }
+
+    public function render_login_register_block($attributes, $content, $block) {
+        $title = esc_html($attributes['title'] ?? 'Account Access');
+        $show_register = !empty($attributes['showRegister']);
+        $variant = sanitize_html_class($attributes['styleVariant'] ?? 'split');
+        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-auth wpbb-auth--' . $variant]);
+
+        $login_form = wp_login_form([
+            'echo' => false,
+            'remember' => true,
+            'label_username' => __('Email or Username', 'wp-bbuilder'),
+            'label_password' => __('Password', 'wp-bbuilder'),
+            'label_log_in'   => __('Log In', 'wp-bbuilder')
+        ]);
+
+        $register_html = '';
+        if ($show_register) {
+            if (get_option('users_can_register')) {
+                $register_html = '<div class="wpbb-auth-card p-3"><h4>' . esc_html__('Register', 'wp-bbuilder') . '</h4><p>' . esc_html__('Create an account on the default WordPress registration page.', 'wp-bbuilder') . '</p><a class="btn btn-primary" href="' . esc_url(wp_registration_url()) . '">' . esc_html__('Register', 'wp-bbuilder') . '</a></div>';
+            } else {
+                $register_html = '<div class="wpbb-auth-card p-3"><h4>' . esc_html__('Register', 'wp-bbuilder') . '</h4><p>' . esc_html__('User registration is currently disabled.', 'wp-bbuilder') . '</p></div>';
+            }
+        }
+
+        return '<div ' . $wrapper . '>' .
+            ($title ? '<h3>' . $title . '</h3>' : '') .
+            '<div class="row g-3">' .
+                '<div class="' . esc_attr($show_register ? 'col-md-6' : 'col-12') . '">' .
+                    '<div class="wpbb-auth-card p-3"><h4>' . esc_html__('Login', 'wp-bbuilder') . '</h4>' . $login_form . '</div>' .
+                '</div>' .
+                ($show_register ? '<div class="col-md-6">' . $register_html . '</div>' : '') .
+            '</div>' .
+        '</div>';
+    }
+
     public function render_button_block($attributes, $content, $block) {
         $text = !empty($attributes['text']) ? wp_kses_post($attributes['text']) : 'Button';
         $url = !empty($attributes['url']) ? esc_url($attributes['url']) : '#';
@@ -1966,11 +2214,16 @@ public function enqueue_frontend_assets() {
     }
 
     public function render_accordion_block($attributes, $content, $block) {
-        if (wpbb_get_option('load_bootstrap_js', 0)) {
+        if (wpbb_get_option('load_bootstrap_js', 0) || wpbb_get_option('force_bootstrap_enqueue', 0)) {
             wp_enqueue_script('wpbb-bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js', [], '5.3.3', true);
         }
         $uid = !empty($attributes['anchor']) ? sanitize_html_class((string)$attributes['anchor']) : sanitize_html_class('wpbb-accordion-' . wp_unique_id());
-        $wrapper = get_block_wrapper_attributes(['class' => 'accordion wpbb-accordion', 'id' => $uid]);
+        $flush = !empty($attributes['flush']) ? ' accordion-flush' : '';
+        $shadow = !empty($attributes['boxShadowClass']) ? ' ' . sanitize_html_class((string)$attributes['boxShadowClass']) : '';
+        $style = '';
+        if (!empty($attributes['backgroundColor'])) $style .= 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';';
+        if (!empty($attributes['borderColor'])) $style .= 'border-color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['borderColor']) . ';';
+        $wrapper = get_block_wrapper_attributes(['class' => 'accordion wpbb-accordion' . $flush . $shadow, 'id' => $uid, 'style' => $style]);
         return '<div ' . $wrapper . '>' . $content . '</div>';
     }
 
@@ -1979,10 +2232,6 @@ public function enqueue_frontend_assets() {
         $item_id = sanitize_html_class('wpbb-acc-item-' . wp_unique_id());
         $head_id = $item_id . '-head';
         $collapse_id = $item_id . '-collapse';
-        $parent = '';
-        if (!empty($block->context['postId'])) {
-            $parent = '';
-        }
         return '<div class="accordion-item wpbb-accordion-item">'
             . '<h2 class="accordion-header" id="' . esc_attr($head_id) . '">'
             . '<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#' . esc_attr($collapse_id) . '" aria-expanded="false" aria-controls="' . esc_attr($collapse_id) . '">'

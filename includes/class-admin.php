@@ -19,6 +19,7 @@ final class WPBB_Admin {
         wp_enqueue_script('code-editor');
         wp_enqueue_style('code-editor');
         wp_enqueue_script('wpbb-admin-builder', WPBB_PLUGIN_URL . 'assets/admin-builder.js', ['jquery', 'code-editor'], WPBB_VERSION, true);
+        wp_enqueue_script('wpbb-admin-sortable', WPBB_PLUGIN_URL . 'assets/admin-sortable.js', [], WPBB_VERSION, true);
         wp_localize_script('wpbb-admin-builder', 'wpbbBuilder', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('wpbb_builder_nonce'),
@@ -27,6 +28,7 @@ final class WPBB_Admin {
             'css' => $css_settings,
             'compiledText' => __('SCSS compiled successfully.', 'wp-bbuilder'),
             'errorText' => __('Build failed.', 'wp-bbuilder'),
+            'adminCompiledCss' => (string) wpbb_get_option('admin_compiled_css', ''),
         ]);
     }
     public function render() {
@@ -56,6 +58,19 @@ final class WPBB_Admin {
                             <div class="wpbb-settings-tool"><strong><?php esc_html_e('Core controls', 'wp-bbuilder'); ?></strong><div><?php esc_html_e('Enable or disable selected core blocks.', 'wp-bbuilder'); ?></div></div>
                         </div>
                     </div>
+                    <div class="wpbb-card" id="admin-scss">
+                        <h2><?php esc_html_e('Admin style SCSS compiler', 'wp-bbuilder'); ?></h2>
+                        <p><?php esc_html_e('Compile SCSS only for WordPress admin screens.', 'wp-bbuilder'); ?></p>
+                        <p><label><?php esc_html_e('Admin SCSS', 'wp-bbuilder'); ?><br><textarea class="large-text code wpbb-code-editor wpbb-code-editor--scss" rows="12" data-wpbb-admin-scss-input><?php echo esc_textarea($opts['admin_scss'] ?? ''); ?></textarea></label></p>
+                        <p>
+                            <button type="button" class="button button-secondary" data-wpbb-admin-scss-build><?php esc_html_e('Build admin SCSS', 'wp-bbuilder'); ?></button>
+                            <span class="wpbb-build-status" data-wpbb-admin-scss-status></span>
+                        </p>
+                        <p><label><?php esc_html_e('Compiled admin CSS preview', 'wp-bbuilder'); ?><br><textarea class="large-text code wpbb-code-editor wpbb-code-editor--css-output" rows="10" readonly data-wpbb-admin-css-preview><?php echo esc_textarea($opts['admin_compiled_css'] ?? ''); ?></textarea></label></p>
+                        <input type="hidden" name="wpbb_settings[admin_scss]" value="<?php echo esc_attr($opts['admin_scss'] ?? ''); ?>" data-wpbb-admin-scss-hidden>
+                        <input type="hidden" name="wpbb_settings[admin_compiled_css]" value="<?php echo esc_attr($opts['admin_compiled_css'] ?? ''); ?>" data-wpbb-admin-css-hidden>
+                    </div>
+
                     <div class="wpbb-card" id="blocks">
                         <h2><?php esc_html_e('BBuilder blocks', 'wp-bbuilder'); ?></h2>
                         <?php foreach (wpbb_get_blocks_list() as $slug): ?>

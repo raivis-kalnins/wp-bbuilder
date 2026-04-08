@@ -90,3 +90,91 @@
     });
   });
 })(jQuery);
+
+
+(function(){
+  function initAdminScssCompiler(){
+    var input = document.querySelector('[data-wpbb-admin-scss-input]');
+    var hiddenScss = document.querySelector('[data-wpbb-admin-scss-hidden]');
+    var hiddenCss = document.querySelector('[data-wpbb-admin-css-hidden]');
+    var preview = document.querySelector('[data-wpbb-admin-css-preview]');
+    var buildBtn = document.querySelector('[data-wpbb-admin-scss-build]');
+    var status = document.querySelector('[data-wpbb-admin-scss-status]');
+    if (!input || !buildBtn || !hiddenScss || !hiddenCss || !preview || !window.wpbbBuilder) return;
+
+    function getEditorValue(textarea){
+      try {
+        if (textarea.nextSibling && textarea.nextSibling.CodeMirror) {
+          return textarea.nextSibling.CodeMirror.getValue();
+        }
+        if (textarea.CodeMirror) {
+          return textarea.CodeMirror.getValue();
+        }
+      } catch(e){}
+      return textarea.value || '';
+    }
+
+    function setEditorValue(textarea, value){
+      try {
+        if (textarea.nextSibling && textarea.nextSibling.CodeMirror) {
+          textarea.nextSibling.CodeMirror.setValue(value);
+        } else if (textarea.CodeMirror) {
+          textarea.CodeMirror.setValue(value);
+        } else {
+          textarea.value = value;
+        }
+      } catch(e) {
+        textarea.value = value;
+      }
+    }
+
+    buildBtn.addEventListener('click', function(){
+      var scss = getEditorValue(input);
+      hiddenScss.value = scss;
+      status.textContent = 'Building...';
+
+      var payload = new URLSearchParams();
+      payload.append('action', 'wpbb_compile_scss');
+      payload.append('nonce', window.wpbbBuilder.nonce || '');
+      payload.append('scss', scss);
+
+      fetch(window.wpbbBuilder.ajaxUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+        credentials: 'same-origin',
+        body: payload.toString()
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if (res && res.success) {
+          var css = (res.data && res.data.css) ? res.data.css : '';
+          hiddenCss.value = css;
+          preview.value = css;
+          setEditorValue(preview, css);
+          status.textContent = window.wpbbBuilder.compiledText || 'SCSS compiled successfully.';
+        } else {
+          status.textContent = (res && res.data && res.data.message) ? res.data.message : (window.wpbbBuilder.errorText || 'Build failed.');
+        }
+      })
+      .catch(function(){
+        status.textContent = window.wpbbBuilder.errorText || 'Build failed.';
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAdminScssCompiler);
+  } else {
+    initAdminScssCompiler();
+  }
+})();
+
+
+(function($){
+  $(function(){
+    var $scss = $('[data-wpbb-admin-scss-input]');
+    var $css = $('[data-wpbb-admin-css-preview]');
+    if ($scss.length && !$scss.hasClass('wpbb-code-editor--scss')) $scss.addClass('wpbb-code-editor--scss');
+    if ($css.length && !$css.hasClass('wpbb-code-editor--css-output')) $css.addClass('wpbb-code-editor--css-output');
+  });
+})(jQuery);
