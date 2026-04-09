@@ -1,0 +1,30 @@
+body.search-results {
+
+	.is-layout-flow {
+
+		.wp-block-search {
+			position: relative;
+			width: 100%;
+
+			input {
+				position: initial !important;
+				transform: unset !important;
+			}
+		}
+
+		.wp-block-query-pagination-previous {
+			margin-left: 0;
+			margin-right: auto;
+		}
+		.wp-block-query-pagination-next {
+			margin-left: auto;
+			margin-right: 0;
+		}
+
+		.wp-block-search__button {
+			background-color: var(--wp-brand-color);
+			z-index: 9;
+    		right: 40px;
+		}
+	}
+}
