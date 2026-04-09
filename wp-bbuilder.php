@@ -143,3 +143,61 @@ if (!function_exists('wpbb_force_bootstrap_enqueue')) {
     }
     add_action('wp_enqueue_scripts', 'wpbb_force_bootstrap_enqueue', 1);
 }
+
+if (!function_exists('wpbb_normalize_redirect_path')) {
+    function wpbb_normalize_redirect_path($value) {
+        $value = trim((string) $value);
+        if ($value === '') return '/';
+
+        $path = (string) wp_parse_url($value, PHP_URL_PATH);
+        if ($path === '') {
+            $path = $value;
+        }
+
+        $path = '/' . ltrim(urldecode($path), '/');
+        $path = preg_replace('#/+#', '/', $path);
+        $path = untrailingslashit($path);
+
+        return $path === '' ? '/' : $path;
+    }
+}
+
+if (!function_exists('wpbb_handle_page_redirects')) {
+    function wpbb_handle_page_redirects() {
+        if (is_admin()) return;
+
+        $rules = json_decode((string) wpbb_get_option('page_redirect_rules', '[]'), true);
+        if (!is_array($rules) || empty($rules)) return;
+
+        $request_uri = isset($_SERVER['REQUEST_URI']) ? wp_unslash((string) $_SERVER['REQUEST_URI']) : '';
+        $current_path = wpbb_normalize_redirect_path($request_uri);
+        $current_url  = home_url($request_uri);
+
+        foreach ($rules as $rule) {
+            $from = isset($rule['from']) ? trim((string) $rule['from']) : '';
+            $to = isset($rule['to']) ? trim((string) $rule['to']) : '';
+            if ($from === '' || $to === '') continue;
+
+            $from_path = wpbb_normalize_redirect_path($from);
+            $from_url  = preg_match('#^https?://#i', $from) ? $from : home_url('/' . ltrim($from, '/'));
+            $status    = in_array((int) ($rule['code'] ?? 301), [301, 302], true) ? (int) $rule['code'] : 301;
+            $target    = preg_match('#^https?://#i', $to) ? $to : home_url('/' . ltrim($to, '/'));
+
+            $path_match = ($from_path === $current_path);
+            $url_match  = (untrailingslashit($from_url) === untrailingslashit($current_url));
+
+            if (!$path_match && !$url_match) {
+                continue;
+            }
+
+            if (untrailingslashit($target) === untrailingslashit($current_url)) {
+                continue;
+            }
+
+            nocache_headers();
+            wp_redirect($target, $status);
+            exit;
+        }
+    }
+    add_action('template_redirect', 'wpbb_handle_page_redirects', 0);
+}

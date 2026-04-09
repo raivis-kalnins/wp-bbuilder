@@ -1205,3 +1205,90 @@
   height:18px;
   display:block;
 }
+
+
+/* improved row / column block labels */
+.wp-block[data-type="wpbb/row"],
+.wp-block[data-type="wpbb/column"]{
+  position:relative;
+  overflow:visible;
+  margin-top:18px;
+}
+.wp-block[data-type="wpbb/row"] > .wpbb-editor-label,
+.wp-block[data-type="wpbb/column"] > .wpbb-editor-label{
+  position:absolute;
+  top:-18px;
+  left:12px;
+  z-index:5;
+  margin-bottom:0;
+  padding:4px 8px;
+  font-size:10px;
+  line-height:1;
+  box-shadow:0 4px 12px rgba(15,23,42,.08);
+}
+.wp-block[data-type="core/spacer"]{
+  width:100% !important;
+  max-width:none !important;
+  box-sizing:border-box;
+}
+.wp-block[data-type="core/spacer"] .components-resizable-box__container,
+.wp-block[data-type="core/spacer"] .block-library-spacer__resize-container{
+  width:100% !important;
+  max-width:none !important;
+}
+.wpbb-load-more-editor-preview__stats{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin:12px 0 16px;
+}
+.wpbb-load-more-editor-preview__stats p{
+  margin:0;
+  padding:10px 12px;
+  border:1px solid #dbe2ea;
+  border-radius:12px;
+  background:#fff;
+}
+.wpbb-load-more-editor-preview__button-wrap{
+  display:flex;
+  justify-content:center;
+  padding-top:4px;
+}
+
+
+/* prettier editor previews for frontend-like cards */
+.wpbb-name-days-editor-preview,
+.wpbb-weather-editor-preview,
+.wpbb-contact-links-editor-preview,
+.wpbb-ai-content-editor{
+  border:1px solid #dbe2ea;
+  border-radius:18px;
+  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+  box-shadow:0 10px 24px rgba(15,23,42,.06);
+}
+.wpbb-name-days-editor-preview .card-body,
+.wpbb-weather-editor-preview .card-body{
+  padding:18px;
+}
+.wpbb-name-days-editor-preview .card-title,
+.wpbb-weather-editor-preview .card-title{
+  margin:0 0 8px;
+}
+.wpbb-contact-links-editor-preview{
+  display:grid;
+  gap:10px;
+  padding:16px;
+}
+.wpbb-contact-links-editor-preview .wpbb-contact-links__item{
+  padding:12px 14px;
+  border:1px solid #dbe2ea;
+  border-radius:14px;
+  background:#fff;
+}
+.wpbb-contact-links-editor-preview .wpbb-contact-links__icon{
+  width:32px;
+  justify-content:center;
+}
+.wpbb-ai-content-editor .wpbb-ai-content-editor__meta{
+  margin:0 0 8px;
+}

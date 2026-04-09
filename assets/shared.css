@@ -502,17 +502,92 @@
 
 
 /* countdown styles */
+.wpbb-countdown-timer{
+  border:1px solid rgba(148,163,184,.24);
+  border-radius:24px;
+  overflow:hidden;
+  background:linear-gradient(180deg,#ffffff 0%,#f8fafc 100%);
+}
+.wpbb-countdown-timer .card-body{
+  padding:28px;
+}
+.wpbb-countdown-timer .card-title{
+  margin:0 0 18px;
+  font-size:clamp(1.25rem,2vw,2rem);
+  line-height:1.15;
+}
 .wpbb-countdown-timer--default .wpbb-countdown-timer__value,
 .wpbb-countdown-timer--soft .wpbb-countdown-timer__value,
-.wpbb-countdown-timer--dark .wpbb-countdown-timer__value{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-.wpbb-countdown-timer__segment{padding:14px;border-radius:16px;background:#fff;border:1px solid #dbe2ea;text-align:center}
-.wpbb-countdown-timer__segment strong{display:block;font-size:28px;line-height:1.1;color:#0f172a}
-.wpbb-countdown-timer__segment span{display:block;margin-top:6px;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:#64748b}
-.wpbb-countdown-timer--soft .wpbb-countdown-timer__segment{background:#f8fafc}
-.wpbb-countdown-timer--dark{background:#0f172a;color:#fff}
-.wpbb-countdown-timer--dark .wpbb-countdown-timer__segment{background:#111827;border-color:#334155}
-.wpbb-countdown-timer--dark .wpbb-countdown-timer__segment strong{color:#fff}
-.wpbb-countdown-timer--dark .wpbb-countdown-timer__segment span{color:#cbd5e1}
+.wpbb-countdown-timer--dark .wpbb-countdown-timer__value{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+}
+.wpbb-countdown-timer__segment{
+  position:relative;
+  padding:18px 14px 16px;
+  border-radius:18px;
+  background:#fff;
+  border:1px solid #dbe2ea;
+  text-align:center;
+  box-shadow:0 10px 24px rgba(15,23,42,.06);
+}
+.wpbb-countdown-timer__segment strong{
+  display:block;
+  font-size:clamp(1.8rem,3vw,2.6rem);
+  line-height:1;
+  color:#0f172a;
+}
+.wpbb-countdown-timer__segment span{
+  display:block;
+  margin-top:8px;
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  color:#64748b;
+}
+.wpbb-countdown-timer--soft{
+  background:linear-gradient(180deg,#f8fbff 0%,#eef5ff 100%);
+}
+.wpbb-countdown-timer--soft .wpbb-countdown-timer__segment{
+  background:rgba(255,255,255,.92);
+}
+.wpbb-countdown-timer--dark{
+  background:linear-gradient(180deg,#0f172a 0%,#111827 100%);
+  color:#fff;
+}
+.wpbb-countdown-timer--dark .card-title{
+  color:#fff;
+}
+.wpbb-countdown-timer--dark .wpbb-countdown-timer__segment{
+  background:rgba(15,23,42,.72);
+  border-color:#334155;
+  box-shadow:none;
+}
+.wpbb-countdown-timer--dark .wpbb-countdown-timer__segment strong{
+  color:#fff;
+}
+.wpbb-countdown-timer--dark .wpbb-countdown-timer__segment span{
+  color:#cbd5e1;
+}
+@media (max-width: 767px){
+  .wpbb-countdown-timer .card-body{
+    padding:20px;
+  }
+  .wpbb-countdown-timer--default .wpbb-countdown-timer__value,
+  .wpbb-countdown-timer--soft .wpbb-countdown-timer__value,
+  .wpbb-countdown-timer--dark .wpbb-countdown-timer__value{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media (max-width: 480px){
+  .wpbb-countdown-timer--default .wpbb-countdown-timer__value,
+  .wpbb-countdown-timer--soft .wpbb-countdown-timer__value,
+  .wpbb-countdown-timer--dark .wpbb-countdown-timer__value{
+    grid-template-columns:1fr;
+  }
+}
 
 /* mailchimp form */
 .wpbb-mailchimp .wpbb-mailchimp-form{margin-top:12px}
@@ -1087,4 +1162,25 @@
 }
 .wpbb-table-block .table thead th{
   font-weight:700;
+}
+
+.wpbb-contact-links__item{display:inline-flex;align-items:center;gap:.75rem;text-decoration:none}.wpbb-contact-links__icon{display:inline-flex;line-height:1}.wpbb-events__calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.5rem}.wpbb-events__calendar-day{padding:.5rem;border:1px solid rgba(0,0,0,.08);border-radius:.5rem;text-align:center}.wpbb-events__calendar-day.is-today{background:#0d6efd;color:#fff;border-color:#0d6efd}.wpbb-testimonials blockquote{font-size:1rem;line-height:1.7}.wpbb-blog-filter .form-label{font-weight:600}.wpbb-load-more .card-title a,.wpbb-events a,.wpbb-testimonials a{text-decoration:none}
+
+
+/* load more button fallback */
+.wpbb-load-more__actions{
+  display:flex;
+  justify-content:center;
+}
+.wpbb-load-more [data-wpbb-load-more-btn]{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:46px;
+  padding:12px 22px;
+  border-radius:999px;
+  border:1px solid transparent;
+  font-weight:600;
+  text-decoration:none;
+  cursor:pointer;
 }

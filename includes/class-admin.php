@@ -5,7 +5,7 @@ final class WPBB_Admin {
     public static function instance() { if (self::$instance === null) self::$instance = new self(); return self::$instance; }
     private function __construct() { add_action('admin_menu', [$this,'menu']); add_action('admin_enqueue_scripts', [$this,'assets']); add_action('wp_ajax_wpbb_compile_scss', [$this,'ajax_compile_scss']); }
     public function menu() {
-        add_menu_page(__('BBuilder','wp-bbuilder'), __('BBuilder','wp-bbuilder'), 'manage_options', 'wpbb-settings', [$this,'render'], 'dashicons-screenoptions', 2);
+        add_options_page(__('BBuilder','wp-bbuilder'), __('BBuilder','wp-bbuilder'), 'manage_options', 'wpbb-settings', [$this,'render']);
         add_submenu_page('wpbb-settings', __('Settings','wp-bbuilder'), __('Settings','wp-bbuilder'), 'manage_options', 'wpbb-settings', [$this,'render']);
     }
     public function assets($hook) {
@@ -35,7 +35,7 @@ final class WPBB_Admin {
         $opts = wp_parse_args(get_option('wpbb_settings', []), wpbb_defaults());
         ?>
         <div class="wrap wpbb-admin-wrap">
-            <h1><?php esc_html_e('WP BBuilder Settings', 'wp-bbuilder'); ?></h1>
+            <h1><?php esc_html_e('Builder Settings Settings', 'wp-bbuilder'); ?></h1>
             <div class="wpbb-admin-nav">
                 <a href="#tools"><?php esc_html_e('BBuilder tools', 'wp-bbuilder'); ?></a>
                 <a href="#blocks"><?php esc_html_e('Blocks', 'wp-bbuilder'); ?></a>
@@ -161,7 +161,7 @@ final class WPBB_Admin {
                             'disable_core_group'=>'core/group','disable_core_columns'=>'core/columns','disable_core_column'=>'core/column',
                             'disable_core_table'=>'core/table','disable_core_embed'=>'core/embed','disable_core_gallery'=>'core/gallery',
                             'disable_core_image'=>'core/image','disable_core_cover'=>'core/cover','disable_core_media_text'=>'core/media-text',
-                            'disable_core_buttons'=>'core/buttons','disable_core_button'=>'core/button'
+                            'disable_core_buttons'=>'core/buttons','disable_core_button'=>'core/button','disable_core_query'=>'core/query'
                         ] as $setting => $label): ?>
                             <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[<?php echo esc_attr($setting); ?>]" value="1" <?php checked(!empty($opts[$setting])); ?>> <?php echo esc_html__('Disable ', 'wp-bbuilder') . esc_html($label); ?></label>
                         <?php endforeach; ?>
@@ -192,6 +192,21 @@ final class WPBB_Admin {
     <p><label><?php esc_html_e('General SCSS', 'wp-bbuilder'); ?><br><textarea class="large-text code wpbb-code-editor wpbb-code-editor--scss" rows="16" name="wpbb_settings[custom_scss]"><?php echo esc_textarea($opts['custom_scss'] ?? ''); ?></textarea></label></p>
     <p><button type="button" class="button button-primary wpbb-build-scss"><?php esc_html_e('Build SCSS', 'wp-bbuilder'); ?></button> <span class="wpbb-build-status"></span></p>
     <p><label><?php esc_html_e('Compiled CSS', 'wp-bbuilder'); ?><br><textarea class="large-text code wpbb-code-editor wpbb-code-editor--css-output" rows="10" name="wpbb_settings[compiled_css]" readonly><?php echo esc_textarea($opts['compiled_css'] ?? ''); ?></textarea></label></p>
+</div>
+
+
+<div class="wpbb-card" id="redirects">
+    <h2><?php esc_html_e('404 page redirects', 'wp-bbuilder'); ?></h2>
+    <p class="description"><?php esc_html_e('Add optional redirects for pages or URLs that no longer exist.', 'wp-bbuilder'); ?></p>
+    <div class="wpbb-repeatable" data-wpbb-redirects-builder>
+        <div class="wpbb-repeatable__rows" data-wpbb-redirects-rows></div>
+        <p class="wpbb-redirects-toolbar">
+            <button type="button" class="button button-secondary" data-wpbb-add-redirect><?php esc_html_e('Add redirect rule', 'wp-bbuilder'); ?></button>
+            <button type="submit" class="button button-primary"><?php esc_html_e('Save redirect rules', 'wp-bbuilder'); ?></button>
+        </p>
+        <textarea class="large-text code" rows="6" name="wpbb_settings[page_redirect_rules]" data-wpbb-redirects-input><?php echo esc_textarea($opts['page_redirect_rules'] ?? '[]'); ?></textarea>
+        <p class="description"><?php esc_html_e('Use relative paths like /old-page or full URLs like http://wpbase.localhost/test-1/. Matching now works with both full URL and path, and no .htaccess update is needed.', 'wp-bbuilder'); ?></p>
+    </div>
 </div>
 
 <div class="wpbb-card" id="runtime-code">

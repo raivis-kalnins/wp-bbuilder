@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function(){
   document.querySelectorAll('.wpbb-countdown-timer').forEach(function(el){
     var target = new Date(el.dataset.targetDate || '');
     var out = el.querySelector('.wpbb-countdown-timer__value');
+    var segments = out ? out.querySelectorAll('.wpbb-countdown-timer__segment strong') : [];
     function tick(){
       if (!out || isNaN(target.getTime())) return;
       var diff = Math.max(0, target.getTime() - Date.now());
@@ -25,7 +26,13 @@ document.addEventListener('DOMContentLoaded', function(){
       var d = Math.floor(s / 86400); s -= d*86400;
       var h = Math.floor(s / 3600); s -= h*3600;
       var m = Math.floor(s / 60); s -= m*60;
-      out.textContent = d + 'd ' + h + 'h ' + m + 'm ' + s + 's';
+      if (segments && segments.length === 4) {
+        [d,h,m,s].forEach(function(value, index){
+          segments[index].textContent = String(value).padStart(2, '0');
+        });
+      } else {
+        out.textContent = d + 'd ' + h + 'h ' + m + 'm ' + s + 's';
+      }
     }
     tick(); setInterval(tick, 1000);
   });

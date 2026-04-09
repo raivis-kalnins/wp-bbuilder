@@ -178,3 +178,64 @@
     if ($css.length && !$css.hasClass('wpbb-code-editor--css-output')) $css.addClass('wpbb-code-editor--css-output');
   });
 })(jQuery);
+
+(function(){
+  function initRedirectBuilder(){
+    var wrapper = document.querySelector('[data-wpbb-redirects-builder]');
+    if (!wrapper) return;
+    var input = wrapper.querySelector('[data-wpbb-redirects-input]');
+    var rows = wrapper.querySelector('[data-wpbb-redirects-rows]');
+    var addBtn = wrapper.querySelector('[data-wpbb-add-redirect]');
+    if (!input || !rows || !addBtn) return;
+
+    function parse(){
+      try {
+        var data = JSON.parse(input.value || '[]');
+        return Array.isArray(data) ? data : [];
+      } catch(e){ return []; }
+    }
+    function sync(){
+      var data = [];
+      rows.querySelectorAll('[data-wpbb-redirect-row]').forEach(function(row){
+        var from = row.querySelector('[data-wpbb-redirect-from]').value || '';
+        var to = row.querySelector('[data-wpbb-redirect-to]').value || '';
+        var code = row.querySelector('[data-wpbb-redirect-code]').value || '301';
+        if (!from.trim() || !to.trim()) return;
+        data.push({from: from.trim(), to: to.trim(), code: code});
+      });
+      input.value = JSON.stringify(data);
+    }
+    function row(rule){
+      var el = document.createElement('div');
+      el.className = 'wpbb-repeatable__row wpbb-repeatable__row--redirect';
+      el.setAttribute('data-wpbb-redirect-row','1');
+      el.innerHTML =
+        '<div class="wpbb-repeatable__field">' +
+          '<label class="wpbb-repeatable__label">Old</label>' +
+          '<input type="text" placeholder="/old-page" data-wpbb-redirect-from>' +
+        '</div>' +
+        '<div class="wpbb-repeatable__field">' +
+          '<label class="wpbb-repeatable__label">To</label>' +
+          '<input type="text" placeholder="/new-page" data-wpbb-redirect-to>' +
+        '</div>' +
+        '<div class="wpbb-repeatable__field wpbb-repeatable__field--code">' +
+          '<label class="wpbb-repeatable__label">Type</label>' +
+          '<select data-wpbb-redirect-code><option value="301">301 Permanent</option><option value="302">302 Temporary</option></select>' +
+        '</div>' +
+        '<div class="wpbb-repeatable__actions">' +
+          '<button type="button" class="button-link-delete" data-wpbb-remove-redirect>Remove</button>' +
+        '</div>';
+      el.querySelector('[data-wpbb-redirect-from]').value = rule && rule.from ? rule.from : '';
+      el.querySelector('[data-wpbb-redirect-to]').value = rule && rule.to ? rule.to : '';
+      el.querySelector('[data-wpbb-redirect-code]').value = rule && rule.code ? String(rule.code) : '301';
+      el.addEventListener('input', sync);
+      el.addEventListener('change', sync);
+      el.querySelector('[data-wpbb-remove-redirect]').addEventListener('click', function(){ el.remove(); sync(); });
+      rows.appendChild(el);
+    }
+    var data = parse();
+    if (!data.length) row({}); else data.forEach(row);
+    addBtn.addEventListener('click', function(){ row({}); sync(); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initRedirectBuilder); else initRedirectBuilder();
+})();

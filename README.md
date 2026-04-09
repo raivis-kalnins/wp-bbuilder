@@ -39,33 +39,65 @@ wp-bbuilder/
 ### Layout
 - **Row** — Bootstrap row wrapper with spacing, background, SCSS, and container controls.
 - **Column** — Responsive Bootstrap column with spacing, shadow, background, and SCSS.
+- **Section** — General content section wrapper for grouped layouts and background styling.
+- **Hero** — Large visual intro section for banners, page headers, and promotional content.
+- **Bootstrap Div** — Flexible Bootstrap-based wrapper for custom classes and nested content.
 
 ### Content
+- **Button** — Standalone call-to-action button with Bootstrap styling options.
+- **Card** — Flexible Bootstrap card wrapper for text, media, and actions.
+- **Cards** — Repeating card layout for grids, services, or feature sets.
 - **Accordion** — Bootstrap accordion with editor preview and frontend collapse behavior.
 - **Tabs** — Tabbed content sections for structured layouts.
-- **Card** — Flexible Bootstrap card wrapper.
-- **Pricing Cards** — Pricing table cards with featured plan support.
+- **Bootstrap Table** — Responsive table block with Bootstrap table styling.
+- **Alert** — Highlighted alert message box for notices, warnings, or success states.
+- **Badge** — Small label element for tags, statuses, and counters.
+- **Breadcrumb** — Breadcrumb navigation trail for page hierarchy.
+- **List Group** — Bootstrap list group for linked or static item lists.
+- **Navbar** — Navigation bar block for menu-style layouts.
+- **Progress** — Progress bar for percentages, steps, or completion states.
+- **Spinner** — Loading spinner for async states and placeholders.
 - **Feature List** — Marketing feature items with icon and text.
 - **Timeline** — Vertical or horizontal timeline for projects and case studies.
-- **Countdown Timer** — Styled live countdown block.
+- **Code Display** — Styled code block with frontend copy support.
+- **Countdown Timer** — Styled live countdown block with real-time frontend updates.
 - **Chart** — Chart.js-powered bar, line, pie, and doughnut charts.
-- **Table** — CSV-based responsive table with optional DataTables.
-- **Fun Fact** — Metric/stat highlight block.
-- **Weather** — Live weather block with London/English defaults and free weather fallback.
+- **Fun Fact** — Metric or stat highlight block for counters and key numbers.
 - **Custom Embed** — URL or iframe embed wrapper for third-party integrations.
-- **AI Content** — Starter AI content block with free endpoint connection guidance.
-- **Login / Register** — WordPress login and registration UI block.
+- **AI Content** — Starter AI content block with endpoint connection guidance.
+- **Video** — Video embed/display block for media content.
+- **Swiper** — Slider wrapper block for carousel-style content areas.
+- **Gallery** — ACF gallery block for drag-and-drop images or videos.
+- **CTA Card** — Call-to-action card with strong visual emphasis.
+- **CTA Section** — Promotional section block for campaigns, offers, or lead capture.
+- **Google Map** — Map embed block for locations and contact pages.
+- **Menu Option** — Structured menu item block for service or navigation listings.
+- **Sitemap** — Visual sitemap/navigation helper block.
 
 ### Forms and integrations
-- **Dynamic Form** — Flexible contact and lead form builder.
+- **Dynamic Form** — Flexible contact and lead form builder with validation support.
 - **MailChimp** — Newsletter signup form with MailChimp action URL support.
-- **Social Follow** — Brand links with SVG icons.
+- **Login / Register** — WordPress login and registration UI block.
+- **Ajax Search** — AJAX-powered live search block with configurable search modes.
+- **Catalogue** — Query-based catalogue/grid block for posts or custom post types.
+- **Load More** — AJAX post loader with configurable button text, color, and item classes.
+- **Blog Filter** — AJAX filter block for posts or CPTs with category, year, sort, and search controls.
+- **Events** — Events query block with event category filtering and calendar-focused output.
+- **Testimonials** — Swiper-powered testimonials slider with responsive item counts.
+- **Pricing Cards** — Pricing table cards with featured plan support.
+- **Email & Phone** — Contact links block with mailto/tel links and icon support.
+- **Social Follow** — Brand links with SVG icons for social profiles.
 - **Social Share** — Share buttons with clean SVG icons.
 
+### Utility and data blocks
+- **Weather** — Live weather block with location support and free weather fallback.
+- **Name Days** — Automatically loads today’s Latvian name days from a free live JSON API, with local fallback support.
+- **Vārda dienas / Name Days** — Same block slug, now shown in English while still displaying Latvian names automatically by date.
+
 ### ACF Blocks
-- **Hero** - Single & SWiper Slider
-- **Gallery** - Drag & drop multiple images or videos
-- **CTA Card** - Call to ation also Schema tag options
+- **Hero** — Single hero and Swiper slider hero layouts.
+- **Gallery** — Drag-and-drop image or video gallery.
+- **CTA Card** — Call-to-action card with schema tag options.
 
 ## Notes
 - Frontend container width can be controlled from **WP BBuilder Settings**.

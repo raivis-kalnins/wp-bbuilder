@@ -1430,9 +1430,9 @@
   });
 
 
-  registerBlockType('wpbb/weather', { title:'Weather', icon:'cloud', category:'wpbb', attributes:{ title:{type:'string',default:'Laikapstākļi'}, location:{type:'string',default:'Rīga'}, lang:{type:'string',default:'lv'}, apiKey:{type:'string',default:''}, showTemp:{type:'boolean',default:true} }, edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Weather settings',initialOpen:true},[ el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}), el(TextControl,{key:'location',label:'Location',value:props.attributes.location,onChange:function(v){props.setAttributes({location:v});}}), el(SelectControl,{key:'lang',label:'Language',value:props.attributes.lang,options:[{label:'Latviešu',value:'lv'},{label:'English',value:'en'}],onChange:function(v){props.setAttributes({lang:v});}}), el(TextControl,{key:'api',label:'OpenWeather API key',value:props.attributes.apiKey||'',onChange:function(v){props.setAttributes({apiKey:v});}}), el(ToggleControl,{key:'showTemp',label:'Show temperature',checked:!!props.attributes.showTemp,onChange:function(v){props.setAttributes({showTemp:v});}}) ])), el('div',useBlockProps({className:'wpbb-weather'}),label('WEATHER'),props.attributes.location)); }, save:function(){ return null; } });
+  registerBlockType('wpbb/weather', { title:'Weather', icon:'cloud', category:'wpbb', attributes:{ title:{type:'string',default:'Weather'}, location:{type:'string',default:'London'}, lang:{type:'string',default:'en'}, apiKey:{type:'string',default:''}, showTemp:{type:'boolean',default:true} }, edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Weather settings',initialOpen:true},[ el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}), el(TextControl,{key:'location',label:'Location',value:props.attributes.location,onChange:function(v){props.setAttributes({location:v});}}), el(SelectControl,{key:'lang',label:'Language',value:props.attributes.lang,options:[{label:'English',value:'en'},{label:'Latvian',value:'lv'}],onChange:function(v){props.setAttributes({lang:v});}}), el(TextControl,{key:'api',label:'OpenWeather API key',value:props.attributes.apiKey||'',onChange:function(v){props.setAttributes({apiKey:v});}}), el(ToggleControl,{key:'showTemp',label:'Show temperature',checked:!!props.attributes.showTemp,onChange:function(v){props.setAttributes({showTemp:v});}}) ])), el('div',useBlockProps({className:'wpbb-weather card wpbb-weather-editor-preview'}),[label('WEATHER'), el('div',{className:'card-body'},[el('h3',{className:'card-title'},props.attributes.title||'Weather'), el('div',{className:'wpbb-weather-location'},props.attributes.location||'London'), props.attributes.showTemp!==false ? el('div',{className:'wpbb-weather-temp'},'12°C') : null, el('div',{className:'wpbb-weather-note'},(props.attributes.lang||'en') === 'en' ? 'Live weather preview' : 'Tiešsaistes laikapstākļu priekšskatījums')]) ])); }, save:function(){ return null; } });
 
-  registerBlockType('wpbb/varda-dienas', { title:'Vārda dienas', icon:'calendar-alt', category:'wpbb', attributes:{ title:{type:'string',default:'Vārda dienas'}, dateText:{type:'string',default:'Šodien'}, names:{type:'string',default:'Alise, Madara'}, namesJson:{type:'string',default:''} }, edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Vārda dienas',initialOpen:true},[ el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}), el(TextControl,{key:'dateText',label:'Date text',value:props.attributes.dateText,onChange:function(v){props.setAttributes({dateText:v});}}), el(TextControl,{key:'names',label:'Names',value:props.attributes.names,onChange:function(v){props.setAttributes({names:v});}}), el(TextareaControl,{key:'json',label:'Full year JSON',help:'Example: {"01-01":["Solvja","Reinis"]}',value:props.attributes.namesJson||'',onChange:function(v){props.setAttributes({namesJson:v});}}) ])), el('div',useBlockProps({className:'wpbb-varda-dienas'}),label('VĀRDA DIENAS'),props.attributes.names || 'Ievadi vārdus')); }, save:function(){ return null; } });
+  registerBlockType('wpbb/varda-dienas', { title:'Name Days', icon:'calendar-alt', category:'wpbb', attributes:{ title:{type:'string',default:'Name Days'}, dateText:{type:'string',default:''}, names:{type:'string',default:''}, namesJson:{type:'string',default:''} }, edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Name Days',initialOpen:true},[ el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}), el(TextControl,{key:'dateText',label:'Date text override',help:'Leave empty to show today automatically.',value:props.attributes.dateText||'',onChange:function(v){props.setAttributes({dateText:v});}}), el(TextControl,{key:'names',label:'Manual names fallback',help:'Optional fallback if live source is unavailable.',value:props.attributes.names||'',onChange:function(v){props.setAttributes({names:v});}}), el(TextareaControl,{key:'json',label:'Optional local JSON fallback',help:'Example: {"01-01":["Solvija","Reinis"]}',value:props.attributes.namesJson||'',onChange:function(v){props.setAttributes({namesJson:v});}}) ])), el('div',useBlockProps({className:'wpbb-varda-dienas card wpbb-name-days-editor-preview'}),[label('NAME DAYS'), el('div',{className:'card-body'},[el('h3',{className:'card-title'},props.attributes.title||'Name Days'), el('div',{className:'small text-muted'},props.attributes.dateText || 'Today'), el('div',{className:'wpbb-varda-dienas-names'},props.attributes.names || 'Latvian names will load automatically by date')]) ])); }, save:function(){ return null; } });
 
   registerBlockType('wpbb/ajax-search', { title:'Ajax Search', icon:'search', category:'wpbb', attributes:{ title:{type:'string',default:'Meklēšana'}, placeholder:{type:'string',default:'Meklēt...'}, resultsLimit:{type:'number',default:10}, searchWooBy:{type:'string',default:'title'}, sortBy:{type:'string',default:'relevance'}, showExcerpt:{type:'boolean',default:true}, showPrice:{type:'boolean',default:true}, showButton:{type:'boolean',default:true} }, edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Ajax Search',initialOpen:true},[ el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}), el(TextControl,{key:'placeholder',label:'Placeholder',value:props.attributes.placeholder,onChange:function(v){props.setAttributes({placeholder:v});}}), el(RangeControl,{key:'limit',label:'Results',value:props.attributes.resultsLimit||10,min:1,max:10,onChange:function(v){props.setAttributes({resultsLimit:v||10});}}), el(SelectControl,{key:'mode',label:'Woo search by',value:props.attributes.searchWooBy||'title',options:[{label:'Title',value:'title'},{label:'ID',value:'id'},{label:'SKU',value:'sku'}],onChange:function(v){props.setAttributes({searchWooBy:v});}}), el(SelectControl,{key:'sort',label:'Sort',value:props.attributes.sortBy||'relevance',options:[{label:'Relevance',value:'relevance'},{label:'Date',value:'date'},{label:'Title',value:'title'}],onChange:function(v){props.setAttributes({sortBy:v});}}), el(ToggleControl,{key:'showExcerpt',label:'Show excerpt',checked:props.attributes.showExcerpt!==false,onChange:function(v){props.setAttributes({showExcerpt:v});}}), el(ToggleControl,{key:'showPrice',label:'Show price',checked:props.attributes.showPrice!==false,onChange:function(v){props.setAttributes({showPrice:v});}}), el(ToggleControl,{key:'showButton',label:'Show search page button',checked:!!props.attributes.showButton,onChange:function(v){props.setAttributes({showButton:v});}}) ])), el('div',useBlockProps({className:'wpbb-ajax-search'}),label('AJAX SEARCH'),props.attributes.placeholder)); }, save:function(){ return null; } });
 
@@ -1933,26 +1933,37 @@ registerBlockType('wpbb/custom-embed', {
 
 registerBlockType('wpbb/ai-content', {
   title:'AI Content', icon:'admin-comments', category:'wpbb',
-  attributes:{ title:{type:'string',default:'AI Content'}, shortDescription:{type:'string',default:''}, prompt:{type:'string',default:''}, generatedText:{type:'string',default:''}, provider:{type:'string',default:'custom-api'} },
+  attributes:{ title:{type:'string',default:'AI Content'}, shortDescription:{type:'string',default:''}, prompt:{type:'string',default:''}, generatedText:{type:'string',default:''}, provider:{type:'string',default:'simple-ai'}, tone:{type:'string',default:'professional'}, contentType:{type:'string',default:'paragraph'}, length:{type:'string',default:'medium'} },
   edit:function(props){
+    function generateSimpleAiText() {
+      var keywords = (props.attributes.shortDescription || '').trim();
+      var description = (props.attributes.prompt || '').trim();
+      var tone = props.attributes.tone || 'professional';
+      var contentType = props.attributes.contentType || 'paragraph';
+      var length = props.attributes.length || 'medium';
+      var source = description || keywords;
+      if (!source) return;
+      var opener = 'Create ' + (length === 'short' ? 'a concise ' : (length === 'long' ? 'a detailed ' : 'a clear ')) + tone + ' ' + contentType + ' about ' + source + '.';
+      var body = contentType === 'bullet-points'
+        ? '• Main benefit: highlight the strongest value for the reader.\n• Why it matters: explain the practical result clearly.\n• Next step: end with a simple action or takeaway.'
+        : 'This content explains ' + source + ' in a ' + tone + ' way, focusing on clear value, practical benefits, and a strong next step for the reader.';
+      props.setAttributes({ generatedText: opener + '\n\n' + body });
+    }
     return el(wp.element.Fragment,{},
       el(InspectorControls,{},el(PanelBody,{title:'AI Content settings',initialOpen:true},[
         el(TextControl,{key:'title',label:'Title',value:props.attributes.title||'',onChange:function(v){props.setAttributes({title:v});}}),
-        el(TextControl,{key:'provider',label:'Provider label',value:props.attributes.provider||'custom-api',onChange:function(v){props.setAttributes({provider:v});}}),
-        el(TextareaControl,{key:'short',label:'Short description',value:props.attributes.shortDescription||'',help:'Use a short description to auto-generate a starter text.',onChange:function(v){props.setAttributes({shortDescription:v});}}),
-        el(TextareaControl,{key:'prompt',label:'Prompt',value:props.attributes.prompt||'',onChange:function(v){props.setAttributes({prompt:v});}}),
-        el(Button,{key:'gen',variant:'secondary',onClick:function(){
-          var base = (props.attributes.shortDescription || props.attributes.prompt || '').trim();
-          if (!base) return;
-          var generated = 'Draft content based on: ' + base + '\n\nThis section can be connected to a real AI API later.';
-          props.setAttributes({generatedText: generated});
-        }},'Generate starter text'),
+        el(TextControl,{key:'keywords',label:'Keywords',help:'Example: solar panels, energy savings, installation',value:props.attributes.shortDescription||'',onChange:function(v){props.setAttributes({shortDescription:v});}}),
+        el(TextareaControl,{key:'desc',label:'Description',help:'Short explanation of what text to generate.',value:props.attributes.prompt||'',onChange:function(v){props.setAttributes({prompt:v});}}),
+        el(SelectControl,{key:'tone',label:'Tone',value:props.attributes.tone||'professional',options:[{label:'Professional',value:'professional'},{label:'Friendly',value:'friendly'},{label:'Bold',value:'bold'}],onChange:function(v){props.setAttributes({tone:v});}}),
+        el(SelectControl,{key:'type',label:'Output type',value:props.attributes.contentType||'paragraph',options:[{label:'Paragraph',value:'paragraph'},{label:'Bullet points',value:'bullet-points'},{label:'Intro text',value:'intro'}],onChange:function(v){props.setAttributes({contentType:v});}}),
+        el(SelectControl,{key:'length',label:'Length',value:props.attributes.length||'medium',options:[{label:'Short',value:'short'},{label:'Medium',value:'medium'},{label:'Long',value:'long'}],onChange:function(v){props.setAttributes({length:v});}}),
+        el(Button,{key:'gen',variant:'secondary',onClick:generateSimpleAiText},'Generate text now'),
         el(TextareaControl,{key:'generated',label:'Generated content',value:props.attributes.generatedText||'',onChange:function(v){props.setAttributes({generatedText:v});}})
       ])),
-      el('div',useBlockProps({className:'wpbb-ai-content-editor'}),[
+      el('div',useBlockProps({className:'wpbb-ai-content wpbb-ai-content-editor'}),[
         label('AI CONTENT'),
-        el('div',{className:'wpbb-ai-content-editor__meta'},'Provider: ' + (props.attributes.provider||'custom-api')),
-        el('div',{className:'wpbb-ai-content-editor__body'}, props.attributes.generatedText || 'Generated content preview')
+        el('div',{className:'wpbb-ai-content-editor__meta'},'Simple generator'),
+        el('div',{className:'wpbb-ai-content-editor__body'}, props.attributes.generatedText || 'Add keywords or a short description, then click Generate text now.')
       ])
     );
   },
@@ -1978,6 +1989,126 @@ registerBlockType('wpbb/login-register', {
         ])
       ])
     );
+  },
+  save:function(){ return null; }
+});
+
+
+registerBlockType('wpbb/load-more', {
+  title:'Load More', icon:'plus-alt2', category:'wpbb',
+  attributes:{ buttonText:{type:'string',default:'Load more'}, buttonClass:{type:'string',default:'btn btn-primary'}, buttonColor:{type:'string',default:'#2563eb'}, visibleItems:{type:'number',default:6}, loadItems:{type:'number',default:3}, parentClass:{type:'string',default:'row'}, itemClass:{type:'string',default:'col-md-4'}, queryPostType:{type:'string',default:'post'}, queryCategory:{type:'string',default:''} },
+  edit:function(props){
+    var previewButtonStyle = {
+      background: props.attributes.buttonColor || '#2563eb',
+      borderColor: props.attributes.buttonColor || '#2563eb',
+      color: '#ffffff'
+    };
+    return el(wp.element.Fragment,{},
+      el(InspectorControls,{},el(PanelBody,{title:'Load more settings',initialOpen:true},[
+        el(TextControl,{label:'Button text',value:props.attributes.buttonText||'',onChange:function(v){props.setAttributes({buttonText:v});}}),
+        el(TextControl,{label:'Button class',value:props.attributes.buttonClass||'',onChange:function(v){props.setAttributes({buttonClass:v});}}),
+        colorInput('Button color', props.attributes.buttonColor || '#2563eb', function(v){ props.setAttributes({buttonColor:v}); }, 'load-more-button-color'),
+        el(RangeControl,{label:'Visible items',value:props.attributes.visibleItems||6,min:1,max:24,onChange:function(v){props.setAttributes({visibleItems:v||6});}}),
+        el(RangeControl,{label:'Load items',value:props.attributes.loadItems||3,min:1,max:12,onChange:function(v){props.setAttributes({loadItems:v||3});}}),
+        el(TextControl,{label:'Parent query class',value:props.attributes.parentClass||'',onChange:function(v){props.setAttributes({parentClass:v});}}),
+        el(TextControl,{label:'Child item class',value:props.attributes.itemClass||'',onChange:function(v){props.setAttributes({itemClass:v});}}),
+        el(TextControl,{label:'Post type',value:props.attributes.queryPostType||'post',onChange:function(v){props.setAttributes({queryPostType:v});}}),
+        el(TextControl,{label:'Category slug',value:props.attributes.queryCategory||'',onChange:function(v){props.setAttributes({queryCategory:v});}})
+      ])),
+      el('div',useBlockProps({className:'wpbb-editor-card wpbb-load-more-editor-preview'}),[
+        label('LOAD MORE'),
+        el('div',{className:'wpbb-load-more-editor-preview__stats'},[
+          el('p',{key:'a'},'Visible: ' + (props.attributes.visibleItems||6)),
+          el('p',{key:'b'},'Load per click: ' + (props.attributes.loadItems||3)),
+          el('p',{key:'c'},'Parent class: ' + (props.attributes.parentClass||'row')),
+          el('p',{key:'d'},'Item class: ' + (props.attributes.itemClass||'col-md-4')),
+          el('p',{key:'e'},'Category: ' + (props.attributes.queryCategory||'all'))
+        ]),
+        el('div',{className:'wpbb-load-more-editor-preview__button-wrap'},
+          el('button',{type:'button',className:props.attributes.buttonClass||'btn btn-primary',style:previewButtonStyle}, props.attributes.buttonText||'Load more')
+        )
+      ])
+    );
+  },
+  save:function(){ return null; }
+});
+
+registerBlockType('wpbb/contact-links', {
+  title:'Email & Phone', icon:'phone', category:'wpbb',
+  attributes:{ email:{type:'string',default:'hello@example.com'}, phone:{type:'string',default:'+44 20 1234 5678'}, emailIcon:{type:'string',default:'email'}, phoneIcon:{type:'string',default:'whatsapp'}, iconColor:{type:'string',default:'#2563eb'}, linkColor:{type:'string',default:'#0f172a'}, layoutClass:{type:'string',default:'d-flex flex-column gap-2'} },
+  edit:function(props){
+    var iconStyle = { color: props.attributes.iconColor || '#2563eb' };
+    var linkStyle = { color: props.attributes.linkColor || '#0f172a' };
+    return el(wp.element.Fragment,{},
+      el(InspectorControls,{},el(PanelBody,{title:'Email & phone settings',initialOpen:true},[
+        el(TextControl,{label:'Email',value:props.attributes.email||'',onChange:function(v){props.setAttributes({email:v});}}),
+        el(TextControl,{label:'Phone',value:props.attributes.phone||'',onChange:function(v){props.setAttributes({phone:v});}}),
+        el(SelectControl,{label:'Email icon',value:props.attributes.emailIcon||'email',options:[{label:'Email',value:'email'},{label:'WhatsApp',value:'whatsapp'},{label:'Facebook',value:'facebook'}],onChange:function(v){props.setAttributes({emailIcon:v});}}),
+        el(SelectControl,{label:'Phone icon',value:props.attributes.phoneIcon||'whatsapp',options:[{label:'WhatsApp',value:'whatsapp'},{label:'Email',value:'email'},{label:'Facebook',value:'facebook'}],onChange:function(v){props.setAttributes({phoneIcon:v});}}),
+        colorInput('Icon color', props.attributes.iconColor || '#2563eb', function(v){props.setAttributes({iconColor:v});}, 'contact-icon-color'),
+        colorInput('Link color', props.attributes.linkColor || '#0f172a', function(v){props.setAttributes({linkColor:v});}, 'contact-link-color'),
+        el(TextControl,{label:'Wrapper classes',value:props.attributes.layoutClass||'',onChange:function(v){props.setAttributes({layoutClass:v});}})
+      ])),
+      el('div',useBlockProps({className:'wpbb-contact-links wpbb-editor-card wpbb-contact-links-editor-preview'}),[
+        label('EMAIL & PHONE'),
+        el('a',{className:'wpbb-contact-links__item',href:'#',style:linkStyle,onClick:function(e){e.preventDefault();}},[
+          el('span',{className:'wpbb-contact-links__icon',style:iconStyle},'✆'),
+          el('span',{},props.attributes.phone || '+44 20 1234 5678')
+        ]),
+        el('a',{className:'wpbb-contact-links__item',href:'#',style:linkStyle,onClick:function(e){e.preventDefault();}},[
+          el('span',{className:'wpbb-contact-links__icon',style:iconStyle},'✉'),
+          el('span',{},props.attributes.email || 'hello@example.com')
+        ])
+      ])
+    );
+  },
+  save:function(){ return null; }
+});
+
+registerBlockType('wpbb/events', {
+  title:'Events', icon:'calendar-alt', category:'wpbb',
+  attributes:{ postType:{type:'string',default:'event'}, postsToShow:{type:'number',default:6}, taxonomy:{type:'string',default:'event_category'}, showCalendar:{type:'boolean',default:true}, title:{type:'string',default:'Events'} },
+  edit:function(props){
+    return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Events settings',initialOpen:true},[
+      el(TextControl,{label:'Title',value:props.attributes.title||'',onChange:function(v){props.setAttributes({title:v});}}),
+      el(TextControl,{label:'Events CPT',value:props.attributes.postType||'event',onChange:function(v){props.setAttributes({postType:v});}}),
+      el(TextControl,{label:'Event category taxonomy',value:props.attributes.taxonomy||'event_category',onChange:function(v){props.setAttributes({taxonomy:v});}}),
+      el(RangeControl,{label:'Posts to show',value:props.attributes.postsToShow||6,min:1,max:24,onChange:function(v){props.setAttributes({postsToShow:v||6});}}),
+      el(ToggleControl,{label:'Show calendar',checked:props.attributes.showCalendar!==false,onChange:function(v){props.setAttributes({showCalendar:v});}})
+    ])), el('div',useBlockProps({className:'wpbb-editor-card'}),[label('EVENTS'), el('h4',{},props.attributes.title||'Events'), el('p',{},'CPT: ' + (props.attributes.postType||'event')), props.attributes.showCalendar!==false ? el('div',{},'Calendar preview') : null ]));
+  },
+  save:function(){ return null; }
+});
+
+registerBlockType('wpbb/testimonials', {
+  title:'Testimonials', icon:'format-quote', category:'wpbb',
+  attributes:{ postType:{type:'string',default:'testimonial'}, postsToShow:{type:'number',default:9}, slidesDesktop:{type:'number',default:3}, slidesTablet:{type:'number',default:2}, slidesMobile:{type:'number',default:1}, showNavigation:{type:'boolean',default:true}, showPagination:{type:'boolean',default:true}, title:{type:'string',default:'Testimonials'} },
+  edit:function(props){
+    return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Testimonials settings',initialOpen:true},[
+      el(TextControl,{label:'Title',value:props.attributes.title||'',onChange:function(v){props.setAttributes({title:v});}}),
+      el(TextControl,{label:'Testimonials CPT',value:props.attributes.postType||'testimonial',onChange:function(v){props.setAttributes({postType:v});}}),
+      el(RangeControl,{label:'Posts to show',value:props.attributes.postsToShow||9,min:1,max:24,onChange:function(v){props.setAttributes({postsToShow:v||9});}}),
+      el(RangeControl,{label:'Desktop slides',value:props.attributes.slidesDesktop||3,min:1,max:6,onChange:function(v){props.setAttributes({slidesDesktop:v||3});}}),
+      el(RangeControl,{label:'Tablet slides',value:props.attributes.slidesTablet||2,min:1,max:4,onChange:function(v){props.setAttributes({slidesTablet:v||2});}}),
+      el(RangeControl,{label:'Mobile slides',value:props.attributes.slidesMobile||1,min:1,max:2,onChange:function(v){props.setAttributes({slidesMobile:v||1});}}),
+      el(ToggleControl,{label:'Show navigation',checked:props.attributes.showNavigation!==false,onChange:function(v){props.setAttributes({showNavigation:v});}}),
+      el(ToggleControl,{label:'Show pagination',checked:props.attributes.showPagination!==false,onChange:function(v){props.setAttributes({showPagination:v});}})
+    ])), el('div',useBlockProps({className:'wpbb-editor-card'}),[label('TESTIMONIALS'), el('h4',{},props.attributes.title||'Testimonials'), el('p',{},'Slides: ' + [props.attributes.slidesDesktop||3, props.attributes.slidesTablet||2, props.attributes.slidesMobile||1].join(' / '))]));
+  },
+  save:function(){ return null; }
+});
+
+registerBlockType('wpbb/blog-filter', {
+  title:'Blog Filter', icon:'filter', category:'wpbb',
+  attributes:{ postType:{type:'string',default:'post'}, postsToShow:{type:'number',default:6}, taxonomy:{type:'string',default:'category'}, title:{type:'string',default:'Blog'}, buttonText:{type:'string',default:'Filter'} },
+  edit:function(props){
+    return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Blog filter settings',initialOpen:true},[
+      el(TextControl,{label:'Title',value:props.attributes.title||'',onChange:function(v){props.setAttributes({title:v});}}),
+      el(TextControl,{label:'Post type / CPT',value:props.attributes.postType||'post',onChange:function(v){props.setAttributes({postType:v});}}),
+      el(TextControl,{label:'Taxonomy',value:props.attributes.taxonomy||'category',onChange:function(v){props.setAttributes({taxonomy:v});}}),
+      el(RangeControl,{label:'Posts to show',value:props.attributes.postsToShow||6,min:1,max:24,onChange:function(v){props.setAttributes({postsToShow:v||6});}}),
+      el(TextControl,{label:'Button text',value:props.attributes.buttonText||'',onChange:function(v){props.setAttributes({buttonText:v});}})
+    ])), el('div',useBlockProps({className:'wpbb-editor-card'}),[label('BLOG FILTER'), el('h4',{},props.attributes.title||'Blog'), el('p',{},'Category, year, date, alphabetical and Ajax search filters are enabled on the frontend.') ]));
   },
   save:function(){ return null; }
 });

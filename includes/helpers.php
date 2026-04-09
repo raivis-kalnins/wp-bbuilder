@@ -11,11 +11,12 @@ function wpbb_defaults() {
             'weather' => 1,'varda-dienas' => 1,'ajax-search' => 1,'pricecards' => 1,'catalogue' => 1,
             'code-display' => 1,'countdown-timer' => 1,'chart' => 1,'fun-fact' => 1,'mailchimp' => 1,'bootstrap-div' => 1,
             'feature-list' => 1,'timeline' => 1,'custom-embed' => 1,'ai-content' => 1,'login-register' => 1,
+            'load-more' => 1,'contact-links' => 1,'events' => 1,'testimonials' => 1,'blog-filter' => 1,
         ],
         'disable_core_group' => 1,'disable_core_columns' => 1,'disable_core_column' => 1,
         'disable_core_table' => 1,'disable_core_embed' => 0,'disable_core_gallery' => 0,
         'disable_core_image' => 0,'disable_core_cover' => 0,'disable_core_media_text' => 0,
-        'disable_core_buttons' => 0,'disable_core_button' => 0,
+        'disable_core_buttons' => 0,'disable_core_button' => 0,'disable_core_query' => 0,
         'load_bootstrap_css' => 1,'load_bootstrap_js' => 0,'force_bootstrap_enqueue' => 0,'save_entries' => 1,'show_entries_menu' => 0,
         'bootstrap_css_mode' => 'grid',
         'bootstrap_css_components' => ['reboot','grid','utilities'],
@@ -50,6 +51,7 @@ function wpbb_defaults() {
         'global_footer_code' => '',
         'weather_api_key' => '',
         'weather_units' => 'metric',
+        'page_redirect_rules' => '[]',
     ];
 }
 function wpbb_get_option($key, $default = null) {
@@ -62,7 +64,7 @@ function wpbb_is_block_enabled($slug) {
     return empty($enabled) || !empty($enabled[$slug]);
 }
 function wpbb_get_blocks_list() {
-    return ['accordion','accordion-item','alert','badge','breadcrumb','button','card','cards','column','cta-card','cta-section','dynamic-form','google-map','list-group','menu-option','navbar','progress','row','section','sitemap','soc-follow-block','soc-share','spinner','tab-item','table','tabs','video','swiper','weather','varda-dienas','ajax-search','pricecards','catalogue','code-display','countdown-timer','chart','fun-fact','mailchimp','bootstrap-div','feature-list','timeline','custom-embed','ai-content','login-register'];
+    return ['accordion','accordion-item','alert','badge','breadcrumb','button','card','cards','column','cta-card','cta-section','dynamic-form','google-map','list-group','menu-option','navbar','progress','row','section','sitemap','soc-follow-block','soc-share','spinner','tab-item','table','tabs','video','swiper','weather','varda-dienas','ajax-search','pricecards','catalogue','code-display','countdown-timer','chart','fun-fact','mailchimp','bootstrap-div','feature-list','timeline','custom-embed','ai-content','login-register','load-more','contact-links','events','testimonials','blog-filter'];
 }
 function wpbb_get_acf_blocks_list() { return ['wpbb-hero','wpbb-gallery']; }
 function wpbb_parse_fields_json($json) {

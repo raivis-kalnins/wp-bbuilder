@@ -20,6 +20,10 @@ final class WPBB_Blocks {
         add_action('enqueue_block_editor_assets', [$this, 'enqueue_block_editor_code_assets']);
         add_action('wp_ajax_wpbb_ajax_search', [$this, 'ajax_search']);
         add_action('wp_ajax_nopriv_wpbb_ajax_search', [$this, 'ajax_search']);
+        add_action('wp_ajax_wpbb_load_more', [$this, 'ajax_load_more']);
+        add_action('wp_ajax_nopriv_wpbb_load_more', [$this, 'ajax_load_more']);
+        add_action('wp_ajax_wpbb_blog_filter', [$this, 'ajax_blog_filter']);
+        add_action('wp_ajax_nopriv_wpbb_blog_filter', [$this, 'ajax_blog_filter']);
     }
 
     public function register_post_type() {
@@ -311,12 +315,16 @@ public function register_assets() {
         wp_register_script('wpbb-form-view', WPBB_PLUGIN_URL . 'assets/form.js', [], WPBB_VERSION, true);
         wp_register_script('wpbb-copy-code', WPBB_PLUGIN_URL . 'assets/copy-code.js', [], WPBB_VERSION, true);
         wp_register_script('wpbb-ajax-search', WPBB_PLUGIN_URL . 'assets/ajax-search.js', [], WPBB_VERSION, true);
+        wp_register_script('wpbb-content-filters', WPBB_PLUGIN_URL . 'assets/content-filters.js', [], WPBB_VERSION, true);
         wp_register_style('wpbb-datatables', 'https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css', [], '2.0.8');
         wp_register_script('wpbb-datatables', 'https://cdn.datatables.net/2.0.8/js/dataTables.js', [], '2.0.8', true);
         wp_register_script('wpbb-datatables-bs5', 'https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js', ['wpbb-datatables'], '2.0.8', true);
         wp_register_script('wpbb-table-init', WPBB_PLUGIN_URL . 'assets/table-init.js', ['wpbb-datatables-bs5'], WPBB_VERSION, true);
         wp_register_script('wpbb-chartjs', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js', [], '4.4.3', true);
         wp_register_script('wpbb-chart-view', WPBB_PLUGIN_URL . 'assets/chart-view.js', ['wpbb-chartjs'], WPBB_VERSION, true);
+        wp_localize_script('wpbb-content-filters', 'wpbbContentFilters', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+        ]);
         wp_localize_script('wpbb-form-view', 'wpbbForm', [
             'ajaxUrl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('wpbb_form_nonce'),
@@ -434,6 +442,20 @@ public function register_assets() {
                 $args['render_callback'] = [$this, 'render_social_follow_block'];
             } elseif ($slug === 'soc-share') {
                 $args['render_callback'] = [$this, 'render_social_share_block'];
+            } elseif ($slug === 'load-more') {
+                $args['script'] = 'wpbb-content-filters';
+                $args['render_callback'] = [$this, 'render_load_more_block'];
+            } elseif ($slug === 'contact-links') {
+                $args['render_callback'] = [$this, 'render_contact_links_block'];
+            } elseif ($slug === 'events') {
+                $args['render_callback'] = [$this, 'render_events_block'];
+            } elseif ($slug === 'testimonials') {
+                $args['style'] = ['wpbb-shared','wpbb-swiper'];
+                $args['script'] = 'wpbb-swiper-init';
+                $args['render_callback'] = [$this, 'render_testimonials_block'];
+            } elseif ($slug === 'blog-filter') {
+                $args['script'] = 'wpbb-content-filters';
+                $args['render_callback'] = [$this, 'render_blog_filter_block'];
             } else {
                 $args['render_callback'] = [$this, 'render_generic_block'];
             }
@@ -466,6 +488,7 @@ public function register_assets() {
             'section' => 'cover-image',
             'spinner' => 'update',
             'tab-item' => 'editor-table',
+            'load-more' => 'plus-alt2','contact-links' => 'phone','events' => 'calendar-alt','testimonials' => 'format-quote','blog-filter' => 'filter',
             'tabs' => 'index-card',
             'table' => 'table-col-after',
             'swiper' => 'images-alt2','weather' => 'cloud','varda-dienas' => 'calendar-alt','ajax-search' => 'search','pricecards' => 'index-card','catalogue' => 'screenoptions','code-display' => 'editor-code','countdown-timer' => 'clock','chart' => 'chart-bar','fun-fact' => 'star-filled','mailchimp' => 'email','bootstrap-div' => 'screenoptions',
@@ -589,6 +612,55 @@ public function register_assets() {
                     'align' => ['type' => 'string', 'default' => ''],
                     'borderRadius' => ['type' => 'string', 'default' => '12px'],
                 ];
+            case 'load-more':
+                return [
+                    'buttonText' => ['type' => 'string', 'default' => 'Load more'],
+                    'buttonClass' => ['type' => 'string', 'default' => 'btn btn-primary'],
+                    'buttonColor' => ['type' => 'string', 'default' => ''],
+                    'visibleItems' => ['type' => 'number', 'default' => 6],
+                    'loadItems' => ['type' => 'number', 'default' => 3],
+                    'parentClass' => ['type' => 'string', 'default' => 'row'],
+                    'itemClass' => ['type' => 'string', 'default' => 'col-md-4'],
+                    'queryPostType' => ['type' => 'string', 'default' => 'post'],
+                    'queryCategory' => ['type' => 'string', 'default' => ''],
+                ];
+            case 'contact-links':
+                return [
+                    'email' => ['type' => 'string', 'default' => 'hello@example.com'],
+                    'phone' => ['type' => 'string', 'default' => '+37100000000'],
+                    'emailIcon' => ['type' => 'string', 'default' => 'email'],
+                    'phoneIcon' => ['type' => 'string', 'default' => 'whatsapp'],
+                    'iconColor' => ['type' => 'string', 'default' => ''],
+                    'linkColor' => ['type' => 'string', 'default' => ''],
+                    'layoutClass' => ['type' => 'string', 'default' => 'd-flex flex-column gap-2'],
+                ];
+            case 'events':
+                return [
+                    'postType' => ['type' => 'string', 'default' => 'event'],
+                    'postsToShow' => ['type' => 'number', 'default' => 6],
+                    'taxonomy' => ['type' => 'string', 'default' => 'event_category'],
+                    'showCalendar' => ['type' => 'boolean', 'default' => true],
+                    'title' => ['type' => 'string', 'default' => 'Events'],
+                ];
+            case 'testimonials':
+                return [
+                    'postType' => ['type' => 'string', 'default' => 'testimonial'],
+                    'postsToShow' => ['type' => 'number', 'default' => 9],
+                    'slidesDesktop' => ['type' => 'number', 'default' => 3],
+                    'slidesTablet' => ['type' => 'number', 'default' => 2],
+                    'slidesMobile' => ['type' => 'number', 'default' => 1],
+                    'showNavigation' => ['type' => 'boolean', 'default' => true],
+                    'showPagination' => ['type' => 'boolean', 'default' => true],
+                    'title' => ['type' => 'string', 'default' => 'Testimonials'],
+                ];
+            case 'blog-filter':
+                return [
+                    'postType' => ['type' => 'string', 'default' => 'post'],
+                    'postsToShow' => ['type' => 'number', 'default' => 6],
+                    'taxonomy' => ['type' => 'string', 'default' => 'category'],
+                    'title' => ['type' => 'string', 'default' => 'Blog'],
+                    'buttonText' => ['type' => 'string', 'default' => 'Filter'],
+                ];
 
 case 'alert':
     return [
@@ -658,18 +730,19 @@ case 'spinner':
                 ];
             case 'weather':
                 return [
-                    'title' => ['type' => 'string', 'default' => 'Laikapstākļi'],
-                    'location' => ['type' => 'string', 'default' => 'Rīga'],
-                    'lang' => ['type' => 'string', 'default' => 'lv'],
+                    'title' => ['type' => 'string', 'default' => 'Weather'],
+                    'location' => ['type' => 'string', 'default' => 'London'],
+                    'lang' => ['type' => 'string', 'default' => 'en'],
                     'apiKey' => ['type' => 'string', 'default' => ''],
                     'showTemp' => ['type' => 'boolean', 'default' => true],
                     'className' => ['type' => 'string', 'default' => ''],
                 ];
             case 'varda-dienas':
                 return [
-                    'title' => ['type' => 'string', 'default' => 'Vārda dienas'],
-                    'dateText' => ['type' => 'string', 'default' => 'Šodien'],
-                    'names' => ['type' => 'string', 'default' => 'Alise, Madara'],'namesJson' => ['type' => 'string', 'default' => ''],
+                    'title' => ['type' => 'string', 'default' => 'Name Days'],
+                    'dateText' => ['type' => 'string', 'default' => ''],
+                    'names' => ['type' => 'string', 'default' => ''],
+                    'namesJson' => ['type' => 'string', 'default' => ''],
                     'className' => ['type' => 'string', 'default' => ''],
                 ];
             case 'ajax-search':
@@ -1652,6 +1725,13 @@ public function enqueue_frontend_assets() {
         if (!wpbb_get_option('disable_core_media_text', 0)) $core[] = 'core/media-text';
         if (!wpbb_get_option('disable_core_buttons', 0)) $core[] = 'core/buttons';
         if (!wpbb_get_option('disable_core_button', 0)) $core[] = 'core/button';
+        if (!wpbb_get_option('disable_core_query', 0)) {
+            $core = array_merge($core, [
+                'core/query','core/post-template','core/query-pagination','core/query-pagination-next',
+                'core/query-pagination-previous','core/query-pagination-numbers','core/post-title',
+                'core/post-excerpt','core/post-date','core/post-featured-image','core/post-terms','core/read-more'
+            ]);
+        }
 
         return array_values(array_unique(array_merge($allowed, $core)));
     }
@@ -1706,11 +1786,13 @@ public function enqueue_frontend_assets() {
     }
 
     public function render_varda_dienas_block($attributes, $content, $block) {
-        $title = esc_html($attributes['title'] ?? 'Vārda dienas');
+        $title = esc_html($attributes['title'] ?? 'Name Days');
         $today_key = wp_date('m-d');
-        $dateText = esc_html($attributes['dateText'] ?? wp_date('j. F'));
+        $dateTextRaw = trim((string)($attributes['dateText'] ?? ''));
+        $dateText = esc_html($dateTextRaw !== '' ? $dateTextRaw : wp_date('j F'));
         $manual_names = trim((string)($attributes['names'] ?? ''));
         $json_names = [];
+        $live_names = [];
         $json_raw = (string)($attributes['namesJson'] ?? '');
 
         if ($json_raw !== '') {
@@ -1723,14 +1805,38 @@ public function enqueue_frontend_assets() {
         if (empty($json_names)) {
             $json_file = WPBB_PLUGIN_DIR . 'assets/json/varda-dienas.json';
             if (file_exists($json_file)) {
-                $decoded = json_decode((string)file_get_contents($json_file), true);
+                $decoded = json_decode((string) file_get_contents($json_file), true);
                 if (is_array($decoded) && !empty($decoded[$today_key]) && is_array($decoded[$today_key])) {
                     $json_names = array_map('sanitize_text_field', $decoded[$today_key]);
                 }
             }
         }
 
-        $names = !empty($json_names) ? implode(', ', $json_names) : ($manual_names !== '' ? $manual_names : 'Dana, Dans, Danute, Edgars');
+        $cache_key = 'wpbb_name_days_lv_' . gmdate('Ymd');
+        $cached = get_transient($cache_key);
+        if (is_array($cached)) {
+            $live_names = $cached;
+        } else {
+            $response = wp_remote_get('https://nameday.abalin.net/api/V2/today?country=lv', [
+                'timeout' => 10,
+                'headers' => ['Accept' => 'application/json'],
+            ]);
+
+            if (!is_wp_error($response) && (int) wp_remote_retrieve_response_code($response) === 200) {
+                $body = json_decode((string) wp_remote_retrieve_body($response), true);
+                if (!empty($body['data']['namedays']['lv'])) {
+                    $raw_names = preg_split('/\s*,\s*/', (string) $body['data']['namedays']['lv']);
+                    $live_names = array_values(array_filter(array_map('sanitize_text_field', $raw_names)));
+                    if (!empty($live_names)) {
+                        set_transient($cache_key, $live_names, DAY_IN_SECONDS);
+                    }
+                }
+            }
+        }
+
+        $names_list = !empty($live_names) ? $live_names : (!empty($json_names) ? $json_names : ($manual_names !== '' ? preg_split('/\s*,\s*/', $manual_names) : []));
+        $names_list = array_values(array_filter(array_map('sanitize_text_field', (array) $names_list)));
+        $names = !empty($names_list) ? implode(', ', $names_list) : 'No Latvian name days found for today.';
         $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-varda-dienas card']);
         return '<div ' . $wrapper . '><div class="card-body"><h3 class="card-title">' . $title . '</h3><div class="small text-muted">' . $dateText . '</div><div class="wpbb-varda-dienas-names">' . esc_html($names) . '</div></div></div>';
     }
@@ -2143,10 +2249,10 @@ public function enqueue_frontend_assets() {
 
     public function render_ai_content_block($attributes, $content, $block) {
         $title = esc_html($attributes['title'] ?? 'AI Content');
-        $provider = esc_html($attributes['provider'] ?? 'custom-api');
+        $provider = esc_html($attributes['provider'] ?? 'simple-ai');
         $generated = wp_kses_post($attributes['generatedText'] ?? '');
         $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-ai-content']);
-        return '<div ' . $wrapper . '>' . ($title ? '<h3>' . $title . '</h3>' : '') . '<div class="wpbb-ai-content__meta">Provider: ' . $provider . '</div><div class="wpbb-ai-content__help">Quick start: use a free OpenAI-compatible endpoint such as Groq or OpenRouter. Add endpoint, model, and API key in the block settings.</div><div class="wpbb-ai-content__body">' . ($generated ?: 'No generated content yet.') . '</div></div>';
+        return '<div ' . $wrapper . '>' . ($title ? '<h3>' . $title . '</h3>' : '') . '<div class="wpbb-ai-content__meta">Mode: ' . $provider . '</div><div class="wpbb-ai-content__help">Use keywords or a short description in the editor, then click Generate text now.</div><div class="wpbb-ai-content__body">' . ($generated ?: 'No generated content yet.') . '</div></div>';
     }
 
     public function render_login_register_block($attributes, $content, $block) {
@@ -2242,4 +2348,202 @@ public function enqueue_frontend_assets() {
     }
 
 
+
+
+    private function wpbb_normalize_post_type($value, $fallback = 'post') {
+        $value = sanitize_key((string) $value);
+        return $value !== '' ? $value : $fallback;
     }
+
+    private function wpbb_resolve_existing_post_type($preferred, $fallbacks = []) {
+        $candidates = array_merge([(string) $preferred], $fallbacks);
+        foreach ($candidates as $candidate) {
+            $candidate = sanitize_key((string) $candidate);
+            if ($candidate !== '' && post_type_exists($candidate)) return $candidate;
+        }
+        return 'post';
+    }
+
+    private function wpbb_render_post_card($post_id, $item_class = '') {
+        $item_class = trim($item_class ?: 'col-md-4');
+        $thumb = get_the_post_thumbnail($post_id, 'medium', ['class' => 'card-img-top']);
+        $permalink = get_permalink($post_id);
+        $title = get_the_title($post_id);
+        $excerpt = wp_trim_words(wp_strip_all_tags(get_the_excerpt($post_id) ?: get_post_field('post_content', $post_id)), 22);
+        return '<article class="' . esc_attr($item_class) . ' wpbb-load-more-item"><div class="card h-100">' .
+            ($thumb ? '<a href="' . esc_url($permalink) . '">' . $thumb . '</a>' : '') .
+            '<div class="card-body"><h3 class="h5 card-title"><a href="' . esc_url($permalink) . '">' . esc_html($title) . '</a></h3><p class="card-text">' . esc_html($excerpt) . '</p></div></div></article>';
+    }
+
+    public function ajax_load_more() {
+        $post_type = $this->wpbb_resolve_existing_post_type($_POST['postType'] ?? 'post', ['post']);
+        $page = max(1, intval($_POST['page'] ?? 1));
+        $per_page = max(1, intval($_POST['perPage'] ?? 3));
+        $category = sanitize_text_field($_POST['category'] ?? '');
+        $query_args = ['post_type' => $post_type, 'post_status' => 'publish', 'paged' => $page, 'posts_per_page' => $per_page];
+        if ($category !== '' && taxonomy_exists('category')) {
+            $query_args['category_name'] = $category;
+        }
+        $query = new WP_Query($query_args);
+        $item_class = sanitize_text_field($_POST['itemClass'] ?? 'col-md-4');
+        $html = '';
+        if ($query->have_posts()) {
+            while ($query->have_posts()) { $query->the_post(); $html .= $this->wpbb_render_post_card(get_the_ID(), $item_class); }
+            wp_reset_postdata();
+        }
+        wp_send_json_success(['html' => $html, 'max' => intval($query->max_num_pages)]);
+    }
+
+    public function ajax_blog_filter() {
+        $post_type = $this->wpbb_resolve_existing_post_type($_POST['postType'] ?? 'post', ['post']);
+        $taxonomy = sanitize_key($_POST['taxonomy'] ?? 'category');
+        $per_page = max(1, intval($_POST['perPage'] ?? 6));
+        $search = sanitize_text_field($_POST['search'] ?? '');
+        $category = sanitize_text_field($_POST['category'] ?? '');
+        $year = intval($_POST['year'] ?? 0);
+        $sort = sanitize_text_field($_POST['sort'] ?? 'date_desc');
+        $args = ['post_type' => $post_type, 'post_status' => 'publish', 'posts_per_page' => $per_page, 's' => $search];
+        if ($category !== '' && taxonomy_exists($taxonomy)) {
+            $args['tax_query'] = [[ 'taxonomy' => $taxonomy, 'field' => 'slug', 'terms' => $category ]];
+        }
+        if ($year > 0) {
+            $args['date_query'] = [[ 'year' => $year ]];
+        }
+        switch ($sort) {
+            case 'date_asc': $args['orderby'] = 'date'; $args['order'] = 'ASC'; break;
+            case 'alpha_asc': $args['orderby'] = 'title'; $args['order'] = 'ASC'; break;
+            case 'alpha_desc': $args['orderby'] = 'title'; $args['order'] = 'DESC'; break;
+            default: $args['orderby'] = 'date'; $args['order'] = 'DESC';
+        }
+        $query = new WP_Query($args);
+        $html = '<div class="row g-4">';
+        if ($query->have_posts()) {
+            while ($query->have_posts()) { $query->the_post(); $html .= $this->wpbb_render_post_card(get_the_ID(), 'col-md-6 col-lg-4'); }
+            wp_reset_postdata();
+        } else {
+            $html .= '<div class="col-12"><p>No posts found.</p></div>';
+        }
+        $html .= '</div>';
+        wp_send_json_success(['html' => $html]);
+    }
+
+    public function render_load_more_block($attributes, $content, $block) {
+        wp_enqueue_script('wpbb-content-filters');
+        wp_enqueue_style('wpbb-shared');
+        $post_type = $this->wpbb_resolve_existing_post_type($attributes['queryPostType'] ?? 'post', ['post']);
+        $visible = max(1, intval($attributes['visibleItems'] ?? 6));
+        $load = max(1, intval($attributes['loadItems'] ?? 3));
+        $parent_class = trim((string)($attributes['parentClass'] ?? 'row'));
+        $item_class = trim((string)($attributes['itemClass'] ?? 'col-md-4'));
+        $button_class = trim((string)($attributes['buttonClass'] ?? 'btn btn-primary'));
+        $button_text_raw = trim((string)($attributes['buttonText'] ?? 'Load more'));
+        $button_text = esc_html($button_text_raw !== '' ? $button_text_raw : 'Load more');
+        $button_color = trim((string)($attributes['buttonColor'] ?? ''));
+        $category = sanitize_title($attributes['queryCategory'] ?? '');
+        $style = $button_color !== '' ? 'background:' . esc_attr($button_color) . ';border-color:' . esc_attr($button_color) . ';color:#ffffff;' : 'background:#2563eb;border-color:#2563eb;color:#ffffff;';
+        $query_args = ['post_type' => $post_type, 'post_status' => 'publish', 'posts_per_page' => $visible, 'paged' => 1];
+        if ($category !== '' && taxonomy_exists('category')) {
+            $query_args['category_name'] = $category;
+        }
+        $query = new WP_Query($query_args);
+        $html = '<div ' . get_block_wrapper_attributes(['class' => 'wpbb-load-more']) . '><div class="' . esc_attr($parent_class !== '' ? $parent_class : 'row') . '" data-wpbb-load-more-results>';
+        if ($query->have_posts()) { while ($query->have_posts()) { $query->the_post(); $html .= $this->wpbb_render_post_card(get_the_ID(), $item_class); } wp_reset_postdata(); }
+        $html .= '</div>';
+        if (intval($query->found_posts) > $visible) {
+            $html .= '<div class="text-center mt-4 wpbb-load-more__actions"><button type="button" class="' . esc_attr($button_class) . '" style="' . esc_attr($style) . '" data-wpbb-load-more-btn data-post-type="' . esc_attr($post_type) . '" data-category="' . esc_attr($category) . '" data-page="1" data-per-page="' . esc_attr($load) . '" data-item-class="' . esc_attr($item_class) . '" data-max="' . esc_attr($query->max_num_pages) . '">' . $button_text . '</button></div>';
+        }
+        $html .= '</div>';
+        return $html;
+    }
+
+    public function render_contact_links_block($attributes, $content, $block) {
+        $email = sanitize_email($attributes['email'] ?? '');
+        $phone = sanitize_text_field($attributes['phone'] ?? '');
+        $icon_color = preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)($attributes['iconColor'] ?? ''));
+        $link_color = preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)($attributes['linkColor'] ?? ''));
+        $layout = trim((string)($attributes['layoutClass'] ?? 'd-flex flex-column gap-2'));
+        $style = $link_color ? 'color:' . $link_color . ';' : '';
+        $icon_style = $icon_color ? 'style="color:' . esc_attr($icon_color) . '"' : '';
+        $html = '<div ' . get_block_wrapper_attributes(['class' => 'wpbb-contact-links ' . $layout]) . '>';
+        if ($phone !== '') {
+            $html .= '<a class="wpbb-contact-links__item" href="tel:' . esc_attr(preg_replace('/[^0-9\+]/', '', $phone)) . '" style="' . esc_attr($style) . '"><span class="wpbb-contact-links__icon" ' . $icon_style . '>' . $this->wpbb_svg_icon($attributes['phoneIcon'] ?? 'whatsapp') . '</span><span>' . esc_html($phone) . '</span></a>';
+        }
+        if ($email !== '') {
+            $html .= '<a class="wpbb-contact-links__item" href="mailto:' . esc_attr($email) . '" style="' . esc_attr($style) . '"><span class="wpbb-contact-links__icon" ' . $icon_style . '>' . $this->wpbb_svg_icon($attributes['emailIcon'] ?? 'email') . '</span><span>' . esc_html($email) . '</span></a>';
+        }
+        $html .= '</div>';
+        return $html;
+    }
+
+    public function render_events_block($attributes, $content, $block) {
+        $post_type = $this->wpbb_resolve_existing_post_type($attributes['postType'] ?? 'event', ['event','events','calendar']);
+        $taxonomy = sanitize_key($attributes['taxonomy'] ?? 'event_category');
+        $posts_to_show = max(1, intval($attributes['postsToShow'] ?? 6));
+        $today = current_time('Ymd');
+        $args = ['post_type' => $post_type, 'post_status' => 'publish', 'posts_per_page' => $posts_to_show, 'orderby' => 'meta_value', 'meta_key' => 'event_date', 'order' => 'ASC'];
+        $query = new WP_Query($args);
+        $terms = taxonomy_exists($taxonomy) ? get_terms(['taxonomy' => $taxonomy, 'hide_empty' => true]) : [];
+        $html = '<div ' . get_block_wrapper_attributes(['class' => 'wpbb-events']) . '>';
+        $html .= '<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3"><h3 class="mb-0">' . esc_html($attributes['title'] ?? 'Events') . '</h3>';
+        if (!is_wp_error($terms) && !empty($terms)) { $html .= '<div class="wpbb-events__filters">'; foreach ($terms as $term) { $html .= '<a class="btn btn-outline-secondary btn-sm me-2 mb-2" href="' . esc_url(add_query_arg('event_category', $term->slug)) . '">' . esc_html($term->name) . '</a>'; } $html .= '</div>'; }
+        $html .= '</div>';
+        if (!empty($attributes['showCalendar'])) {
+            $html .= '<div class="wpbb-events__calendar card mb-4"><div class="card-body"><div class="wpbb-events__calendar-grid">';
+            for ($d = 1; $d <= 31; $d++) { $html .= '<span class="wpbb-events__calendar-day' . (intval(wp_date('j')) === $d ? ' is-today' : '') . '">' . $d . '</span>'; }
+            $html .= '</div></div></div>';
+        }
+        $html .= '<div class="row g-4">';
+        if ($query->have_posts()) {
+            while ($query->have_posts()) { $query->the_post(); $event_date = get_post_meta(get_the_ID(), 'event_date', true); $display_date = $event_date ? date_i18n(get_option('date_format'), strtotime($event_date)) : get_the_date('', get_the_ID()); $html .= '<article class="col-md-6 col-lg-4"><div class="card h-100"><div class="card-body"><div class="text-muted small mb-2">' . esc_html($display_date) . '</div><h3 class="h5"><a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a></h3><p>' . esc_html(wp_trim_words(wp_strip_all_tags(get_the_excerpt() ?: get_the_content()), 20)) . '</p></div></div></article>'; }
+            wp_reset_postdata();
+        } else {
+            $html .= '<div class="col-12"><p>No events found.</p></div>';
+        }
+        $html .= '</div></div>';
+        return $html;
+    }
+
+    public function render_testimonials_block($attributes, $content, $block) {
+        wp_enqueue_style('wpbb-swiper'); wp_enqueue_script('wpbb-swiper'); wp_enqueue_script('wpbb-swiper-init');
+        $post_type = $this->wpbb_resolve_existing_post_type($attributes['postType'] ?? 'testimonial', ['testimonial','testimonials']);
+        $posts_to_show = max(1, intval($attributes['postsToShow'] ?? 9));
+        $query = new WP_Query(['post_type' => $post_type, 'post_status' => 'publish', 'posts_per_page' => $posts_to_show]);
+        $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-testimonials', 'data-swiper' => '1', 'data-slides' => (string) intval($attributes['slidesDesktop'] ?? 3), 'data-slides-tablet' => (string) intval($attributes['slidesTablet'] ?? 2), 'data-slides-mobile' => (string) intval($attributes['slidesMobile'] ?? 1), 'data-space' => '24']);
+        $html = '<div ' . $wrapper . '><h3 class="mb-4">' . esc_html($attributes['title'] ?? 'Testimonials') . '</h3><div class="swiper"><div class="swiper-wrapper">';
+        if ($query->have_posts()) {
+            while ($query->have_posts()) { $query->the_post(); $role = get_post_meta(get_the_ID(), 'position', true) ?: get_post_meta(get_the_ID(), 'role', true); $html .= '<div class="swiper-slide"><div class="card h-100"><div class="card-body"><blockquote class="mb-3">“' . esc_html(wp_trim_words(wp_strip_all_tags(get_the_content()), 40)) . '”</blockquote><div class="fw-semibold">' . esc_html(get_the_title()) . '</div>' . ($role ? '<div class="text-muted small">' . esc_html($role) . '</div>' : '') . '</div></div></div>'; }
+            wp_reset_postdata();
+        }
+        $html .= '</div>' . (!empty($attributes['showPagination']) ? '<div class="swiper-pagination"></div>' : '') . (!empty($attributes['showNavigation']) ? '<div class="swiper-button-prev"></div><div class="swiper-button-next"></div>' : '') . '</div></div>';
+        return $html;
+    }
+
+    public function render_blog_filter_block($attributes, $content, $block) {
+        wp_enqueue_script('wpbb-content-filters');
+        $post_type = $this->wpbb_resolve_existing_post_type($attributes['postType'] ?? 'post', ['post']);
+        $taxonomy = sanitize_key($attributes['taxonomy'] ?? 'category');
+        $posts_to_show = max(1, intval($attributes['postsToShow'] ?? 6));
+        $terms = taxonomy_exists($taxonomy) ? get_terms(['taxonomy' => $taxonomy, 'hide_empty' => true]) : [];
+        $years = get_posts(['post_type' => $post_type, 'post_status' => 'publish', 'posts_per_page' => -1, 'fields' => 'ids']);
+        $year_values = [];
+        foreach ($years as $id) { $year_values[] = get_the_date('Y', $id); }
+        $year_values = array_values(array_unique(array_filter($year_values)));
+        rsort($year_values);
+        $query = new WP_Query(['post_type' => $post_type, 'post_status' => 'publish', 'posts_per_page' => $posts_to_show]);
+        $html = '<div ' . get_block_wrapper_attributes(['class' => 'wpbb-blog-filter']) . '><div class="d-flex flex-wrap gap-3 align-items-end mb-4">';
+        $html .= '<div><label class="form-label">Search</label><input type="search" class="form-control" data-wpbb-blog-search placeholder="Search posts"></div>';
+        $html .= '<div><label class="form-label">Category</label><select class="form-select" data-wpbb-blog-category><option value="">All</option>';
+        if (!is_wp_error($terms)) foreach ($terms as $term) { $html .= '<option value="' . esc_attr($term->slug) . '">' . esc_html($term->name) . '</option>'; }
+        $html .= '</select></div>';
+        $html .= '<div><label class="form-label">Year</label><select class="form-select" data-wpbb-blog-year><option value="">All</option>';
+        foreach ($year_values as $year) { $html .= '<option value="' . esc_attr($year) . '">' . esc_html($year) . '</option>'; }
+        $html .= '</select></div>';
+        $html .= '<div><label class="form-label">Sort</label><select class="form-select" data-wpbb-blog-sort><option value="date_desc">Newest</option><option value="date_asc">Oldest</option><option value="alpha_asc">A-Z</option><option value="alpha_desc">Z-A</option></select></div>';
+        $html .= '<div><button type="button" class="btn btn-primary" data-wpbb-blog-submit>' . esc_html($attributes['buttonText'] ?? 'Filter') . '</button></div></div>';
+        $html .= '<div data-wpbb-blog-results data-post-type="' . esc_attr($post_type) . '" data-taxonomy="' . esc_attr($taxonomy) . '" data-per-page="' . esc_attr($posts_to_show) . '"><div class="row g-4">';
+        if ($query->have_posts()) { while ($query->have_posts()) { $query->the_post(); $html .= $this->wpbb_render_post_card(get_the_ID(), 'col-md-6 col-lg-4'); } wp_reset_postdata(); } else { $html .= '<div class="col-12"><p>No posts found.</p></div>'; }
+        $html .= '</div></div></div>';
+        return $html;
+    }
+
+}
