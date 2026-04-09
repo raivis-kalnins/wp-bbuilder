@@ -24,7 +24,7 @@ function wpbb_defaults() {
         'default_success_message' => __('Thank you for your submission!', 'wp-bbuilder'),
         'default_error_message' => __('Something went wrong. Please try again.', 'wp-bbuilder'),
         'default_validation_text' => __('Please fill in all required fields correctly.', 'wp-bbuilder'),
-        'button_class' => 'btn btn-primary','form_class' => 'wpbb-form','admin_max_width' => '1400px','frontend_container_max_width' => '1400px',
+        'button_class' => 'btn btn-primary','form_class' => 'wpbb-form','admin_max_width' => '1400px',
         'hcaptcha_site_key' => '','hcaptcha_secret_key' => '','recaptcha_site_key' => '','recaptcha_secret_key' => '',
         'default_label_color' => '#334155','default_input_border_color' => '#cbd5e1','default_button_bg' => '#2563eb','default_button_text' => '#ffffff',
         'bootstrap_optimize_frontend' => 1,'bootstrap_enable_utilities' => 1,'bootstrap_allow_custom_classes' => 1,'aggregate_inline_block_css' => 1,'admin_scss' => '','admin_compiled_css' => '',
@@ -82,4 +82,44 @@ function wpbb_translate_string($string, $context = 'wp-bbuilder') {
         return pll__($string);
     }
     return $string;
+}
+
+
+if (!function_exists('wpbb_get_theme_settings_url')) {
+    function wpbb_get_theme_settings_url() {
+        return apply_filters('wpbb_theme_settings_url', admin_url('options-general.php?page=wp-theme-settings'));
+    }
+}
+
+if (!function_exists('wpbb_get_theme_container_width')) {
+    function wpbb_get_theme_container_width($default = '1400px') {
+        $value = apply_filters('wpbb_theme_container_width', null);
+
+        if (is_string($value) && trim($value) !== '') {
+            $value = trim($value);
+        } else {
+            $candidates = [
+                get_theme_mod('container_width', ''),
+                get_theme_mod('container_max_width', ''),
+                get_theme_mod('site_container_width', ''),
+                get_option('wpbb_theme_container_width', ''),
+                get_option('bbtheme_container_width', ''),
+            ];
+
+            $value = '';
+            foreach ($candidates as $candidate) {
+                if (is_string($candidate) && trim($candidate) !== '') {
+                    $value = trim($candidate);
+                    break;
+                }
+            }
+        }
+
+        if (!is_string($value) || trim($value) === '') {
+            $value = $default;
+        }
+
+        $value = preg_replace('/[^0-9a-zA-Z\-\.\%\(\), \/]/', '', (string) $value);
+        return $value !== '' ? $value : $default;
+    }
 }

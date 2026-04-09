@@ -91,12 +91,7 @@ if (!function_exists('wpbb_render_aggregated_block_css')) {
 
 if (!function_exists('wpbb_render_frontend_container_width')) {
     function wpbb_render_frontend_container_width() {
-        $max = trim((string) wpbb_get_option('frontend_container_max_width', '1400px'));
-        if ($max === '') {
-            return;
-        }
-
-        $max = preg_replace('/[^0-9a-zA-Z\-\.\%\(\), \/]/', '', $max);
+        $max = wpbb_get_theme_container_width('1400px');
         if ($max === '') {
             return;
         }

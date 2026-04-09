@@ -24,6 +24,7 @@ final class WPBB_Blocks {
         add_action('wp_ajax_nopriv_wpbb_load_more', [$this, 'ajax_load_more']);
         add_action('wp_ajax_wpbb_blog_filter', [$this, 'ajax_blog_filter']);
         add_action('wp_ajax_nopriv_wpbb_blog_filter', [$this, 'ajax_blog_filter']);
+        add_action('rest_api_init', [$this, 'register_rest_routes']);
     }
 
     public function register_post_type() {
@@ -2067,12 +2068,9 @@ public function enqueue_frontend_assets() {
             $container_class = implode(' ', array_values(array_unique(array_filter($this->wpbb_class_tokens_from_value($attributes['containerClass'])))));
             $container_style = '';
             if (strpos(' ' . $container_class . ' ', ' container ') !== false || strpos($container_class, 'container-') !== false) {
-                $frontend_max = trim((string) wpbb_get_option('frontend_container_max_width', '1400px'));
+                $frontend_max = wpbb_get_theme_container_width('1400px');
                 if ($frontend_max !== '') {
-                    $frontend_max = preg_replace('/[^0-9a-zA-Z\-\.\%\(\), \/]/', '', $frontend_max);
-                    if ($frontend_max !== '') {
-                        $container_style = ' style="max-width:' . esc_attr($frontend_max) . '"';
-                    }
+                    $container_style = ' style="max-width:' . esc_attr($frontend_max) . '"';
                 }
             }
             $inner = '<div class="' . esc_attr($container_class) . '"' . $container_style . '>' . $inner . '</div>';
@@ -2544,6 +2542,93 @@ public function enqueue_frontend_assets() {
         if ($query->have_posts()) { while ($query->have_posts()) { $query->the_post(); $html .= $this->wpbb_render_post_card(get_the_ID(), 'col-md-6 col-lg-4'); } wp_reset_postdata(); } else { $html .= '<div class="col-12"><p>No posts found.</p></div>'; }
         $html .= '</div></div></div>';
         return $html;
+    }
+
+
+    public function register_rest_routes() {
+        register_rest_route('wpbb/v1', '/varda-dienas', [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => [$this, 'rest_get_varda_dienas'],
+            'permission_callback' => '__return_true',
+            'args' => [
+                'date' => [
+                    'description' => __('Date in YYYY-MM-DD or MM-DD format.', 'wp-bbuilder'),
+                    'required' => false,
+                    'type' => 'string',
+                ],
+            ],
+        ]);
+
+        register_rest_route('wpbb/v1', '/varda-dienas/today', [
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => [$this, 'rest_get_varda_dienas_today'],
+            'permission_callback' => '__return_true',
+        ]);
+    }
+
+    private function load_varda_dienas_data() {
+        $file = WPBB_PLUGIN_DIR . 'assets/json/varda-dienas.json';
+        if (!file_exists($file)) {
+            return new WP_Error('wpbb_varda_dienas_missing', __('Vārda dienu data file not found.', 'wp-bbuilder'), ['status' => 500]);
+        }
+
+        $json = file_get_contents($file);
+        $data = json_decode((string) $json, true);
+
+        if (!is_array($data)) {
+            return new WP_Error('wpbb_varda_dienas_invalid', __('Invalid vārda dienu data file.', 'wp-bbuilder'), ['status' => 500]);
+        }
+
+        return $data;
+    }
+
+    private function normalize_varda_dienas_key($raw_date = '') {
+        $raw_date = trim((string) $raw_date);
+
+        if ($raw_date === '') {
+            $now = new DateTimeImmutable('now', wp_timezone());
+            return $now->format('m-d');
+        }
+
+        if (preg_match('/^(\d{2})-(\d{2})$/', $raw_date, $m)) {
+            return $m[1] . '-' . $m[2];
+        }
+
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $raw_date, $m)) {
+            return $m[2] . '-' . $m[3];
+        }
+
+        return new WP_Error('wpbb_varda_dienas_bad_date', __('Invalid date format. Use YYYY-MM-DD or MM-DD.', 'wp-bbuilder'), ['status' => 400]);
+    }
+
+    public function rest_get_varda_dienas(WP_REST_Request $request) {
+        $data = $this->load_varda_dienas_data();
+        if (is_wp_error($data)) {
+            return $data;
+        }
+
+        $requested = $request->get_param('date');
+        $key = $this->normalize_varda_dienas_key($requested);
+        if (is_wp_error($key)) {
+            return $key;
+        }
+
+        $now = new DateTimeImmutable('now', wp_timezone());
+        $today_key = $now->format('m-d');
+
+        return rest_ensure_response([
+            'success' => true,
+            'date' => $requested ? (string) $requested : $now->format('Y-m-d'),
+            'key' => $key,
+            'today' => $key === $today_key,
+            'names' => isset($data[$key]) && is_array($data[$key]) ? array_values($data[$key]) : [],
+            'count' => isset($data[$key]) && is_array($data[$key]) ? count($data[$key]) : 0,
+        ]);
+    }
+
+    public function rest_get_varda_dienas_today(WP_REST_Request $request) {
+        $request->set_param('date', '');
+        return $this->rest_get_varda_dienas($request);
     }
 
 }

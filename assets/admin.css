@@ -212,3 +212,16 @@
   flex-wrap:wrap;
   margin:0 0 10px;
 }
+
+/* Keep WordPress native inspector panel look */
+.block-editor-block-inspector .components-panel__body {
+  border: 0;
+}
+
+.block-editor-block-inspector .components-panel__body .wpbb-responsive-group {
+  border: 0;
+}
+
+.block-editor-block-inspector .wpbb-responsive-side-field {
+  border: 0 !important;
+}

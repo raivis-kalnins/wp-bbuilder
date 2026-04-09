@@ -106,3 +106,60 @@ wp-bbuilder/
 
 ## License
 GPLv2 or later
+
+
+## REST API: Vārda dienas
+
+This plugin now exposes public REST endpoints for vārda dienas data from `assets/json/varda-dienas.json`.
+
+### Endpoints
+
+- `GET /wp-json/wpbb/v1/varda-dienas`
+- `GET /wp-json/wpbb/v1/varda-dienas?date=05-29`
+- `GET /wp-json/wpbb/v1/varda-dienas?date=2026-05-29`
+- `GET /wp-json/wpbb/v1/varda-dienas/today`
+
+### Example response
+
+```json
+{
+  "success": true,
+  "date": "2026-05-29",
+  "key": "05-29",
+  "today": true,
+  "names": ["Maksis", "Maksims", "Raivis", "Raivo"],
+  "count": 4
+}
+```
+
+
+## Container Width Theme Sync
+
+Builder no longer stores its own `Frontend container max width` setting.
+
+Container width now:
+- links admins to Theme Settings
+- reads width from the active theme
+- supports these sources in order:
+  - `wpbb_theme_container_width` filter
+  - `get_theme_mod('container_width')`
+  - `get_theme_mod('container_max_width')`
+  - `get_theme_mod('site_container_width')`
+  - `get_option('wpbb_theme_container_width')`
+  - `get_option('bbtheme_container_width')`
+
+You can also override the Theme Settings URL with:
+
+```php
+add_filter('wpbb_theme_settings_url', function () {
+    return admin_url('admin.php?page=wpbb-theme-settings');
+});
+```
+
+
+## Inspector Panel Style Fixes
+
+The editor keeps a more WordPress-native inspector look by removing extra borders from:
+- `.block-editor-block-inspector .components-panel__body`
+- `.block-editor-block-inspector .components-panel__body .wpbb-responsive-group`
+- `.block-editor-block-inspector .wpbb-responsive-side-field`

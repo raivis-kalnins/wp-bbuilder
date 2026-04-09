@@ -183,7 +183,7 @@ final class WPBB_Admin {
                         </div>
                         <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[load_bootstrap_js]" value="1" <?php checked(!empty($opts['load_bootstrap_js'])); ?>> Load Bootstrap JS</label>
                         <p><label>Admin max width<br><input type="text" name="wpbb_settings[admin_max_width]" value="<?php echo esc_attr($opts['admin_max_width']); ?>"></label></p>
-                        <p><label>Frontend container max width<br><input type="text" name="wpbb_settings[frontend_container_max_width]" value="<?php echo esc_attr($opts['frontend_container_max_width'] ?? '1400px'); ?>" placeholder="1400px or 90vw"></label><br><span class="description">Supports px, %, vw, rem, clamp(), min(), max(). Applied to .wpbb-row &gt; .container</span></p>
+                        <p><strong><?php esc_html_e('Container Width', 'wp-bbuilder'); ?></strong><br><span class="description"><?php esc_html_e('Container width is controlled by the active theme.', 'wp-bbuilder'); ?></span><br><a class="button button-secondary" href="<?php echo esc_url(wpbb_get_theme_settings_url()); ?>"><?php esc_html_e('Open Theme Settings', 'wp-bbuilder'); ?></a></p>
                     </div>
 
 <div class="wpbb-card" id="scss-builder">
