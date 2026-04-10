@@ -737,7 +737,7 @@
         }, wpbbEditorBgStyle(props.attributes))
       });
       var controls = [
-        el(SelectControl, { key: 'containerClass', label: 'Bootstrap container', value: props.attributes.containerClass, options: [{ label: 'None', value: '' }, { label: 'container', value: 'container' }, { label: 'container-sm', value: 'container-sm' }, { label: 'container-md', value: 'container-md' }, { label: 'container-lg', value: 'container-lg' }, { label: 'container-xl', value: 'container-xl' }, { label: 'container-xxl', value: 'container-xxl' }, { label: 'container-fluid', value: 'container-fluid' }], onChange: function (v) { props.setAttributes({ containerClass: v }); } }),
+        el(SelectControl, { key: 'containerClass', label: 'Bootstrap container', value: props.attributes.containerClass, options: [{ label: 'None', value: '' }, { label: 'container', value: 'container' }, { label: 'container-fluid', value: 'container-fluid' }], onChange: function (v) { props.setAttributes({ containerClass: v }); } }),
         el(PanelBody, { title: 'Spacing', initialOpen: false }, [wpbbResponsiveSpacingGroup(props, 'padding', 'Padding'), wpbbResponsiveSpacingGroup(props, 'margin', 'Margin')]),
         el(PanelBody, { title: 'Classes', initialOpen: false }, [wpbbBootstrapClassSelector(props, 'row'), wpbbCustomClassField(props, 'customClasses')]),
         el(PanelBody, { title: 'Layout', initialOpen: false }, [wpbbValueWithUnitField(props, 'maxWidth', 'maxWidthUnit', 'Max width')]),
@@ -779,7 +779,10 @@
           wpbbOverlayNode(props.attributes),
           el('div', { style: { position: 'relative', zIndex: 1, width: '100%' } }, [
             label('ROW ' + (props.attributes.uniqueId || '')),
-            el('div', { className: wpbbJoinClasses([props.attributes.containerClass || '']), style: { width: '100%' } }, el('div', { className: 'row', style: { width: '100%' } }, el(InnerBlocks, { allowedBlocks: ['wpbb/column'], orientation: 'horizontal' })))
+            props.attributes.containerClass
+              ? el('div', { className: props.attributes.containerClass, style: { width: '100%', maxWidth: props.attributes.containerClass === 'container-fluid' ? 'none' : undefined } },
+                  el(InnerBlocks, { allowedBlocks: ['wpbb/column'], orientation: 'horizontal' }))
+              : el(InnerBlocks, { allowedBlocks: ['wpbb/column'], orientation: 'horizontal' })
           ])
         )
       );
@@ -853,13 +856,14 @@
       cls = cls.concat(wpbbClassArray(props.attributes.customClasses || ''));
       cls = cls.concat(wpbbClassArray(props.attributes.utilityClasses || ''));
       cls = cls.concat(wpbbClassArray(props.attributes.boxShadowClass || ''));
-      var basis = (props.attributes.xxl || props.attributes.xl || props.attributes.lg || props.attributes.md || props.attributes.sm || props.attributes.xs || 12);
-      var pct = Math.max(1, Math.min(12, basis)) / 12 * 100;
+      var previewBasis = (props.attributes.lg || props.attributes.md || props.attributes.sm || props.attributes.xs || 12);
+      var pct = Math.max(1, Math.min(12, previewBasis)) / 12 * 100;
       var blockProps = useBlockProps({ className: wpbbUniqueClassList(cls).join(' '), style: Object.assign({ flex: '0 0 ' + pct + '%', maxWidth: (props.attributes.maxWidth ? String(props.attributes.maxWidth) + (props.attributes.maxWidthUnit || 'px') : (pct + '%')), boxSizing: 'border-box', position: 'relative', overflow: 'hidden', boxShadow: props.attributes.boxShadowColor && props.attributes.boxShadowClass ? ('0 10px 28px ' + props.attributes.boxShadowColor) : undefined }, wpbbEditorBgStyle(props.attributes)) });
 
-      function sizeControl(bp, labelText) {
+      function sizeControl(bp, labelText, helpText) {
         return el(RangeControl, {
           label: labelText,
+          help: helpText,
           value: props.attributes[bp] || 0,
           min: 0,
           max: 12,
@@ -871,13 +875,29 @@
         });
       }
 
+      function responsiveClassSummary() {
+        var out = [];
+        ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'].forEach(function (bp) {
+          var val = props.attributes[bp] || 0;
+          if (!val) return;
+          out.push(bp === 'xs' ? ('col-' + val) : ('col-' + bp + '-' + val));
+        });
+        return out.join(' ');
+      }
+
       var controls = [
-        sizeControl('xs', 'XS'),
-        sizeControl('sm', 'SM'),
-        sizeControl('md', 'MD'),
-        sizeControl('lg', 'LG'),
-        sizeControl('xl', 'XL'),
-        sizeControl('xxl', 'XXL'),
+        el(PanelBody, { title: 'Responsive widths', initialOpen: true }, [
+          sizeControl('xs', 'Mobile', 'Phones: col-' + (props.attributes.xs || 12)),
+          sizeControl('sm', 'Small tablet', 'Small screens: ' + (props.attributes.sm ? ('col-sm-' + props.attributes.sm) : 'inherit')),
+          sizeControl('md', 'Tablet', 'Medium screens: ' + (props.attributes.md ? ('col-md-' + props.attributes.md) : 'inherit')),
+          sizeControl('lg', 'Desktop', 'Large screens: ' + (props.attributes.lg ? ('col-lg-' + props.attributes.lg) : 'inherit')),
+          sizeControl('xl', 'Large desktop', 'Extra large: ' + (props.attributes.xl ? ('col-xl-' + props.attributes.xl) : 'inherit')),
+          sizeControl('xxl', 'Wide desktop', 'XXL: ' + (props.attributes.xxl ? ('col-xxl-' + props.attributes.xxl) : 'inherit')),
+          el('div', { className: 'wpbb-responsive-summary' }, [
+            el('strong', { key: 't' }, 'Generated classes'),
+            el('code', { key: 'c' }, responsiveClassSummary() || 'col-12')
+          ])
+        ]),
         el(SelectControl, { key: 'verticalAlign', label: 'Vertical align', value: props.attributes.verticalAlign || '', options: [
           { label: 'Default', value: '' },
           { label: 'Start', value: 'align-self-start' },
@@ -924,7 +944,7 @@
       ]);
 
       return el(wp.element.Fragment, {},
-        el(InspectorControls, {}, el(PanelBody, { title: 'Column settings', initialOpen: true }, controls)),
+        el(InspectorControls, {}, controls),
         el('div', blockProps,
           props.attributes.customScss ? el('style', {}, wpbbCompileScopedScssPreview('#' + (props.attributes.uniqueId || 'preview-column'), props.attributes.customScss || '')) : null,
           wpbbOverlayNode(props.attributes),
@@ -1316,12 +1336,66 @@
 
   registerBlockType('wpbb/google-map', {
     title:'Google Map', icon:'location-alt', category:'wpbb',
-    attributes:{ embedUrl:{type:'string',default:''}, height:{type:'string',default:'380px'}, mapFilter:{type:'string',default:''} },
-    edit:function(props){ return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Google Map settings',initialOpen:true},[
-      el(TextControl,{key:'embedUrl',label:'Embed URL',value:props.attributes.embedUrl,onChange:function(v){props.setAttributes({embedUrl:v});}}),
-      el(TextControl,{key:'height',label:'Height',value:props.attributes.height,onChange:function(v){props.setAttributes({height:v});}}),
-      el(TextControl,{key:'mapFilter',label:'CSS filter',value:props.attributes.mapFilter,onChange:function(v){props.setAttributes({mapFilter:v});}})
-    ])), el('div',useBlockProps({className:'wpbb-google-map'}),label('GOOGLE MAP'),props.attributes.embedUrl || 'Add embed URL')); },
+    attributes:{ address:{type:'string',default:''}, zoom:{type:'number',default:14}, height:{type:'string',default:'380px'}, overlayColor:{type:'string',default:''}, overlayOpacity:{type:'number',default:0.2}, embedUrl:{type:'string',default:''}, mapFilter:{type:'string',default:''} },
+    edit:function(props){
+      var address = props.attributes.address || '';
+      var zoom = Number(props.attributes.zoom || 14);
+      var overlayColor = props.attributes.overlayColor || '';
+      var overlayOpacity = Number(props.attributes.overlayOpacity || 0);
+      var src = address ? ('https://maps.google.com/maps?q=' + encodeURIComponent(address) + '&t=&z=' + zoom + '&ie=UTF8&iwloc=&output=embed') : (props.attributes.embedUrl || '');
+      return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Google Map settings',initialOpen:true},[
+        el(TextControl,{key:'address',label:'Address',value:address,onChange:function(v){props.setAttributes({address:v});}}),
+        el(RangeControl,{key:'zoom',label:'Zoom',value:zoom,min:1,max:21,onChange:function(v){props.setAttributes({zoom:Number(v||14)});}}),
+        el(TextControl,{key:'height',label:'Height',value:props.attributes.height,onChange:function(v){props.setAttributes({height:v});}}),
+        colorInput('Overlay color', overlayColor, function(v){ props.setAttributes({overlayColor:v}); }, 'google-map-overlay-color'),
+        el(RangeControl,{key:'overlayOpacity',label:'Overlay opacity',value:overlayOpacity,min:0,max:1,step:0.05,onChange:function(v){props.setAttributes({overlayOpacity:Number(v||0)});}}),
+        el(TextControl,{key:'embedUrl',label:'Legacy embed URL (optional)',value:props.attributes.embedUrl || '',onChange:function(v){props.setAttributes({embedUrl:v});}})
+      ])), el('div',useBlockProps({className:'wpbb-google-map'}),[
+        label('GOOGLE MAP'),
+        src ? el('div',{className:'wpbb-google-map__frame',style:{position:'relative',width:'100%',height:props.attributes.height||'380px',overflow:'hidden'}},[
+          el('iframe',{key:'map',src:src,style:{width:'100%',height:'100%',border:0,display:'block'},loading:'lazy',allowFullScreen:true}),
+          overlayColor && overlayOpacity > 0 ? el('span',{key:'overlay',className:'wpbb-google-map__overlay',style:{position:'absolute',inset:'0',pointerEvents:'none',background:overlayColor,opacity:overlayOpacity}}) : null
+        ]) : 'Add address'
+      ]));
+    },
+    save:function(){ return null; }
+  });
+
+
+
+  registerBlockType('wpbb/file', {
+    title:'File', icon:'media-document', category:'wpbb',
+    attributes:{ title:{type:'string',default:'File'}, fileUrl:{type:'string',default:''}, fileName:{type:'string',default:''}, buttonText:{type:'string',default:'Download file'}, targetBlank:{type:'boolean',default:true} },
+    edit:function(props){
+      return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'File settings',initialOpen:true},[
+        el(TextControl,{label:'Title',value:props.attributes.title||'',onChange:function(v){props.setAttributes({title:v});}}),
+        el(TextControl,{label:'File URL',value:props.attributes.fileUrl||'',onChange:function(v){props.setAttributes({fileUrl:v});}}),
+        el(MediaUploadCheck,{key:'file-check'},el(MediaUpload,{allowedTypes:['application','text','image','video','audio'],onSelect:function(media){props.setAttributes({fileUrl:(media&&media.url)?media.url:'', fileName:(media&&media.filename)?media.filename:(props.attributes.fileName||'')});},render:function(obj){return el(Button,{variant:'secondary',onClick:obj.open},props.attributes.fileUrl ? 'Replace file' : 'Select file');}})),
+        el(TextControl,{label:'File name',value:props.attributes.fileName||'',onChange:function(v){props.setAttributes({fileName:v});}}),
+        el(TextControl,{label:'Button text',value:props.attributes.buttonText||'',onChange:function(v){props.setAttributes({buttonText:v});}}),
+        el(ToggleControl,{label:'Open in new tab',checked:props.attributes.targetBlank!==false,onChange:function(v){props.setAttributes({targetBlank:v});}})
+      ])), el('div',useBlockProps({className:'wpbb-file-block'}),[
+        label('FILE'),
+        el('div',{className:'wpbb-file-block__name'},props.attributes.fileName || props.attributes.title || 'File'),
+        props.attributes.fileUrl ? el('a',{className:'btn btn-primary',href:props.attributes.fileUrl,target:props.attributes.targetBlank!==false ? '_blank' : undefined,rel:props.attributes.targetBlank!==false ? 'noopener' : undefined},props.attributes.buttonText || 'Download file') : 'Add file'
+      ]));
+    },
+    save:function(){ return null; }
+  });
+
+  registerBlockType('wpbb/inline-svg', {
+    title:'Inline SVG', icon:'format-image', category:'wpbb',
+    attributes:{ title:{type:'string',default:'Inline SVG'}, svgCode:{type:'string',default:''} },
+    edit:function(props){
+      return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Inline SVG settings',initialOpen:true},[
+        el(TextControl,{label:'Title',value:props.attributes.title||'',onChange:function(v){props.setAttributes({title:v});}}),
+        el(TextareaControl,{label:'SVG source',help:'Paste full <svg>...</svg> code here.',value:props.attributes.svgCode||'',onChange:function(v){props.setAttributes({svgCode:v});}})
+      ])), el('div',useBlockProps({className:'wpbb-inline-svg'}),[
+        label('INLINE SVG'),
+        props.attributes.title ? el('div',{style:{marginBottom:'8px',fontWeight:'600'}},props.attributes.title) : null,
+        props.attributes.svgCode ? el('div',{dangerouslySetInnerHTML:{__html:props.attributes.svgCode}}) : 'Paste SVG source'
+      ]));
+    },
     save:function(){ return null; }
   });
 
@@ -2100,15 +2174,16 @@ registerBlockType('wpbb/testimonials', {
 
 registerBlockType('wpbb/blog-filter', {
   title:'Blog Filter', icon:'filter', category:'wpbb',
-  attributes:{ postType:{type:'string',default:'post'}, postsToShow:{type:'number',default:6}, taxonomy:{type:'string',default:'category'}, title:{type:'string',default:'Blog'}, buttonText:{type:'string',default:'Filter'} },
+  attributes:{ postType:{type:'string',default:'post'}, postsToShow:{type:'number',default:6}, taxonomy:{type:'string',default:'category'}, title:{type:'string',default:'Blog'}, buttonText:{type:'string',default:'Filter'}, buttonColor:{type:'string',default:'#2563eb'} },
   edit:function(props){
     return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Blog filter settings',initialOpen:true},[
       el(TextControl,{label:'Title',value:props.attributes.title||'',onChange:function(v){props.setAttributes({title:v});}}),
       el(TextControl,{label:'Post type / CPT',value:props.attributes.postType||'post',onChange:function(v){props.setAttributes({postType:v});}}),
       el(TextControl,{label:'Taxonomy',value:props.attributes.taxonomy||'category',onChange:function(v){props.setAttributes({taxonomy:v});}}),
       el(RangeControl,{label:'Posts to show',value:props.attributes.postsToShow||6,min:1,max:24,onChange:function(v){props.setAttributes({postsToShow:v||6});}}),
-      el(TextControl,{label:'Button text',value:props.attributes.buttonText||'',onChange:function(v){props.setAttributes({buttonText:v});}})
-    ])), el('div',useBlockProps({className:'wpbb-editor-card'}),[label('BLOG FILTER'), el('h4',{},props.attributes.title||'Blog'), el('p',{},'Category, year, date, alphabetical and Ajax search filters are enabled on the frontend.') ]));
+      el(TextControl,{label:'Button text',value:props.attributes.buttonText||'',onChange:function(v){props.setAttributes({buttonText:v});}}),
+      colorInput('Button color', props.attributes.buttonColor || '#2563eb', function(v){ props.setAttributes({buttonColor:v}); }, 'blog-filter-button-color')
+    ])), el('div',useBlockProps({className:'wpbb-editor-card'}),[label('BLOG FILTER'), el('h4',{},props.attributes.title||'Blog'), el('p',{},'Category, year, date, alphabetical and Ajax search filters are enabled on the frontend.'), el('div',{style:{display:'inline-block',marginTop:'8px',padding:'10px 14px',borderRadius:'999px',background:props.attributes.buttonColor||'#2563eb',color:'#fff',fontWeight:'700'}},props.attributes.buttonText||'Filter') ]));
   },
   save:function(){ return null; }
 });

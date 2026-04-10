@@ -163,3 +163,80 @@ The editor keeps a more WordPress-native inspector look by removing extra border
 - `.block-editor-block-inspector .components-panel__body`
 - `.block-editor-block-inspector .components-panel__body .wpbb-responsive-group`
 - `.block-editor-block-inspector .wpbb-responsive-side-field`
+
+
+## Current block list
+
+Custom WP BBuilder blocks currently included:
+
+- Accordion
+- Accordion Item
+- Alert
+- Badge
+- Breadcrumb
+- Button
+- Card
+- Cards
+- Column
+- CTA Card
+- CTA Section
+- Dynamic Form
+- Google Map
+- List Group
+- Menu Option
+- Navbar
+- Progress
+- Row
+- Section
+- Sitemap
+- Social Follow
+- Social Share
+- Spinner
+- Tab Item
+- Table
+- Tabs
+- Video
+- File
+- Inline SVG
+- Swiper
+- Weather
+- Varda Dienas
+- Ajax Search
+- Pricecards
+- Catalogue
+- Code Display
+- Countdown Timer
+- Chart
+- Fun Fact
+- Mailchimp
+- Bootstrap Div
+- Feature List
+- Timeline
+- Custom Embed
+- AI Content
+- Login Register
+- Load More
+- Contact Links
+- Events
+- Testimonials
+- Blog Filter
+
+Core Gutenberg blocks intentionally supported alongside builder blocks include Paragraph, Heading, List, Spacer, HTML, Shortcode, Code, Image, Gallery, Cover, Media & Text, Buttons, Button, Audio, File, and Query-related core blocks depending on settings.
+
+### Not included as custom WP BBuilder blocks
+
+- Custom WP BBuilder Audio block removed. Use Core Audio block instead.
+- If a block is disabled in plugin settings, it will not appear in the inserter.
+
+
+## Responsive columns
+
+Column block supports Bootstrap responsive widths directly in the editor:
+- Mobile: `col-*`
+- Small tablet: `col-sm-*`
+- Tablet: `col-md-*`
+- Desktop: `col-lg-*`
+- Large desktop: `col-xl-*`
+- Wide desktop: `col-xxl-*`
+
+Example output: `col-12 col-md-6 col-lg-4`.

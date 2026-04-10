@@ -1285,3 +1285,369 @@
 .block-editor-block-inspector .wpbb-responsive-side-field {
   border: 0 !important;
 }
+
+
+/* Clean editor row/column layout */
+.wp-block[data-type="wpbb/row"]{max-width:none !important;}
+.wp-block[data-type="wpbb/row"] > .block-editor-inner-blocks > .block-editor-block-list__layout,
+.wp-block[data-type="wpbb/row"] .block-editor-inner-blocks > .block-editor-block-list__layout{display:flex !important;flex-wrap:wrap !important;gap:0 !important;width:100% !important;}
+.wp-block[data-type="wpbb/column"]{box-sizing:border-box;width:100%;}
+.wp-block[data-type="wpbb/column"] > .block-editor-block-list__block-edit,
+.wp-block[data-type="wpbb/column"] > .block-editor-inner-blocks,
+.wp-block[data-type="wpbb/column"] .block-editor-block-list__layout{width:100% !important;max-width:none !important;}
+.wp-block[data-type="wpbb/column"] .block-editor-block-list__layout > *{width:100% !important;max-width:none !important;display:block;}
+
+/* Admin editor: force column inner blocks to stack and fill width cleanly */
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"],
+.block-editor-block-list__block[data-type="wpbb/column"]{
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+  box-sizing:border-box;
+}
+
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] > .block-editor-inner-blocks,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] > .block-editor-inner-blocks > .block-editor-block-list__layout,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .block-editor-block-list__layout{
+  display:block !important;
+  width:100% !important;
+  max-width:none !important;
+}
+
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .block-editor-block-list__layout > .wp-block,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .block-editor-block-list__layout > [data-block],
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .block-list-appender,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] p,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] h1,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] h2,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] h3,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] h4,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] h5,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] h6,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] ul,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] ol,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] figure,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] img,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .wp-block-buttons,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .wp-block-button,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .wp-block-group,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .wp-block-cover,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .wp-block-media-text,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .wp-block-spacer{
+  width:100% !important;
+  max-width:none !important;
+  float:none !important;
+  clear:both;
+  display:block !important;
+  box-sizing:border-box;
+}
+
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .wp-block-buttons{
+  flex-direction:column !important;
+  align-items:stretch !important;
+  gap:10px !important;
+}
+
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .wp-block-button__link,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .wp-element-button,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .components-resizable-box__container,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .block-editor-media-placeholder,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .block-editor-rich-text__editable{
+  width:100% !important;
+  max-width:none !important;
+  box-sizing:border-box;
+}
+
+
+/* Strong Gutenberg admin fix: make inner block wrappers full width inside wpbb columns */
+.block-editor-block-list__block[data-type="wpbb/column"],
+.block-editor-block-list__block[data-type="wpbb/column"] > .block-editor-block-list__block-edit,
+.block-editor-block-list__block[data-type="wpbb/column"] > .block-editor-block-list__block-edit > div,
+.block-editor-block-list__block[data-type="wpbb/column"] .block-editor-inner-blocks,
+.block-editor-block-list__block[data-type="wpbb/column"] .block-editor-block-list__layout,
+.block-editor-block-list__block[data-type="wpbb/column"] .block-editor-block-list__block,
+.block-editor-block-list__block[data-type="wpbb/column"] .block-editor-block-list__block-edit,
+.block-editor-block-list__block[data-type="wpbb/column"] .wp-block,
+.block-editor-block-list__block[data-type="wpbb/column"] .wp-block-heading,
+.block-editor-block-list__block[data-type="wpbb/column"] .wp-block-paragraph,
+.block-editor-block-list__block[data-type="wpbb/column"] .wp-block-image,
+.block-editor-block-list__block[data-type="wpbb/column"] .wp-block-group,
+.block-editor-block-list__block[data-type="wpbb/column"] .wp-block-buttons,
+.block-editor-block-list__block[data-type="wpbb/column"] .wp-block-button,
+.block-editor-block-list__block[data-type="wpbb/column"] .wp-block-spacer,
+.block-editor-block-list__block[data-type="wpbb/column"] .block-editor-rich-text__editable {
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+  float:none !important;
+  clear:both !important;
+  box-sizing:border-box !important;
+}
+
+.block-editor-block-list__block[data-type="wpbb/column"] .block-editor-block-list__layout {
+  display:block !important;
+}
+
+.block-editor-block-list__block[data-type="wpbb/column"] .block-editor-rich-text__editable,
+.block-editor-block-list__block[data-type="wpbb/column"] .wp-block-heading [contenteditable="true"],
+.block-editor-block-list__block[data-type="wpbb/column"] .wp-block-paragraph [contenteditable="true"] {
+  display:block !important;
+  width:100% !important;
+}
+
+
+/* v4.9.4 admin column stacking fix */
+/* IMPORTANT: only the top-level row layout should be flex. Nested column layouts must stack vertically. */
+.editor-styles-wrapper .wp-block[data-type="wpbb/row"] > .block-editor-inner-blocks > .block-editor-block-list__layout,
+.block-editor-block-list__block[data-type="wpbb/row"] > .block-editor-block-list__block-edit > div > .block-editor-inner-blocks > .block-editor-block-list__layout{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  width:100% !important;
+  max-width:none !important;
+  align-items:flex-start !important;
+}
+
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] > .block-editor-inner-blocks > .block-editor-block-list__layout,
+.block-editor-block-list__block[data-type="wpbb/column"] > .block-editor-block-list__block-edit > div > .block-editor-inner-blocks > .block-editor-block-list__layout,
+.block-editor-block-list__block[data-type="wpbb/column"] .block-editor-inner-blocks > .block-editor-block-list__layout{
+  display:block !important;
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+}
+
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] > .block-editor-inner-blocks > .block-editor-block-list__layout > .block-editor-block-list__block,
+.block-editor-block-list__block[data-type="wpbb/column"] .block-editor-inner-blocks > .block-editor-block-list__layout > .block-editor-block-list__block,
+.block-editor-block-list__block[data-type="wpbb/column"] .block-editor-block-list__layout > .wp-block,
+.block-editor-block-list__block[data-type="wpbb/column"] .block-editor-block-list__layout > [data-block]{
+  display:block !important;
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+  flex:0 0 100% !important;
+  float:none !important;
+  clear:both !important;
+  margin-left:0 !important;
+  margin-right:0 !important;
+  box-sizing:border-box !important;
+}
+
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .block-editor-block-list__layout .block-editor-block-list__block,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .block-editor-block-list__layout .block-editor-block-list__block-edit,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .block-editor-block-list__layout .wp-block,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .block-editor-block-list__layout .wp-block-heading,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .block-editor-block-list__layout .wp-block-paragraph,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .block-editor-block-list__layout .wp-block-image,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .block-editor-block-list__layout .wp-block-buttons,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .block-editor-block-list__layout .wp-block-group,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .block-editor-block-list__layout .block-editor-rich-text__editable,
+.block-editor-block-list__layout .block-editor-block-list__block[data-type="wpbb/column"] .block-editor-block-list__layout .block-editor-block-list__block,
+.block-editor-block-list__layout .block-editor-block-list__block[data-type="wpbb/column"] .block-editor-block-list__block-edit,
+.block-editor-block-list__layout .block-editor-block-list__block[data-type="wpbb/column"] .wp-block,
+.block-editor-block-list__layout .block-editor-block-list__block[data-type="wpbb/column"] .wp-block-heading,
+.block-editor-block-list__layout .block-editor-block-list__block[data-type="wpbb/column"] .wp-block-paragraph,
+.block-editor-block-list__layout .block-editor-block-list__block[data-type="wpbb/column"] .wp-block-image,
+.block-editor-block-list__layout .block-editor-block-list__block[data-type="wpbb/column"] .wp-block-buttons,
+.block-editor-block-list__layout .block-editor-block-list__block[data-type="wpbb/column"] .wp-block-group,
+.block-editor-block-list__layout .block-editor-block-list__block[data-type="wpbb/column"] .block-editor-rich-text__editable{
+  display:block !important;
+  width:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+  float:none !important;
+  clear:both !important;
+  box-sizing:border-box !important;
+}
+
+.block-editor-block-list__layout .block-editor-block-list__block[data-type="wpbb/column"] .block-editor-block-list__layout .block-editor-block-list__block + .block-editor-block-list__block{
+  margin-top:0.5rem !important;
+}
+
+
+/* v4.9.5 editor list markers + column stack fix */
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] .wp-block-list,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] ul.wp-block-list,
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] ol.wp-block-list,
+.block-editor-block-list__block[data-type="wpbb/column"] .wp-block-list,
+.block-editor-block-list__block[data-type="wpbb/column"] ul.wp-block-list,
+.block-editor-block-list__block[data-type="wpbb/column"] ol.wp-block-list,
+.block-editor-block-list__block[data-type="wpbb/column"] ul,
+.block-editor-block-list__block[data-type="wpbb/column"] ol{
+  display:block !important;
+  width:100% !important;
+  max-width:none !important;
+  padding-left:1.5em !important;
+  margin:0 0 1em !important;
+}
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] ul.wp-block-list,
+.block-editor-block-list__block[data-type="wpbb/column"] ul.wp-block-list,
+.block-editor-block-list__block[data-type="wpbb/column"] ul{
+  list-style:disc outside !important;
+}
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] ol.wp-block-list,
+.block-editor-block-list__block[data-type="wpbb/column"] ol.wp-block-list,
+.block-editor-block-list__block[data-type="wpbb/column"] ol{
+  list-style:decimal outside !important;
+}
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] li,
+.block-editor-block-list__block[data-type="wpbb/column"] li{
+  display:list-item !important;
+  width:auto !important;
+  max-width:none !important;
+  float:none !important;
+}
+.editor-styles-wrapper .wp-block[data-type="wpbb/column"] li::marker,
+.block-editor-block-list__block[data-type="wpbb/column"] li::marker{
+  opacity:1 !important;
+}
+
+
+/* v4.9.8 column editor fixes */
+.wp-block[data-type="wpbb/column"]{
+  padding-top:32px !important;
+  padding-left:10px !important;
+  padding-right:10px !important;
+  padding-bottom:10px !important;
+}
+.wp-block[data-type="wpbb/column"] .wpbb-editor-label{
+  top:8px !important;
+  left:10px !important;
+}
+.wp-block[data-type="wpbb/column"] > .block-editor-inner-blocks,
+.wp-block[data-type="wpbb/column"] > .block-editor-inner-blocks > .block-editor-block-list__layout,
+.wp-block[data-type="wpbb/column"] .block-editor-block-list__layout{
+  display:block !important;
+  width:100% !important;
+  max-width:none !important;
+}
+.wp-block[data-type="wpbb/column"] .block-editor-block-list__layout > .block-editor-block-list__block,
+.wp-block[data-type="wpbb/column"] .block-editor-block-list__layout .block-editor-block-list__block{
+  display:block !important;
+  width:100% !important;
+  max-width:none !important;
+  flex:none !important;
+  clear:both !important;
+}
+.wp-block[data-type="wpbb/column"] .block-editor-block-list__block-edit,
+.wp-block[data-type="wpbb/column"] .block-editor-block-list__block-edit > div,
+.wp-block[data-type="wpbb/column"] .block-editor-rich-text__editable,
+.wp-block[data-type="wpbb/column"] .wp-block,
+.wp-block[data-type="wpbb/column"] p,
+.wp-block[data-type="wpbb/column"] h1,
+.wp-block[data-type="wpbb/column"] h2,
+.wp-block[data-type="wpbb/column"] h3,
+.wp-block[data-type="wpbb/column"] h4,
+.wp-block[data-type="wpbb/column"] h5,
+.wp-block[data-type="wpbb/column"] h6,
+.wp-block[data-type="wpbb/column"] ul,
+.wp-block[data-type="wpbb/column"] ol,
+.wp-block[data-type="wpbb/column"] li{
+  width:100% !important;
+  max-width:none !important;
+}
+.wp-block[data-type="wpbb/column"] ul,
+.wp-block[data-type="wpbb/column"] ol{
+  list-style-position:outside !important;
+  padding-left:1.5em !important;
+}
+.wp-block[data-type="wpbb/column"] ul{list-style-type:disc !important}
+.wp-block[data-type="wpbb/column"] ol{list-style-type:decimal !important}
+.wp-block[data-type="wpbb/column"] li{display:list-item !important}
+
+
+/* v4.9.9 admin cleanup */
+.wp-block[data-type="wpbb/column"] .wpbb-editor-label{top:-28px !important;left:0 !important;}
+.wp-block[data-type="wpbb/row"], .wp-block[data-type="wpbb/column"]{border-radius:0 !important;}
+.wp-block[data-type="wpbb/row"] .block-editor-inner-blocks > .block-editor-block-list__layout{column-gap:8px !important;row-gap:0 !important;}
+.wp-block[data-type="wpbb/row"] .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block[data-type="wpbb/column"]{padding-left:4px !important;padding-right:4px !important;}
+
+
+/* v4.9.9 admin cleanup */
+.wp-block[data-type="wpbb/column"] .wpbb-editor-label{top:-28px !important;left:0 !important;}
+.wp-block[data-type="wpbb/row"], .wp-block[data-type="wpbb/column"]{border-radius:0 !important;}
+.wp-block[data-type="wpbb/row"] .block-editor-inner-blocks > .block-editor-block-list__layout{column-gap:8px !important;row-gap:0 !important;}
+.wp-block[data-type="wpbb/row"] .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block[data-type="wpbb/column"]{padding-left:4px !important;padding-right:4px !important;}
+
+
+/* v4.9.9 admin cleanup */
+.wp-block[data-type="wpbb/column"] .wpbb-editor-label{top:-28px !important;left:0 !important;}
+.wp-block[data-type="wpbb/row"], .wp-block[data-type="wpbb/column"]{border-radius:0 !important;}
+.wp-block[data-type="wpbb/row"] .block-editor-inner-blocks > .block-editor-block-list__layout{column-gap:8px !important;row-gap:0 !important;}
+.wp-block[data-type="wpbb/row"] .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block[data-type="wpbb/column"]{padding-left:4px !important;padding-right:4px !important;}
+
+
+/* v5.0.0 editor row/column cleanup */
+.wp-block[data-type="wpbb/column"] .wpbb-editor-label{
+  top:-28px !important;
+  left:0 !important;
+}
+.wp-block[data-type="wpbb/row"] > .block-editor-block-list__block-edit > .wp-block,
+.wp-block[data-type="wpbb/column"] > .block-editor-block-list__block-edit > .wp-block{
+  border-radius:0 !important;
+}
+.wp-block[data-type="wpbb/row"] .block-editor-inner-blocks > .block-editor-block-list__layout{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:0 !important;
+  width:100% !important;
+}
+.wp-block[data-type="wpbb/row"] .block-editor-inner-blocks > .block-editor-block-list__layout > .wp-block[data-type="wpbb/column"]{
+  padding-left:4px !important;
+  padding-right:4px !important;
+}
+.wp-block[data-type="wpbb/column"] > .block-editor-block-list__block-edit > .wp-block{
+  border:1px dotted #d1d5db !important;
+  background:#fff !important;
+  padding-top:18px !important;
+}
+.wp-block[data-type="wpbb/column"] .block-editor-inner-blocks,
+.wp-block[data-type="wpbb/column"] .block-editor-block-list__layout,
+.wp-block[data-type="wpbb/column"] .block-editor-block-list__block,
+.wp-block[data-type="wpbb/column"] .block-editor-block-list__block-edit,
+.wp-block[data-type="wpbb/column"] .block-editor-rich-text__editable,
+.wp-block[data-type="wpbb/column"] p,
+.wp-block[data-type="wpbb/column"] h1,
+.wp-block[data-type="wpbb/column"] h2,
+.wp-block[data-type="wpbb/column"] h3,
+.wp-block[data-type="wpbb/column"] h4,
+.wp-block[data-type="wpbb/column"] h5,
+.wp-block[data-type="wpbb/column"] h6,
+.wp-block[data-type="wpbb/column"] ul,
+.wp-block[data-type="wpbb/column"] ol,
+.wp-block[data-type="wpbb/column"] figure,
+.wp-block[data-type="wpbb/column"] .wp-block-image,
+.wp-block[data-type="wpbb/column"] .wp-block-buttons,
+.wp-block[data-type="wpbb/column"] .wp-block-button{
+  width:100% !important;
+  max-width:100% !important;
+}
+
+
+/* v5.0.3 admin cleanup */
+.wp-block[data-type="wpbb/accordion"],
+.wp-block[data-type="wpbb/table"],
+.wp-block[data-type="wpbb/dynamic-form"],
+.wp-block[data-type="wpbb/pricecards"],
+.wp-block[data-type="wpbb/card"],
+.wp-block[data-type="wpbb/row"],
+.wp-block[data-type="wpbb/column"]{
+  border-radius: 0 !important;
+}
+
+/* keep small dotted builder guides without rounded corners */
+.wp-block[data-type="wpbb/row"],
+.wp-block[data-type="wpbb/column"]{
+  border-radius: 0 !important;
+}
+
+/* responsive column helper UI */
+.wpbb-responsive-summary{
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border: 1px solid #dcdcde;
+  background: #fff;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.wpbb-responsive-summary strong{display:block;margin-bottom:4px;}
+.wpbb-responsive-summary code{font-size:11px;word-break:break-word;}

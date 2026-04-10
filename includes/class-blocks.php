@@ -488,6 +488,8 @@ public function register_assets() {
             'row' => 'grid-view','cta-card' => 'megaphone','cta-section' => 'cover-image','google-map' => 'location-alt','menu-option' => 'menu','sitemap' => 'networking','soc-follow-block' => 'share','soc-share' => 'share-alt2',
             'section' => 'cover-image',
             'spinner' => 'update',
+            'file' => 'media-document',
+            'inline-svg' => 'format-image',
             'tab-item' => 'editor-table',
             'load-more' => 'plus-alt2','contact-links' => 'phone','events' => 'calendar-alt','testimonials' => 'format-quote','blog-filter' => 'filter',
             'tabs' => 'index-card',
@@ -661,6 +663,7 @@ public function register_assets() {
                     'taxonomy' => ['type' => 'string', 'default' => 'category'],
                     'title' => ['type' => 'string', 'default' => 'Blog'],
                     'buttonText' => ['type' => 'string', 'default' => 'Filter'],
+                    'buttonColor' => ['type' => 'string', 'default' => '#2563eb'],
                 ];
 
 case 'alert':
@@ -871,11 +874,95 @@ case 'spinner':
                 $style = ""; if (!empty($attributes["bgColor"])) $style .= "background:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["bgColor"]) . ";"; if (!empty($attributes["textColor"])) $style .= "color:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["textColor"]) . ";"; if (!empty($attributes["borderRadius"])) $style .= "border-radius:" . preg_replace('/[^0-9.%a-zA-Z-]/', "", (string)$attributes["borderRadius"]) . ";"; return "<section {$wrapper} style=\"" . esc_attr($style) . "\"><div class=\"container-fluid\"><h2>{$title}</h2><p>{$text}</p><a class=\"btn btn-primary\" href=\"{$buttonUrl}\">{$buttonText}</a></div></section>";
 
             case 'google-map':
-                $url = esc_url($attributes['embedUrl'] ?? '');
-                $height = esc_attr($attributes['height'] ?? '380px');
+                $address = sanitize_text_field($attributes['address'] ?? '');
+                $legacy_embed = trim((string)($attributes['embedUrl'] ?? ''));
+                $height = trim((string)($attributes['height'] ?? '380px'));
+                if ($height === '') $height = '380px';
+                if (preg_match('/^\d+$/', $height)) $height .= 'px';
+                $height_attr = preg_replace('/[^0-9.]/', '', $height);
+                if ($height_attr === '') $height_attr = '380';
+                $zoom = intval($attributes['zoom'] ?? 14);
+                if ($zoom < 1) $zoom = 1;
+                if ($zoom > 21) $zoom = 21;
                 $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-google-map' . $extra]);
-                if (!$url) return "<div {$wrapper}><div class=\"wpbb-empty-note\">" . esc_html__('Add embed URL', 'wp-bbuilder') . "</div></div>";
-                $style = !empty($attributes["mapFilter"]) ? "filter:" . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', "", (string)$attributes["mapFilter"]) . ";" : ""; return "<div {$wrapper}><iframe src=\"{$url}\" style=\"width:100%;height:{$height};border:0;{$style}\" loading=\"lazy\" allowfullscreen></iframe></div>";
+
+                $src = '';
+                if ($address !== '') {
+                    $src = 'https://maps.google.com/maps?width=100%25&height=' . rawurlencode($height_attr) . '&hl=en&q=' . rawurlencode($address) . '&t=&z=' . $zoom . '&ie=UTF8&iwloc=B&output=embed';
+                } elseif ($legacy_embed !== '') {
+                    if (preg_match('~src=["\']([^"\']+)["\']~i', $legacy_embed, $m)) {
+                        $src = $m[1];
+                    } else {
+                        $src = $legacy_embed;
+                    }
+                    $src = html_entity_decode($src, ENT_QUOTES, 'UTF-8');
+                    $src = preg_replace('~^http://~i', 'https://', $src);
+                    if (strpos($src, 'q=') === false && preg_match('~/(place|search)/([^/?#]+)~', $src, $m2)) {
+                        $src = 'https://maps.google.com/maps?width=100%25&height=' . rawurlencode($height_attr) . '&hl=en&q=' . rawurlencode(urldecode(str_replace('+', ' ', $m2[2]))) . '&t=&z=' . $zoom . '&ie=UTF8&iwloc=B&output=embed';
+                    } elseif (strpos($src, 'output=embed') === false) {
+                        $src .= (strpos($src, '?') !== false ? '&' : '?') . 'output=embed';
+                    }
+                }
+
+                if ($src === '') return '<div ' . $wrapper . '><div class="wpbb-empty-note">' . esc_html__('Add address', 'wp-bbuilder') . '</div></div>';
+
+                $overlay_color = trim((string)($attributes['overlayColor'] ?? ''));
+                $overlay_opacity = isset($attributes['overlayOpacity']) ? max(0, min(1, floatval($attributes['overlayOpacity']))) : 0;
+                if ($overlay_color === '' && !empty($attributes['mapFilter']) && preg_match('/^(#|rgb|rgba|hsl|hsla)/i', trim((string)$attributes['mapFilter']))) {
+                    $overlay_color = trim((string)$attributes['mapFilter']);
+                    if ($overlay_opacity <= 0) $overlay_opacity = 0.2;
+                }
+
+                $html = '<div ' . $wrapper . '>';
+                $html .= '<div class="wpbb-google-map__frame" style="position:relative;width:100%;min-height:' . esc_attr($height) . ';overflow:hidden;">';
+                $html .= '<iframe class="wpbb-google-map__iframe" src="' . esc_url($src) . '" title="' . esc_attr($address !== '' ? $address : __('Google map', 'wp-bbuilder')) . '" width="100%" height="' . esc_attr($height_attr) . '" style="border:0;width:100%;height:' . esc_attr($height) . ';min-height:' . esc_attr($height) . ';display:block;visibility:visible;opacity:1;background:#f8fafc;" loading="eager" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>';
+                if ($overlay_color !== '' && $overlay_opacity > 0) {
+                    $html .= '<span class="wpbb-google-map__overlay" aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;background:' . esc_attr($overlay_color) . ';opacity:' . esc_attr((string)$overlay_opacity) . ';"></span>';
+                }
+                if ($address !== '') {
+                    $html .= '<div class="wpbb-google-map__fallback" style="padding-top:8px;"><a href="' . esc_url('https://www.google.com/maps/search/?api=1&query=' . rawurlencode($address)) . '" target="_blank" rel="noopener noreferrer">' . esc_html__('Open map in Google Maps', 'wp-bbuilder') . '</a></div>';
+                }
+                $html .= '</div></div>';
+                return $html;
+
+            case 'file':
+                $file_url = esc_url($attributes['fileUrl'] ?? '');
+                $file_name = trim((string)($attributes['fileName'] ?? ''));
+                $button_text = trim((string)($attributes['buttonText'] ?? 'Download file'));
+                $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-file-block' . $extra]);
+                if ($file_url === '') return '<div ' . $wrapper . '><div class="wpbb-empty-note">' . esc_html__('Add file URL', 'wp-bbuilder') . '</div></div>';
+                if ($file_name === '') $file_name = basename(wp_parse_url($file_url, PHP_URL_PATH));
+                $target = !empty($attributes['targetBlank']) ? ' target="_blank" rel="noopener"' : '';
+                return '<div ' . $wrapper . '><div class="wpbb-file-block__name">' . esc_html($file_name) . '</div><a class="wpbb-file-block__link btn btn-primary" href="' . esc_url($file_url) . '"' . $target . '>' . esc_html($button_text !== '' ? $button_text : 'Download file') . '</a></div>';
+
+            case 'inline-svg':
+                $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-inline-svg' . $extra]);
+                $svg_code = trim((string)($attributes['svgCode'] ?? ''));
+                if ($svg_code === '') return '<div ' . $wrapper . '><div class="wpbb-empty-note">' . esc_html__('Paste SVG source code', 'wp-bbuilder') . '</div></div>';
+                $allowed = [
+                    'svg' => ['class'=>true,'xmlns'=>true,'width'=>true,'height'=>true,'viewBox'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'role'=>true,'aria-hidden'=>true,'focusable'=>true,'preserveAspectRatio'=>true,'style'=>true],
+                    'g' => ['fill'=>true,'stroke'=>true,'stroke-width'=>true,'transform'=>true,'opacity'=>true,'style'=>true,'class'=>true],
+                    'path' => ['d'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'transform'=>true,'opacity'=>true,'style'=>true,'class'=>true],
+                    'rect' => ['x'=>true,'y'=>true,'width'=>true,'height'=>true,'rx'=>true,'ry'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'transform'=>true,'opacity'=>true,'style'=>true,'class'=>true],
+                    'circle' => ['cx'=>true,'cy'=>true,'r'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'opacity'=>true,'style'=>true,'class'=>true],
+                    'ellipse' => ['cx'=>true,'cy'=>true,'rx'=>true,'ry'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'opacity'=>true,'style'=>true,'class'=>true],
+                    'line' => ['x1'=>true,'y1'=>true,'x2'=>true,'y2'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'opacity'=>true,'style'=>true,'class'=>true],
+                    'polyline' => ['points'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'opacity'=>true,'style'=>true,'class'=>true],
+                    'polygon' => ['points'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'opacity'=>true,'style'=>true,'class'=>true],
+                    'defs' => ['class'=>true],
+                    'linearGradient' => ['id'=>true,'x1'=>true,'x2'=>true,'y1'=>true,'y2'=>true,'gradientUnits'=>true,'gradientTransform'=>true],
+                    'radialGradient' => ['id'=>true,'cx'=>true,'cy'=>true,'r'=>true,'fx'=>true,'fy'=>true,'gradientUnits'=>true,'gradientTransform'=>true],
+                    'stop' => ['offset'=>true,'stop-color'=>true,'stop-opacity'=>true,'style'=>true],
+                    'title' => [],
+                    'desc' => [],
+                    'symbol' => ['id'=>true,'viewBox'=>true],
+                    'use' => ['href'=>true,'xlink:href'=>true,'x'=>true,'y'=>true,'width'=>true,'height'=>true,'transform'=>true],
+                    'clipPath' => ['id'=>true],
+                    'mask' => ['id'=>true,'x'=>true,'y'=>true,'width'=>true,'height'=>true],
+                    'text' => ['x'=>true,'y'=>true,'dx'=>true,'dy'=>true,'fill'=>true,'stroke'=>true,'font-size'=>true,'font-family'=>true,'text-anchor'=>true,'style'=>true,'class'=>true],
+                    'tspan' => ['x'=>true,'y'=>true,'dx'=>true,'dy'=>true,'fill'=>true,'stroke'=>true,'font-size'=>true,'font-family'=>true,'text-anchor'=>true,'style'=>true,'class'=>true]
+                ];
+                return '<div ' . $wrapper . '>' . wp_kses($svg_code, $allowed) . '</div>';
 
             case 'menu-option':
                 $title = esc_html(wpbb_translate_string($attributes['title'] ?? __('Menu Item', 'wp-bbuilder'))); $titleTag = in_array(($attributes['titleTag'] ?? 'h4'), ['h1','h2','h3','h4','h5','h6','div','p','span'], true) ? ($attributes['titleTag'] ?: 'h4') : 'h4';
@@ -1075,7 +1162,31 @@ case 'spinner':
             case 'cta-section':
                 return ['title'=>['type'=>'string','default'=>'CTA Section'],'titleTag'=>['type'=>'string','default'=>'h2'],'text'=>['type'=>'string','default'=>'Call to action text'],'buttonText'=>['type'=>'string','default'=>'Get started'],'buttonUrl'=>['type'=>'string','default'=>'#'],'bgColor'=>['type'=>'string','default'=>''],'textColor'=>['type'=>'string','default'=>''],'backgroundImage'=>['type'=>'string','default'=>''],'parallax'=>['type'=>'boolean','default'=>false],'className'=>['type'=>'string','default'=>'']];
             case 'google-map':
-                return ['embedUrl'=>['type'=>'string','default'=>''],'height'=>['type'=>'string','default'=>'380px'],'mapFilter'=>['type'=>'string','default'=>''],'className'=>['type'=>'string','default'=>'']];
+                return [
+                    'address'=>['type'=>'string','default'=>''],
+                    'zoom'=>['type'=>'number','default'=>14],
+                    'height'=>['type'=>'string','default'=>'380px'],
+                    'mapFilter'=>['type'=>'string','default'=>''],
+                    'overlayColor'=>['type'=>'string','default'=>''],
+                    'overlayOpacity'=>['type'=>'number','default'=>0.2],
+                    'embedUrl'=>['type'=>'string','default'=>''],
+                    'className'=>['type'=>'string','default'=>'']
+                ];
+            case 'file':
+                return [
+                    'title' => ['type' => 'string', 'default' => 'File'],
+                    'fileUrl' => ['type' => 'string', 'default' => ''],
+                    'fileName' => ['type' => 'string', 'default' => ''],
+                    'buttonText' => ['type' => 'string', 'default' => 'Download file'],
+                    'targetBlank' => ['type' => 'boolean', 'default' => true],
+                    'className' => ['type' => 'string', 'default' => '']
+                ];
+            case 'inline-svg':
+                return [
+                    'title' => ['type' => 'string', 'default' => 'Inline SVG'],
+                    'svgCode' => ['type' => 'string', 'default' => ''],
+                    'className' => ['type' => 'string', 'default' => '']
+                ];
             case 'menu-option':
                 return [
                     'title' => ['type' => 'string', 'default' => 'Menu'],
@@ -1724,6 +1835,8 @@ public function enqueue_frontend_assets() {
         if (!wpbb_get_option('disable_core_image', 0)) $core[] = 'core/image';
         if (!wpbb_get_option('disable_core_cover', 0)) $core[] = 'core/cover';
         if (!wpbb_get_option('disable_core_media_text', 0)) $core[] = 'core/media-text';
+        if (!wpbb_get_option('disable_core_audio', 0)) $core[] = 'core/audio';
+        if (!wpbb_get_option('disable_core_file', 0)) $core[] = 'core/file';
         if (!wpbb_get_option('disable_core_buttons', 0)) $core[] = 'core/buttons';
         if (!wpbb_get_option('disable_core_button', 0)) $core[] = 'core/button';
         if (!wpbb_get_option('disable_core_query', 0)) {
@@ -2044,45 +2157,152 @@ public function enqueue_frontend_assets() {
         return '';
     }
 
+
+    public function render_generic_block($attributes, $content, $block) {
+        $name = '';
+        if (is_object($block) && !empty($block->name)) {
+            $name = (string) $block->name;
+        } elseif (is_array($block) && !empty($block['blockName'])) {
+            $name = (string) $block['blockName'];
+        }
+        $slug = preg_replace('~^wpbb/~', '', $name);
+        $extra = !empty($attributes['className']) ? ' ' . sanitize_html_class($attributes['className']) : '';
+
+        switch ($slug) {
+            case 'google-map':
+                $address = sanitize_text_field($attributes['address'] ?? '');
+                $legacy_embed = trim((string) ($attributes['embedUrl'] ?? ''));
+                $height = trim((string) ($attributes['height'] ?? '380px'));
+                if ($height === '') $height = '380px';
+                if (preg_match('/^\d+$/', $height)) $height .= 'px';
+                $height_attr = preg_replace('/[^0-9.]/', '', $height);
+                if ($height_attr === '') $height_attr = '380';
+                $zoom = max(1, min(21, intval($attributes['zoom'] ?? 14)));
+                $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-google-map' . $extra]);
+
+                $src = '';
+                if ($address !== '') {
+                    $src = 'https://www.google.com/maps?output=embed&q=' . rawurlencode($address) . '&z=' . $zoom;
+                } elseif ($legacy_embed !== '') {
+                    if (preg_match('~src=["\']([^"\']+)["\']~i', $legacy_embed, $m)) {
+                        $src = $m[1];
+                    } else {
+                        $src = $legacy_embed;
+                    }
+                    $src = html_entity_decode($src, ENT_QUOTES, 'UTF-8');
+                    $src = preg_replace('~^http://~i', 'https://', $src);
+                    if (strpos($src, 'output=embed') === false) {
+                        $src .= (strpos($src, '?') !== false ? '&' : '?') . 'output=embed';
+                    }
+                }
+
+                if ($src === '') {
+                    return '<div ' . $wrapper . '><div class="wpbb-empty-note">' . esc_html__('Add address', 'wp-bbuilder') . '</div></div>';
+                }
+
+                $overlay_color = trim((string) ($attributes['overlayColor'] ?? ''));
+                $overlay_opacity = isset($attributes['overlayOpacity']) ? max(0, min(1, floatval($attributes['overlayOpacity']))) : 0;
+                if ($overlay_color === '' && !empty($attributes['mapFilter']) && preg_match('/^(#|rgb|rgba|hsl|hsla)/i', trim((string) $attributes['mapFilter']))) {
+                    $overlay_color = trim((string) $attributes['mapFilter']);
+                    if ($overlay_opacity <= 0) $overlay_opacity = 0.2;
+                }
+
+                $html = '<div ' . $wrapper . '>';
+                $html .= '<div class="wpbb-google-map__frame" style="position:relative;width:100%;min-height:' . esc_attr($height) . ';overflow:hidden;background:#f8fafc;">';
+                $html .= '<iframe class="wpbb-google-map__iframe" src="' . esc_url($src) . '" title="' . esc_attr($address !== '' ? $address : __('Google map', 'wp-bbuilder')) . '" width="100%" height="' . esc_attr($height_attr) . '" style="border:0;width:100%;height:' . esc_attr($height) . ';min-height:' . esc_attr($height) . ';display:block;visibility:visible;opacity:1;" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>';
+                if ($overlay_color !== '' && $overlay_opacity > 0) {
+                    $html .= '<span class="wpbb-google-map__overlay" aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;background:' . esc_attr($overlay_color) . ';opacity:' . esc_attr((string) $overlay_opacity) . ';"></span>';
+                }
+                if ($address !== '') {
+                    $html .= '<div class="wpbb-google-map__fallback" style="padding-top:8px;"><a href="' . esc_url('https://www.google.com/maps/search/?api=1&query=' . rawurlencode($address)) . '" target="_blank" rel="noopener noreferrer">' . esc_html__('Open map in Google Maps', 'wp-bbuilder') . '</a></div>';
+                }
+                $html .= '</div></div>';
+                return $html;
+
+            case 'file':
+                $file_url = esc_url($attributes['fileUrl'] ?? '');
+                $file_name = trim((string) ($attributes['fileName'] ?? ''));
+                $button_text = trim((string) ($attributes['buttonText'] ?? 'Download file'));
+                $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-file-block' . $extra]);
+                if ($file_url === '') return '<div ' . $wrapper . '><div class="wpbb-empty-note">' . esc_html__('Add file URL', 'wp-bbuilder') . '</div></div>';
+                if ($file_name === '') $file_name = basename((string) wp_parse_url($file_url, PHP_URL_PATH));
+                $target = !empty($attributes['targetBlank']) ? ' target="_blank" rel="noopener"' : '';
+                return '<div ' . $wrapper . '><div class="wpbb-file-block__name">' . esc_html($file_name) . '</div><a class="wpbb-file-block__link btn btn-primary" href="' . esc_url($file_url) . '"' . $target . '>' . esc_html($button_text !== '' ? $button_text : 'Download file') . '</a></div>';
+
+            case 'inline-svg':
+                $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-inline-svg' . $extra]);
+                $svg_code = trim((string) ($attributes['svgCode'] ?? ''));
+                if ($svg_code === '') return '<div ' . $wrapper . '><div class="wpbb-empty-note">' . esc_html__('Paste SVG code', 'wp-bbuilder') . '</div></div>';
+                $svg_code = wp_kses($svg_code, [
+                    'svg' => ['xmlns'=>true,'viewBox'=>true,'width'=>true,'height'=>true,'fill'=>true,'stroke'=>true,'class'=>true,'role'=>true,'aria-hidden'=>true,'focusable'=>true,'style'=>true],
+                    'g' => ['fill'=>true,'stroke'=>true,'stroke-width'=>true,'transform'=>true,'class'=>true,'style'=>true],
+                    'path' => ['d'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'transform'=>true,'class'=>true,'style'=>true],
+                    'circle' => ['cx'=>true,'cy'=>true,'r'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'class'=>true,'style'=>true],
+                    'rect' => ['x'=>true,'y'=>true,'rx'=>true,'ry'=>true,'width'=>true,'height'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'class'=>true,'style'=>true],
+                    'polygon' => ['points'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'class'=>true,'style'=>true],
+                    'polyline' => ['points'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'class'=>true,'style'=>true],
+                    'line' => ['x1'=>true,'y1'=>true,'x2'=>true,'y2'=>true,'stroke'=>true,'stroke-width'=>true,'class'=>true,'style'=>true],
+                    'ellipse' => ['cx'=>true,'cy'=>true,'rx'=>true,'ry'=>true,'fill'=>true,'stroke'=>true,'stroke-width'=>true,'class'=>true,'style'=>true],
+                    'defs' => [], 'clipPath' => ['id'=>true], 'mask' => ['id'=>true], 'title' => [], 'desc' => [],
+                    'linearGradient' => ['id'=>true,'x1'=>true,'x2'=>true,'y1'=>true,'y2'=>true], 'radialGradient' => ['id'=>true,'cx'=>true,'cy'=>true,'r'=>true],
+                    'stop' => ['offset'=>true,'stop-color'=>true,'stop-opacity'=>true]
+                ]);
+                return '<div ' . $wrapper . '>' . $svg_code . '</div>';
+
+            default:
+                $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-generic-block wpbb-' . sanitize_html_class($slug) . $extra]);
+                return '<div ' . $wrapper . '>' . $content . '</div>';
+        }
+    }
+
     public function render_row_block($attributes, $content, $block) {
-        $classes = ['row', 'wpbb-row'];
+        $row_classes = ['row', 'wpbb-row'];
         foreach (['gutterX','gutterY','paddingClass','marginClass','backgroundClass','animationClass','displayClass','textUtilityClass','roundedClass','shadowClass','bootstrapClasses','utilityClasses','customClasses','visibilityClass','className'] as $k) {
             if (empty($attributes[$k])) continue;
-            $classes = array_merge($classes, $this->wpbb_class_tokens_from_value($attributes[$k]));
+            $row_classes = array_merge($row_classes, $this->wpbb_class_tokens_from_value($attributes[$k]));
         }
-        $classes = array_merge($classes, $this->wpbb_collect_spacing_classes($attributes));
-        if (!empty($attributes['align'])) $classes[] = 'justify-content-' . sanitize_html_class((string)$attributes['align']);
+        $row_classes = array_merge($row_classes, $this->wpbb_collect_spacing_classes($attributes));
+        if (!empty($attributes['align'])) $row_classes[] = 'justify-content-' . sanitize_html_class((string)$attributes['align']);
         $uid = !empty($attributes['uniqueId']) ? sanitize_html_class((string)$attributes['uniqueId']) : sanitize_html_class('wpbb-row-' . wp_unique_id());
-        $style = $this->wpbb_build_spacing_inline($attributes);
-        if (!empty($attributes['backgroundColor'])) $style .= 'background-color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';';
-        if (!empty($attributes['backgroundImageUrl'])) $style .= 'background-image:url(' . esc_url_raw((string)$attributes['backgroundImageUrl']) . ');background-size:' . preg_replace('/[^a-z% -]/i', '', (string)($attributes['backgroundSize'] ?? 'cover')) . ';background-position:' . preg_replace('/[^a-z% -]/i', '', (string)($attributes['backgroundPosition'] ?? 'center center')) . ';background-repeat:no-repeat;background-attachment:' . preg_replace('/[^a-z-]/i', '', (string)($attributes['backgroundAttachment'] ?? 'scroll')) . ';';
-        if (!empty($attributes['textColor'])) $style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['textColor']) . ';';
-        if (!empty($attributes['maxWidth'])) { $mwRaw = trim((string)$attributes['maxWidth']); $mwu = preg_replace('/[^a-z%]/i', '', (string)($attributes['maxWidthUnit'] ?? '')); if ($mwu === '') $mwu = 'px'; if ($mwRaw === 'auto') { $style .= 'max-width:auto;margin-left:auto;margin-right:auto;'; } else { $mwNum = preg_replace('/[^0-9.\-]/', '', $mwRaw); if ($mwNum !== '') { $style .= 'max-width:' . $mwNum . $mwu . ';margin-left:auto;margin-right:auto;'; } } }
-        if (!empty($attributes['customStyle'])) $style .= (string)$attributes['customStyle'];
+        $row_style = $this->wpbb_build_spacing_inline($attributes);
+        if (!empty($attributes['backgroundColor'])) $row_style .= 'background-color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';';
+        if (!empty($attributes['backgroundImageUrl'])) $row_style .= 'background-image:url(' . esc_url_raw((string)$attributes['backgroundImageUrl']) . ');background-size:' . preg_replace('/[^a-z% -]/i', '', (string)($attributes['backgroundSize'] ?? 'cover')) . ';background-position:' . preg_replace('/[^a-z% -]/i', '', (string)($attributes['backgroundPosition'] ?? 'center center')) . ';background-repeat:no-repeat;background-attachment:' . preg_replace('/[^a-z-]/i', '', (string)($attributes['backgroundAttachment'] ?? 'scroll')) . ';';
+        if (!empty($attributes['textColor'])) $row_style .= 'color:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['textColor']) . ';';
+        if (!empty($attributes['customStyle'])) $row_style .= (string)$attributes['customStyle'];
+
         $responsiveSpacingCss = $this->wpbb_build_responsive_spacing_css($attributes, '#' . $uid);
         $spacingTag = $responsiveSpacingCss !== '' ? $this->wpbb_capture_style_tag($responsiveSpacingCss) : '';
         $scssTag = !empty($attributes['customScss']) ? $this->wpbb_capture_style_tag($this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss'])) : '';
-        $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_values(array_unique(array_filter($classes)))), 'style' => $style, 'id' => $uid]);
-        $inner = '<div class="row">' . $content . '</div>';
+
+        $row_wrapper = get_block_wrapper_attributes([
+            'class' => implode(' ', array_values(array_unique(array_filter($row_classes)))),
+            'style' => $row_style,
+            'id' => $uid
+        ]);
+
+        $row_html = '<div ' . $row_wrapper . '>' . $content . '</div>';
+
         if (!empty($attributes['containerClass'])) {
-            $container_class = implode(' ', array_values(array_unique(array_filter($this->wpbb_class_tokens_from_value($attributes['containerClass'])))));
-            $container_style = '';
-            if (strpos(' ' . $container_class . ' ', ' container ') !== false || strpos($container_class, 'container-') !== false) {
-                $frontend_max = wpbb_get_theme_container_width('1400px');
-                if ($frontend_max !== '') {
-                    $container_style = ' style="max-width:' . esc_attr($frontend_max) . '"';
+            $container_tokens = array_values(array_unique(array_filter($this->wpbb_class_tokens_from_value($attributes['containerClass']))));
+            $container_class = implode(' ', $container_tokens);
+            if ($container_class !== '') {
+                $container_style = '';
+                if ($container_class === 'container-fluid') {
+                    $container_style = ' style="max-width:none;width:100%;"';
                 }
+                $row_html = '<div class="' . esc_attr($container_class) . '"' . $container_style . '>' . $row_html . '</div>';
             }
-            $inner = '<div class="' . esc_attr($container_class) . '"' . $container_style . '>' . $inner . '</div>';
         }
-        $overlay = '';
+
         if (!empty($attributes['overlayColor']) && !empty($attributes['overlayOpacity'])) {
-            $overlay = '<div class="wpbb-block-overlay" style="position:absolute;inset:0;pointer-events:none;background:' . esc_attr((string)$attributes['overlayColor']) . ';opacity:' . floatval($attributes['overlayOpacity']) . ';"></div>';
-            $inner = '<div class="wpbb-block-content" style="position:relative;z-index:1">' . $inner . '</div>';
-            $style .= 'position:relative;overflow:hidden;';
-            $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_values(array_unique(array_filter($classes)))), 'style' => $style, 'id' => $uid]);
+            $opacity = floatval($attributes['overlayOpacity']);
+            $row_html = '<div style="position:relative;overflow:hidden;">'
+                . '<div class="wpbb-block-overlay" style="position:absolute;inset:0;pointer-events:none;background:' . esc_attr((string)$attributes['overlayColor']) . ';opacity:' . $opacity . ';"></div>'
+                . '<div class="wpbb-block-content" style="position:relative;z-index:1">' . $row_html . '</div>'
+                . '</div>';
         }
-        return $spacingTag . $scssTag . '<div ' . $wrapper . '>' . $overlay . $inner . '</div>';
+
+        return $spacingTag . $scssTag . $row_html;
     }
 
     public function render_column_block($attributes, $content, $block) {
@@ -2537,7 +2757,9 @@ public function enqueue_frontend_assets() {
         foreach ($year_values as $year) { $html .= '<option value="' . esc_attr($year) . '">' . esc_html($year) . '</option>'; }
         $html .= '</select></div>';
         $html .= '<div><label class="form-label">Sort</label><select class="form-select" data-wpbb-blog-sort><option value="date_desc">Newest</option><option value="date_asc">Oldest</option><option value="alpha_asc">A-Z</option><option value="alpha_desc">Z-A</option></select></div>';
-        $html .= '<div><button type="button" class="btn btn-primary" data-wpbb-blog-submit>' . esc_html($attributes['buttonText'] ?? 'Filter') . '</button></div></div>';
+        $button_color = trim((string)($attributes['buttonColor'] ?? '#2563eb'));
+        $button_style = $button_color !== '' ? ' style="background:' . esc_attr(preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', $button_color)) . ';border-color:' . esc_attr(preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', $button_color)) . ';"' : '';
+        $html .= '<div><button type="button" class="btn btn-primary" data-wpbb-blog-submit' . $button_style . '>' . esc_html($attributes['buttonText'] ?? 'Filter') . '</button></div></div>';
         $html .= '<div data-wpbb-blog-results data-post-type="' . esc_attr($post_type) . '" data-taxonomy="' . esc_attr($taxonomy) . '" data-per-page="' . esc_attr($posts_to_show) . '"><div class="row g-4">';
         if ($query->have_posts()) { while ($query->have_posts()) { $query->the_post(); $html .= $this->wpbb_render_post_card(get_the_ID(), 'col-md-6 col-lg-4'); } wp_reset_postdata(); } else { $html .= '<div class="col-12"><p>No posts found.</p></div>'; }
         $html .= '</div></div></div>';

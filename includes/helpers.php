@@ -7,7 +7,7 @@ function wpbb_defaults() {
             'accordion' => 1,'accordion-item' => 1,'alert' => 1,'badge' => 1,'breadcrumb' => 1,'button' => 1,'card' => 1,'cards' => 1,'column' => 1,
             'cta-card' => 1,'cta-section' => 1,'dynamic-form' => 1,'google-map' => 1,'list-group' => 1,'menu-option' => 1,'navbar' => 1,'progress' => 1,
             'row' => 1,'section' => 1,'sitemap' => 1,'soc-follow-block' => 1,'soc-share' => 1,'spinner' => 1,
-            'tab-item' => 1,'table' => 1,'tabs' => 1,'video' => 1,'swiper' => 1,
+            'tab-item' => 1,'table' => 1,'tabs' => 1,'video' => 1,'file' => 1,'inline-svg' => 1,'swiper' => 1,
             'weather' => 1,'varda-dienas' => 1,'ajax-search' => 1,'pricecards' => 1,'catalogue' => 1,
             'code-display' => 1,'countdown-timer' => 1,'chart' => 1,'fun-fact' => 1,'mailchimp' => 1,'bootstrap-div' => 1,
             'feature-list' => 1,'timeline' => 1,'custom-embed' => 1,'ai-content' => 1,'login-register' => 1,
@@ -15,7 +15,7 @@ function wpbb_defaults() {
         ],
         'disable_core_group' => 1,'disable_core_columns' => 1,'disable_core_column' => 1,
         'disable_core_table' => 1,'disable_core_embed' => 0,'disable_core_gallery' => 0,
-        'disable_core_image' => 0,'disable_core_cover' => 0,'disable_core_media_text' => 0,
+        'disable_core_image' => 0,'disable_core_cover' => 0,'disable_core_media_text' => 0,'disable_core_audio' => 0,'disable_core_file' => 0,
         'disable_core_buttons' => 0,'disable_core_button' => 0,'disable_core_query' => 0,
         'load_bootstrap_css' => 1,'load_bootstrap_js' => 0,'force_bootstrap_enqueue' => 0,'save_entries' => 1,'show_entries_menu' => 0,
         'bootstrap_css_mode' => 'grid',
@@ -61,10 +61,13 @@ function wpbb_get_option($key, $default = null) {
 }
 function wpbb_is_block_enabled($slug) {
     $enabled = wpbb_get_option('enabled_blocks', []);
-    return empty($enabled) || !empty($enabled[$slug]);
+    $defaults = wpbb_defaults();
+    $default_enabled = !empty($defaults['enabled_blocks'][$slug]);
+    if (empty($enabled)) return $default_enabled || empty($defaults['enabled_blocks']);
+    return array_key_exists($slug, $enabled) ? !empty($enabled[$slug]) : $default_enabled;
 }
 function wpbb_get_blocks_list() {
-    return ['accordion','accordion-item','alert','badge','breadcrumb','button','card','cards','column','cta-card','cta-section','dynamic-form','google-map','list-group','menu-option','navbar','progress','row','section','sitemap','soc-follow-block','soc-share','spinner','tab-item','table','tabs','video','swiper','weather','varda-dienas','ajax-search','pricecards','catalogue','code-display','countdown-timer','chart','fun-fact','mailchimp','bootstrap-div','feature-list','timeline','custom-embed','ai-content','login-register','load-more','contact-links','events','testimonials','blog-filter'];
+    return ['accordion','accordion-item','alert','badge','breadcrumb','button','card','cards','column','cta-card','cta-section','dynamic-form','google-map','list-group','menu-option','navbar','progress','row','section','sitemap','soc-follow-block','soc-share','spinner','tab-item','table','tabs','video','file','inline-svg','swiper','weather','varda-dienas','ajax-search','pricecards','catalogue','code-display','countdown-timer','chart','fun-fact','mailchimp','bootstrap-div','feature-list','timeline','custom-embed','ai-content','login-register','load-more','contact-links','events','testimonials','blog-filter'];
 }
 function wpbb_get_acf_blocks_list() { return ['wpbb-hero','wpbb-gallery']; }
 function wpbb_parse_fields_json($json) {

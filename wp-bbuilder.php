@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WP BBuilder
  * Description: Lightweight Bootstrap-oriented Gutenberg blocks optimized for Core Web Vitals and modular front-end loading.
- * Version: 4.9.3
+ * Version: 5.0.3
  * Author: Raivis Kalnins
  * Text Domain: wp-bbuilder
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('WPBB_VERSION', '4.9.3');
+define('WPBB_VERSION', '5.0.2');
 define('WPBB_PLUGIN_FILE', __FILE__);
 define('WPBB_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WPBB_PLUGIN_URL', plugin_dir_url(__FILE__));
