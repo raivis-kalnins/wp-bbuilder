@@ -577,6 +577,7 @@
   var useBlockProps = wp.blockEditor.useBlockProps;
   var InspectorControls = wp.blockEditor.InspectorControls;
   var Button = wp.components.Button;
+  var ButtonGroup = wp.components.ButtonGroup;
   var ColorPicker = wp.components.ColorPicker;
   var MediaUpload = wp.blockEditor.MediaUpload;
   var MediaUploadCheck = wp.blockEditor.MediaUploadCheck;
@@ -589,6 +590,7 @@
   var SelectControl = wp.components.SelectControl;
   var ToggleControl = wp.components.ToggleControl;
   var RangeControl = wp.components.RangeControl;
+  var useState = wp.element.useState;
   var Button = wp.components.Button;
 
   function label(text) {
@@ -842,6 +844,9 @@
     }),
     edit: function (props) {
       wpbbEnsureUniqueId(props, 'wpbb-col');
+      var previewState = useState('lg');
+      var previewBp = previewState[0];
+      var setPreviewBp = previewState[1];
       var cls = ['wpbb-column'];
       ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'].forEach(function (bp) {
         var val = props.attributes[bp];
@@ -856,23 +861,60 @@
       cls = cls.concat(wpbbClassArray(props.attributes.customClasses || ''));
       cls = cls.concat(wpbbClassArray(props.attributes.utilityClasses || ''));
       cls = cls.concat(wpbbClassArray(props.attributes.boxShadowClass || ''));
-      var previewBasis = (props.attributes.lg || props.attributes.md || props.attributes.sm || props.attributes.xs || 12);
+      function responsiveValueForBreakpoint(bp) {
+        var orderMap = { xs: ['xs'], sm: ['sm', 'xs'], md: ['md', 'sm', 'xs'], lg: ['lg', 'md', 'sm', 'xs'], xl: ['xl', 'lg', 'md', 'sm', 'xs'], xxl: ['xxl', 'xl', 'lg', 'md', 'sm', 'xs'] };
+        var order = orderMap[bp] || ['lg', 'md', 'sm', 'xs'];
+        for (var i = 0; i < order.length; i++) {
+          var val = parseInt(props.attributes[order[i]] || 0, 10);
+          if (val > 0) return val;
+        }
+        return 12;
+      }
+
+      var previewBasis = responsiveValueForBreakpoint(previewBp);
       var pct = Math.max(1, Math.min(12, previewBasis)) / 12 * 100;
       var blockProps = useBlockProps({ className: wpbbUniqueClassList(cls).join(' '), style: Object.assign({ flex: '0 0 ' + pct + '%', maxWidth: (props.attributes.maxWidth ? String(props.attributes.maxWidth) + (props.attributes.maxWidthUnit || 'px') : (pct + '%')), boxSizing: 'border-box', position: 'relative', overflow: 'hidden', boxShadow: props.attributes.boxShadowColor && props.attributes.boxShadowClass ? ('0 10px 28px ' + props.attributes.boxShadowColor) : undefined }, wpbbEditorBgStyle(props.attributes)) });
 
       function sizeControl(bp, labelText, helpText) {
-        return el(RangeControl, {
-          label: labelText,
-          help: helpText,
-          value: props.attributes[bp] || 0,
-          min: 0,
-          max: 12,
-          onChange: function (value) {
-            var next = {};
-            next[bp] = value || 0;
-            props.setAttributes(next);
-          }
-        });
+        var presets = [
+          { label: 'Full', value: 12 },
+          { label: '1/2', value: 6 },
+          { label: '1/3', value: 4 },
+          { label: '1/4', value: 3 },
+          { label: 'Auto', value: 0 }
+        ];
+        return el('div', { className: 'wpbb-width-control', key: bp + '-width' }, [
+          el(RangeControl, {
+            key: 'range',
+            label: labelText,
+            help: helpText,
+            value: props.attributes[bp] || 0,
+            min: 0,
+            max: 12,
+            onChange: function (value) {
+              var next = {};
+              next[bp] = value || 0;
+              props.setAttributes(next);
+            }
+          }),
+          el('div', { key: 'presets', className: 'wpbb-width-presets' }, [
+            el('span', { key: 'preset-label', className: 'wpbb-width-presets__label' }, 'Quick presets'),
+            el(ButtonGroup, { key: 'preset-buttons', className: 'wpbb-width-presets__group' }, presets.map(function (preset) {
+              var active = (props.attributes[bp] || 0) === preset.value;
+              return el(Button, {
+                key: bp + '-' + preset.label,
+                isSmall: true,
+                variant: active ? 'primary' : 'secondary',
+                className: active ? 'is-active' : '',
+                onClick: function () {
+                  var next = {};
+                  next[bp] = preset.value;
+                  props.setAttributes(next);
+                }
+              }, preset.label);
+            }))
+          ])
+        ]);
       }
 
       function responsiveClassSummary() {
@@ -887,6 +929,25 @@
 
       var controls = [
         el(PanelBody, { title: 'Responsive widths', initialOpen: true }, [
+          el('div', { key: 'device-preview', className: 'wpbb-device-preview' }, [
+            el('div', { key: 'device-label', className: 'wpbb-device-preview__label' }, 'Editor preview device'),
+            el(ButtonGroup, { key: 'device-buttons', className: 'wpbb-device-preview__buttons' }, [
+              { bp: 'xs', label: 'Mobile' },
+              { bp: 'md', label: 'Tablet' },
+              { bp: 'lg', label: 'Desktop' },
+              { bp: 'xl', label: 'Wide' }
+            ].map(function (item) {
+              var active = previewBp === item.bp;
+              return el(Button, {
+                key: item.bp,
+                isSmall: true,
+                variant: active ? 'primary' : 'secondary',
+                className: active ? 'is-active' : '',
+                onClick: function () { setPreviewBp(item.bp); }
+              }, item.label);
+            }))
+          ]),
+          el('div', { key: 'device-note', className: 'wpbb-device-preview__note' }, 'Preview width now follows ' + previewBp.toUpperCase() + ' breakpoint.'),
           sizeControl('xs', 'Mobile', 'Phones: col-' + (props.attributes.xs || 12)),
           sizeControl('sm', 'Small tablet', 'Small screens: ' + (props.attributes.sm ? ('col-sm-' + props.attributes.sm) : 'inherit')),
           sizeControl('md', 'Tablet', 'Medium screens: ' + (props.attributes.md ? ('col-md-' + props.attributes.md) : 'inherit')),

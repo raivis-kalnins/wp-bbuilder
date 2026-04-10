@@ -1320,3 +1320,121 @@
 .wpbb-file-block__link{display:inline-flex;align-items:center;justify-content:center;gap:.5rem}
 .wpbb-inline-svg svg{display:block;max-width:100%;height:auto}
 
+
+
+/* v5.0.5 datatable frontend fixes */
+.wpbb-table-block table,
+.wpbb-table-block table.table,
+.wpbb-table-block .dataTable,
+.wpbb-table-block .dataTable-table{
+  width:100% !important;
+  table-layout:auto;
+}
+.wpbb-table-block th,
+.wpbb-table-block td{
+  white-space:normal;
+}
+.wpbb-table-block .dt-container .dt-layout-row{
+  gap:12px;
+}
+.wpbb-table-block .dt-container .dt-search input,
+.wpbb-table-block .dt-container .dt-input{
+  border:1px solid #ced4da;
+  border-radius:0;
+  min-height:38px;
+  padding:6px 10px;
+}
+.wpbb-table-block .dt-container .dt-paging .pagination,
+.wpbb-table-block div.dt-container div.dt-paging ul.pagination{
+  gap:6px;
+  margin:0;
+}
+.wpbb-table-block .dt-container .dt-paging .page-item .page-link,
+.wpbb-table-block div.dt-container div.dt-paging ul.pagination .page-link{
+  border-radius:0;
+  min-width:38px;
+  text-align:center;
+}
+
+/* v5.0.6 datatable frontend layout fix */
+.wpbb-table-block .dt-container{
+  width:100%;
+}
+.wpbb-table-block .dt-container .dt-layout-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.wpbb-table-block .dt-container .dt-layout-cell{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.wpbb-table-block .dt-container .dt-search,
+.wpbb-table-block .dt-container .dt-length,
+.wpbb-table-block .dt-container .dt-info,
+.wpbb-table-block .dt-container .dt-paging{
+  width:auto;
+}
+.wpbb-table-block .dt-container .dt-paging,
+.wpbb-table-block div.dt-container div.dt-paging{
+  margin-left:auto;
+}
+.wpbb-table-block .dt-container .dt-paging .pagination,
+.wpbb-table-block div.dt-container div.dt-paging ul.pagination{
+  display:flex !important;
+  align-items:center;
+  flex-wrap:wrap;
+  list-style:none;
+  padding-left:0;
+  gap:6px;
+  margin:0;
+}
+.wpbb-table-block .dt-container .dt-paging .page-item,
+.wpbb-table-block div.dt-container div.dt-paging ul.pagination li{
+  display:block;
+  margin:0;
+}
+.wpbb-table-block .dt-container .dt-paging .page-item .page-link,
+.wpbb-table-block div.dt-container div.dt-paging ul.pagination .page-link{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:38px;
+  min-height:38px;
+  padding:6px 12px;
+}
+.wpbb-table-block .dt-scroll,
+.wpbb-table-block .dt-scroll-head,
+.wpbb-table-block .dt-scroll-body{
+  width:100% !important;
+}
+.wpbb-table-block table.dataTable,
+.wpbb-table-block table.dataTable.table,
+.wpbb-table-block .dataTables_wrapper table,
+.wpbb-table-block .dt-container table{
+  width:100% !important;
+}
+.wpbb-table-block .dt-container table th,
+.wpbb-table-block .dt-container table td{
+  white-space:normal;
+}
+
+
+/* First column left align */
+div.dt-container table.dataTable tbody td:first-child,
+div.dt-container table.dataTable thead th:first-child {
+    text-align: left !important;
+}
+
+/* Auto-align numeric columns right */
+div.dt-container table.dataTable tbody td:not(:first-child) {
+    text-align: right;
+}
+
+/* Header alignment */
+div.dt-container table.dataTable thead th {
+    text-align: left;
+}

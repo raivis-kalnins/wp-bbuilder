@@ -230,6 +230,8 @@ Core Gutenberg blocks intentionally supported alongside builder blocks include P
 
 
 ## Responsive columns
+- Editor device preview buttons: Mobile / Tablet / Desktop / Wide
+- Quick width presets per breakpoint: Full / 1/2 / 1/3 / 1/4 / Auto
 
 Column block supports Bootstrap responsive widths directly in the editor:
 - Mobile: `col-*`

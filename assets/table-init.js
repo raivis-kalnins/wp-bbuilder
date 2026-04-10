@@ -15,18 +15,26 @@
           info: wrap.dataset.info === '1',
           lengthChange: wrap.dataset.lengthchange === '1',
           autoWidth: false,
-          responsive: true
+          responsive: false,
+          scrollX: true,
+          pagingType: 'simple_numbers'
         };
 
         if (window.DataTable) {
-          new window.DataTable(table, opts);
+          var api = new window.DataTable(table, opts);
           table.dataset.wpbbDatatableInit = '1';
+          if (api && api.columns && api.columns.adjust) {
+            setTimeout(function(){ api.columns.adjust(); }, 0);
+          }
           return;
         }
 
         if (window.jQuery && window.jQuery.fn && window.jQuery.fn.DataTable) {
-          window.jQuery(table).DataTable(opts);
+          var jqApi = window.jQuery(table).DataTable(opts);
           table.dataset.wpbbDatatableInit = '1';
+          if (jqApi && jqApi.columns && jqApi.columns.adjust) {
+            setTimeout(function(){ jqApi.columns.adjust(); }, 0);
+          }
           return;
         }
       } catch (e) {

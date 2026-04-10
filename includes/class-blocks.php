@@ -1551,12 +1551,20 @@ public function render_spinner_block($attributes, $content, $block) {
         $csv = str_replace(["\\r\\n", "\\n", "\\r"], "\n", $csv);
         $csv = str_replace(["\r\n", "\r"], "\n", $csv);
 
-        $delimiter = !empty($attributes['delimiter']) ? (string)$attributes['delimiter'] : ',';
-        $lines = explode("\n", $csv);
+        $delimiter = !empty($attributes['delimiter']) ? (string) $attributes['delimiter'] : ',';
+        $csv = preg_replace('/^\xEF\xBB\xBF/', '', $csv);
         $rows = [];
-        foreach ($lines as $line) {
-            if (trim($line) === '') continue;
-            $rows[] = str_getcsv($line, $delimiter);
+        $stream = fopen('php://temp', 'r+');
+        if ($stream) {
+            fwrite($stream, $csv);
+            rewind($stream);
+            while (($data = fgetcsv($stream, 0, $delimiter)) !== false) {
+                if ($data === [null]) continue;
+                $rows[] = array_map(function($cell) {
+                    return is_string($cell) ? trim($cell) : $cell;
+                }, $data);
+            }
+            fclose($stream);
         }
         if (empty($rows)) return '';
 
@@ -1594,6 +1602,12 @@ public function render_spinner_block($attributes, $content, $block) {
                 $table_html .= '<th scope="col">' . esc_html($header) . '</th>';
             }
             $table_html .= '</tr></thead>';
+        } elseif (!empty($attributes['datatable'])) {
+            $table_html .= '<thead><tr>';
+            for ($i = 0; $i < $col_count; $i++) {
+                $table_html .= '<th scope="col">' . esc_html('Column ' . ($i + 1)) . '</th>';
+            }
+            $table_html .= '</tr></thead>';
         }
 
         $table_html .= '<tbody>';
@@ -1607,7 +1621,7 @@ public function render_spinner_block($attributes, $content, $block) {
         }
         $table_html .= '</tbody></table>';
 
-        if (!empty($attributes['responsive'])) {
+        if (!empty($attributes['responsive']) && empty($attributes['datatable'])) {
             $table_html = '<div class="table-responsive">' . $table_html . '</div>';
         }
 
