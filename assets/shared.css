@@ -222,7 +222,6 @@
 
 .wpbb-row{row-gap:10px}
 .wpbb-row > [class*="col-"]{padding-right:calc(var(--bs-gutter-x,1rem)*.5);padding-left:calc(var(--bs-gutter-x,1rem)*.5)}
-.wpbb-row > .col-6,.wpbb-row > .col-md-6,.wpbb-row > .col-lg-6,.wpbb-row > .col-xl-6{flex:0 0 50%;max-width:50%}
 .wpbb-code-editor,.wpbb-code-editor textarea,.wpbb-code-editor-preview textarea{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace !important;background:#fff;color:#111827}
 .wpbb-code-editor-preview{border:1px solid #d1d5db;border-radius:10px;padding:8px;background:#fff}
 .wpbb-weather-note{margin-top:8px;color:#64748b}
@@ -1438,3 +1437,53 @@ div.dt-container table.dataTable tbody td:not(:first-child) {
 div.dt-container table.dataTable thead th {
     text-align: left;
 }
+
+
+.wpbb-align-horizontal-around{display:flex !important;flex-direction:row !important;flex-wrap:wrap;justify-content:space-around !important;align-items:center !important;gap:1rem;}
+.wpbb-column.d-flex.flex-column > .block-editor-inner-blocks,
+.wpbb-column.d-flex.flex-column > .block-editor-inner-blocks > .block-editor-block-list__layout{width:100%;}
+
+
+.wpbb-row.row{margin-left:auto;margin-right:auto;}
+.wpbb-row.row .wpbb-column{min-width:0;}
+
+/* Theme compatibility helpers */
+.wpbb-row.row{margin-left:auto !important;margin-right:auto !important;}
+.wpbb-row > .container,
+.wpbb-row > .container-fluid{margin-left:auto;margin-right:auto;}
+.wpbb-column .wp-block-image img{display:block;border-radius:inherit;}
+
+
+/* v20 layout corrections */
+@media (max-width:767.98px){
+  .wpbb-row > .col-6,
+  .wpbb-row > .col-sm-6,
+  .wpbb-row > .col-md-6,
+  .wpbb-row > .col-lg-6,
+  .wpbb-row > .col-xl-6,
+  .wpbb-row > .col-xxl-6{flex:0 0 100%;max-width:100%}
+}
+.wpbb-timeline--vertical .wpbb-timeline__items:before{display:none}
+.wpbb-timeline__item{padding-left:0;margin-bottom:1rem}
+.wpbb-timeline__dot{position:static;display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;margin:0 0 .85rem 0;border:0;background:#2563eb;box-shadow:0 0 0 8px rgba(37,99,235,.12)}
+.wpbb-timeline__content{background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:1rem 1.25rem;box-shadow:0 12px 28px rgba(15,23,42,.05)}
+.wpbb-timeline--horizontal .wpbb-timeline__items{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
+.wpbb-timeline--horizontal .wpbb-timeline__item{padding-left:0}
+.wpbb-google-map__frame{border-radius:24px;overflow:hidden;box-shadow:0 12px 28px rgba(15,23,42,.08)}
+
+.wpbb-form-steps{display:flex;gap:.5rem;flex-wrap:wrap}
+.wpbb-form-step-pill{border:1px solid #cbd5e1;background:#fff;border-radius:999px;padding:.4rem .8rem;font-weight:600}
+.wpbb-form-step-pill.is-active{background:var(--wpbb-button-bg);border-color:var(--wpbb-button-bg);color:var(--wpbb-button-text)}
+.wpbb-form-step-panel{display:none}
+.wpbb-form-step-panel.is-active{display:block}
+.wpbb-file-drop{position:relative;border:2px dashed #cbd5e1;border-radius:1rem;padding:1rem;background:#fff;cursor:pointer}
+.wpbb-file-drop.is-drag{border-color:var(--wpbb-button-bg);background:#eff6ff}
+.wpbb-file-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.wpbb-file-drop__label{font-weight:600;color:#334155}
+.wpbb-file-drop__meta{font-size:.875rem;color:#64748b;margin-top:.35rem}
+.wpbb-choice-group{display:grid;gap:.5rem}
+.wpbb-choice-item{display:flex;gap:.5rem;align-items:center;padding:.65rem .75rem;border:1px solid #dbe2ea;border-radius:.85rem;background:#fff}
+.wpbb-signature__canvas{width:100%;height:220px;border:1px solid #dbe2ea;border-radius:1rem;background:#fff;display:block}
+.wpbb-dynamic-form .is-invalid{border-color:#dc2626!important;box-shadow:0 0 0 .2rem rgba(220,38,38,.12)!important}
+
+.wpbb-booking{border-radius:24px;background:#fff;}.wpbb-booking__chips{display:flex;flex-wrap:wrap;gap:.5rem}.wpbb-booking__chip{display:inline-flex;padding:.4rem .7rem;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:.85rem;font-weight:600}.wpbb-booking .form-control{border-radius:14px}.wpbb-booking .btn{border-radius:14px}.wpbb-booking .text-secondary{color:#64748b!important}.wp-theme-dark-mode .wpbb-booking{background:#0f172a;color:#fff;border:1px solid rgba(255,255,255,.08)}.wp-theme-dark-mode .wpbb-booking .form-control{background:#111827;color:#fff;border-color:#334155}.wp-theme-dark-mode .wpbb-booking__chip{background:#1e293b;color:#bfdbfe}

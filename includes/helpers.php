@@ -11,7 +11,7 @@ function wpbb_defaults() {
             'weather' => 1,'varda-dienas' => 1,'ajax-search' => 1,'pricecards' => 1,'catalogue' => 1,
             'code-display' => 1,'countdown-timer' => 1,'chart' => 1,'fun-fact' => 1,'mailchimp' => 1,'bootstrap-div' => 1,
             'feature-list' => 1,'timeline' => 1,'custom-embed' => 1,'ai-content' => 1,'login-register' => 1,
-            'load-more' => 1,'contact-links' => 1,'events' => 1,'testimonials' => 1,'blog-filter' => 1,
+            'load-more' => 1,'contact-links' => 1,'events' => 1,'testimonials' => 1,'blog-filter' => 1,'booking-calendar' => 1,
         ],
         'disable_core_group' => 1,'disable_core_columns' => 1,'disable_core_column' => 1,
         'disable_core_table' => 1,'disable_core_embed' => 0,'disable_core_gallery' => 0,
@@ -67,7 +67,7 @@ function wpbb_is_block_enabled($slug) {
     return array_key_exists($slug, $enabled) ? !empty($enabled[$slug]) : $default_enabled;
 }
 function wpbb_get_blocks_list() {
-    return ['accordion','accordion-item','alert','badge','breadcrumb','button','card','cards','column','cta-card','cta-section','dynamic-form','google-map','list-group','menu-option','navbar','progress','row','section','sitemap','soc-follow-block','soc-share','spinner','tab-item','table','tabs','video','file','inline-svg','swiper','weather','varda-dienas','ajax-search','pricecards','catalogue','code-display','countdown-timer','chart','fun-fact','mailchimp','bootstrap-div','feature-list','timeline','custom-embed','ai-content','login-register','load-more','contact-links','events','testimonials','blog-filter'];
+    return ['accordion','accordion-item','alert','badge','breadcrumb','button','card','cards','column','cta-card','cta-section','dynamic-form','google-map','list-group','menu-option','navbar','progress','row','section','sitemap','soc-follow-block','soc-share','spinner','tab-item','table','tabs','video','file','inline-svg','swiper','weather','varda-dienas','ajax-search','pricecards','catalogue','code-display','countdown-timer','chart','fun-fact','mailchimp','bootstrap-div','feature-list','timeline','custom-embed','ai-content','login-register','load-more','contact-links','events','testimonials','blog-filter','booking-calendar'];
 }
 function wpbb_get_acf_blocks_list() { return ['wpbb-hero','wpbb-gallery']; }
 function wpbb_parse_fields_json($json) {

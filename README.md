@@ -75,7 +75,7 @@ wp-bbuilder/
 - **Sitemap** — Visual sitemap/navigation helper block.
 
 ### Forms and integrations
-- **Dynamic Form** — Flexible contact and lead form builder with validation support.
+- **Dynamic Form** — Flexible contact and lead form builder with validation, drag-and-drop file upload, signature, multi-step flow, conditional logic, and PDF summary support.
 - **MailChimp** — Newsletter signup form with MailChimp action URL support.
 - **Login / Register** — WordPress login and registration UI block.
 - **Ajax Search** — AJAX-powered live search block with configurable search modes.
@@ -242,3 +242,13 @@ Column block supports Bootstrap responsive widths directly in the editor:
 - Wide desktop: `col-xxl-*`
 
 Example output: `col-12 col-md-6 col-lg-4`.
+
+
+## Polylang and multilingual themes
+
+WP BBuilder works with Polylang-ready themes and translated pages. In the companion demo theme, multilingual menus can be assigned per language while block content remains editable on each translated page.
+
+
+## Booking
+- Demo import now creates a Booking page.
+- Booking requests are stored in admin and shown in Theme Settings > Booking Dashboard.

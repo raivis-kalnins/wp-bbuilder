@@ -855,6 +855,7 @@
       cls = cls.concat(wpbbClassArray(props.attributes.orderClass || ''));
       cls = cls.concat(wpbbClassArray(props.attributes.verticalAlign || ''));
       cls = cls.concat(wpbbClassArray(props.attributes.horizontalAlign || ''));
+      if (props.attributes.verticalAlign || props.attributes.horizontalAlign) { cls.push('d-flex'); cls.push('flex-column'); }
       cls = cls.concat(wpbbClassArray(props.attributes.visibilityClass || ''));
       cls = cls.concat(wpbbClassArray(props.attributes.animationClass || ''));
       cls = cls.concat(wpbbClassArray(props.attributes.bootstrapClasses || ''));
@@ -959,19 +960,25 @@
             el('code', { key: 'c' }, responsiveClassSummary() || 'col-12')
           ])
         ]),
-        el(SelectControl, { key: 'verticalAlign', label: 'Vertical align', value: props.attributes.verticalAlign || '', options: [
-          { label: 'Default', value: '' },
-          { label: 'Start', value: 'align-self-start' },
-          { label: 'Center', value: 'align-self-center' },
-          { label: 'End', value: 'align-self-end' },
-          { label: 'Stretch', value: 'align-self-stretch' }
-        ], onChange: function (v) { props.setAttributes({ verticalAlign: v }); } }),
-        el(SelectControl, { key: 'horizontalAlign', label: 'Horizontal align', value: props.attributes.horizontalAlign || '', options: [
-          { label: 'Default', value: '' },
-          { label: 'Auto left', value: 'me-auto' },
-          { label: 'Center', value: 'mx-auto' },
-          { label: 'Auto right', value: 'ms-auto' }
-        ], onChange: function (v) { props.setAttributes({ horizontalAlign: v }); } }),
+        el(PanelBody, { title: 'Alignment', initialOpen: false }, [
+          el(SelectControl, { key: 'verticalAlign', label: 'Vertical align', value: props.attributes.verticalAlign || '', options: [
+            { label: 'Default', value: '' },
+            { label: 'Top', value: 'justify-content-start' },
+            { label: 'Center', value: 'justify-content-center' },
+            { label: 'Bottom', value: 'justify-content-end' },
+            { label: 'Between', value: 'justify-content-between' },
+            { label: 'Around', value: 'justify-content-around' },
+            { label: 'Evenly', value: 'justify-content-evenly' }
+          ], onChange: function (v) { props.setAttributes({ verticalAlign: v }); } }),
+          el(SelectControl, { key: 'horizontalAlign', label: 'Horizontal align', value: props.attributes.horizontalAlign || '', options: [
+            { label: 'Default', value: '' },
+            { label: 'Start', value: 'align-items-start text-start' },
+            { label: 'Center', value: 'align-items-center text-center' },
+            { label: 'End', value: 'align-items-end text-end' },
+            { label: 'Stretch', value: 'align-items-stretch' },
+            { label: 'Around', value: 'wpbb-align-horizontal-around' }
+          ], onChange: function (v) { props.setAttributes({ horizontalAlign: v }); } })
+        ]),
         el(PanelBody, { title: 'Spacing', initialOpen: false }, [wpbbResponsiveSpacingGroup(props, 'padding', 'Padding'), wpbbResponsiveSpacingGroup(props, 'margin', 'Margin')]),
         el(PanelBody, { title: 'Classes', initialOpen: false }, [wpbbBootstrapClassSelector(props, 'column'), wpbbCustomClassField(props, 'columnCustomClasses')]),
         el(PanelBody, { title: 'Layout', initialOpen: false }, [el(TextControl, { key: 'uniqueId', label: 'Unique ID', value: props.attributes.uniqueId || '', onChange: function (v) { props.setAttributes({ uniqueId: v }); } }), wpbbValueWithUnitField(props, 'maxWidth', 'maxWidthUnit', 'Max width'), el(SelectControl, { key: 'boxShadowClass', label: 'Box shadow', value: props.attributes.boxShadowClass || '', options: wpbbShadowOptions(), onChange: function (v) { props.setAttributes({ boxShadowClass: v }); } }), colorInput('Box shadow color', props.attributes.boxShadowColor || '', function (v) { props.setAttributes({ boxShadowColor: v }); }, 'column-shadow-color')])
@@ -1255,17 +1262,19 @@
       stylePreset:{type:'string',default:'default'},
       labelPosition:{type:'string',default:'top'},
       gap:{type:'number',default:2},
+      enableSteps:{type:'boolean',default:false},
+      enableConditional:{type:'boolean',default:false},
       fieldsJson:{type:'string',default:''}
     },
     edit:function(props){
       var fields = [];
       try { fields = JSON.parse(props.attributes.fieldsJson || '[]'); } catch(e) { fields = []; }
       if (!fields.length) fields = [
-        { type:'text', name:'name', label:'Name', required:true, width:6, placeholder:'', options:'' },
-        { type:'email', name:'email', label:'Email', required:true, width:6, placeholder:'', options:'' },
-        { type:'phone', name:'phone', label:'Phone', required:false, width:6, placeholder:'', options:'' },
-        { type:'select', name:'language', label:'Language', required:false, width:6, placeholder:'Select language', options:'English\nLatvian\nRussian' },
-        { type:'textarea', name:'message', label:'Message', required:true, width:12, placeholder:'', options:'' }
+        { type:'text', name:'name', label:'Name', required:true, width:6, placeholder:'', options:'', accept:'', conditionalField:'', conditionalValue:'', step:1 },
+        { type:'email', name:'email', label:'Email', required:true, width:6, placeholder:'', options:'', accept:'', conditionalField:'', conditionalValue:'', step:1 },
+        { type:'phone', name:'phone', label:'Phone', required:false, width:6, placeholder:'', options:'', accept:'', conditionalField:'', conditionalValue:'', step:1 },
+        { type:'select', name:'language', label:'Language', required:false, width:6, placeholder:'Select language', options:'English\nLatvian\nRussian', accept:'', conditionalField:'', conditionalValue:'', step:1 },
+        { type:'textarea', name:'message', label:'Message', required:true, width:12, placeholder:'', options:'', accept:'', conditionalField:'', conditionalValue:'', step:1 }
       ];
       function saveFields(next){ props.setAttributes({ fieldsJson: JSON.stringify(next) }); }
       function updateField(index, key, value){
@@ -1275,7 +1284,7 @@
       }
       function addField(){
         var next = fields.slice();
-        next.push({ type:'text', name:'field_' + (fields.length + 1), label:'New field', required:false, width:6, placeholder:'', options:'' });
+        next.push({ type:'text', name:'field_' + (fields.length + 1), label:'New field', required:false, width:6, placeholder:'', options:'', accept:'', conditionalField:'', conditionalValue:'', step:1 });
         saveFields(next);
       }
       function removeField(index){
@@ -1295,16 +1304,22 @@
           el(SelectControl, { key:'stylePreset', label:'Style preset', value:props.attributes.stylePreset, options:[{label:'Default',value:'default'},{label:'Soft',value:'soft'},{label:'Outline',value:'outline'}], onChange:function(v){ props.setAttributes({stylePreset:v}); } }),
           el(SelectControl, { key:'labelPosition', label:'Label position', value:props.attributes.labelPosition, options:[{label:'Top',value:'top'},{label:'Left',value:'left'},{label:'Hidden',value:'hidden'}], onChange:function(v){ props.setAttributes({labelPosition:v}); } }),
           el(RangeControl, { key:'gap', label:'Gap', value:props.attributes.gap || 2, min:0, max:5, onChange:function(v){ props.setAttributes({gap:v||0}); } }),
-          el(ToggleControl, { key:'showTitle', label:'Show title', checked: !!props.attributes.showTitle, onChange:function(v){ props.setAttributes({showTitle:v}); } })
+          el(ToggleControl, { key:'showTitle', label:'Show title', checked: !!props.attributes.showTitle, onChange:function(v){ props.setAttributes({showTitle:v}); } }),
+          el(ToggleControl, { key:'enableSteps', label:'Enable multi-step form', checked: !!props.attributes.enableSteps, onChange:function(v){ props.setAttributes({enableSteps:v}); } }),
+          el(ToggleControl, { key:'enableConditional', label:'Enable conditional fields', checked: !!props.attributes.enableConditional, onChange:function(v){ props.setAttributes({enableConditional:v}); } })
         ].concat(fields.map(function(field, index){
           return el('div', { key:'field_' + index, className:'wpbb-mini-card' }, [
             el(TextControl, { key:'label', label:'Label', value:field.label || '', onChange:function(v){ updateField(index,'label',v); } }),
             el(TextControl, { key:'name', label:'Name', value:field.name || '', onChange:function(v){ updateField(index,'name',v); } }),
-            el(SelectControl, { key:'type', label:'Type', value:field.type || 'text', options:[{label:'Description',value:'text'},{label:'Email',value:'email'},{label:'Phone',value:'phone'},{label:'Select',value:'select'},{label:'Textarea',value:'textarea'}], onChange:function(v){ updateField(index,'type',v); } }),
+            el(SelectControl, { key:'type', label:'Type', value:field.type || 'text', options:[{label:'Text',value:'text'},{label:'Email',value:'email'},{label:'Phone',value:'phone'},{label:'Number',value:'number'},{label:'Date',value:'date'},{label:'Select',value:'select'},{label:'Radio',value:'radio'},{label:'Checkbox',value:'checkbox'},{label:'Textarea',value:'textarea'},{label:'File upload',value:'file'},{label:'Signature',value:'signature'},{label:'Step break',value:'step'}], onChange:function(v){ updateField(index,'type',v); } }),
             el(TextControl, { key:'placeholder', label:'Placeholder', value:field.placeholder || '', onChange:function(v){ updateField(index,'placeholder',v); } }),
-            field.type === 'select' ? el(TextareaControl, { key:'options', label:'Options (one per line)', value:field.options || '', onChange:function(v){ updateField(index,'options',v); } }) : null,
-            el(RangeControl, { key:'width', label:'Width /12', value:field.width || 6, min:1, max:12, onChange:function(v){ updateField(index,'width',v || 6); } }),
-            el(ToggleControl, { key:'required', label:'Required', checked:!!field.required, onChange:function(v){ updateField(index,'required',v); } }),
+            (field.type === 'select' || field.type === 'radio' || field.type === 'checkbox') ? el(TextareaControl, { key:'options', label:'Options (one per line)', value:field.options || '', onChange:function(v){ updateField(index,'options',v); } }) : null,
+            field.type === 'file' ? el(TextControl, { key:'accept', label:'Accepted file types', value:field.accept || '', onChange:function(v){ updateField(index,'accept',v); } }) : null,
+            props.attributes.enableSteps ? el(RangeControl, { key:'step', label:'Step', value:field.step || 1, min:1, max:6, onChange:function(v){ updateField(index,'step',v || 1); } }) : null,
+            props.attributes.enableConditional ? el(TextControl, { key:'conditionalField', label:'Show only when field', value:field.conditionalField || '', onChange:function(v){ updateField(index,'conditionalField',v); } }) : null,
+            props.attributes.enableConditional ? el(TextControl, { key:'conditionalValue', label:'Matches value', value:field.conditionalValue || '', onChange:function(v){ updateField(index,'conditionalValue',v); } }) : null,
+            field.type !== 'step' ? el(RangeControl, { key:'width', label:'Width /12', value:field.width || 6, min:1, max:12, onChange:function(v){ updateField(index,'width',v || 6); } }) : null,
+            field.type !== 'step' ? el(ToggleControl, { key:'required', label:'Required', checked:!!field.required, onChange:function(v){ updateField(index,'required',v); } }) : null,
             el(Button, { key:'remove', variant:'secondary', onClick:function(){ removeField(index); } }, 'Remove field')
           ]);
         })).concat([el(Button, { key:'add', variant:'secondary', onClick:addField }, 'Add field')]))),
@@ -1313,10 +1328,16 @@
           props.attributes.showTitle !== false ? el('strong', {}, props.attributes.formTitle) : null,
           el('div', { className:'wpbb-form-preview-grid' },
             fields.map(function(field, index){
+              if (field.type === 'step') {
+                return el('div', { key:index, className:'wpbb-form-preview-field is-step', style:{ gridColumn:'1 / -1' } }, [
+                  el('div', { key:'l', className:'wpbb-form-preview-field__label' }, 'Step break'),
+                  el('div', { key:'m', className:'wpbb-form-preview-meta' }, (field.label || 'Step') + ' | step ' + (field.step || 1))
+                ]);
+              }
               return el('div', { key:index, className:'wpbb-form-preview-field', style:{ gridColumn:'span ' + (field.width || 6) } }, [
                 el('div', { key:'l', className:'wpbb-form-preview-field__label' }, field.label || field.name),
-                el('div', { key:'i', className:'wpbb-form-preview-field__input' + (field.type === 'textarea' ? ' is-textarea' : '') }),
-                el('div', { key:'m', className:'wpbb-form-preview-meta' }, (field.type || 'text') + ' | col ' + (field.width || 6) + (field.required ? ' | required' : ''))
+                el('div', { key:'i', className:'wpbb-form-preview-field__input' + (field.type === 'textarea' ? ' is-textarea' : '') + (field.type === 'signature' ? ' is-signature' : '') }),
+                el('div', { key:'m', className:'wpbb-form-preview-meta' }, (field.type || 'text') + ' | col ' + (field.width || 6) + (field.required ? ' | required' : '') + ((field.conditionalField && props.attributes.enableConditional) ? (' | if ' + field.conditionalField + '=' + (field.conditionalValue || '')) : ''))
               ]);
             })
           )

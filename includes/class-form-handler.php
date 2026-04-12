@@ -33,10 +33,24 @@ final class WPBB_Form_Handler {
             $value = sanitize_textarea_field($field['value'] ?? '');
             $lines[] = $label . ': ' . $value;
         }
+
+        $attachments = [];
+        if (!empty($_FILES)) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            foreach ($_FILES as $key => $file) {
+                if (empty($file['name'])) continue;
+                $uploaded = wp_handle_upload($file, ['test_form' => false]);
+                if (!empty($uploaded['file'])) {
+                    $attachments[] = $uploaded['file'];
+                    $lines[] = sanitize_text_field($key) . ': ' . esc_url_raw($uploaded['url'] ?? '');
+                }
+            }
+        }
+
         $message = implode("\n", $lines);
 
         if ($recipient) {
-            wp_mail($recipient, $subject, $message);
+            wp_mail($recipient, $subject, $message, [], $attachments);
         }
 
         if (wpbb_get_option('save_entries', 1)) {
@@ -47,6 +61,7 @@ final class WPBB_Form_Handler {
                 'meta_input' => [
                     '_wpbb_fields' => $fields,
                     '_wpbb_settings' => $settings,
+                    '_wpbb_attachments' => $attachments,
                 ],
             ]);
         }

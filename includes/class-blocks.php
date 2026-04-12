@@ -24,6 +24,8 @@ final class WPBB_Blocks {
         add_action('wp_ajax_nopriv_wpbb_load_more', [$this, 'ajax_load_more']);
         add_action('wp_ajax_wpbb_blog_filter', [$this, 'ajax_blog_filter']);
         add_action('wp_ajax_nopriv_wpbb_blog_filter', [$this, 'ajax_blog_filter']);
+        add_action('wp_ajax_wpbb_submit_booking', [$this, 'ajax_submit_booking']);
+        add_action('wp_ajax_nopriv_wpbb_submit_booking', [$this, 'ajax_submit_booking']);
         add_action('rest_api_init', [$this, 'register_rest_routes']);
     }
 
@@ -37,6 +39,16 @@ final class WPBB_Blocks {
             'show_ui' => false,
             'show_in_menu' => false,
             'menu_icon' => 'dashicons-feedback',
+            'supports' => ['title', 'custom-fields'],
+        ]);
+        register_post_type('wpbb_booking', [
+            'labels' => [
+                'name' => __('Bookings', 'wp-bbuilder'),
+                'singular_name' => __('Booking', 'wp-bbuilder'),
+            ],
+            'public' => false,
+            'show_ui' => true,
+            'show_in_menu' => false,
             'supports' => ['title', 'custom-fields'],
         ]);
     }
@@ -332,6 +344,13 @@ public function register_assets() {
             'error' => wpbb_get_option('default_error_message', __('Something went wrong. Please try again.', 'wp-bbuilder')),
             'validationText' => wpbb_get_option('default_validation_text', __('Please fill in all required fields correctly.', 'wp-bbuilder')),
         ]);
+        wp_register_script('wpbb-booking', WPBB_PLUGIN_URL . 'assets/booking-calendar.js', [], WPBB_VERSION, true);
+        wp_localize_script('wpbb-booking', 'wpbbBooking', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('wpbb_booking_nonce'),
+            'success' => __('Booking request sent successfully.', 'wp-bbuilder'),
+            'error' => __('Unable to submit booking. Please try another date.', 'wp-bbuilder'),
+        ]);
         wp_register_style('wpbb-shared', WPBB_PLUGIN_URL . 'assets/shared.css', [], WPBB_VERSION);
         wp_register_style('wpbb-editor-style', WPBB_PLUGIN_URL . 'assets/editor.css', ['wpbb-shared'], WPBB_VERSION);
         wp_register_style('wpbb-swiper', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css', [], '11.1.4');
@@ -457,6 +476,9 @@ public function register_assets() {
             } elseif ($slug === 'blog-filter') {
                 $args['script'] = 'wpbb-content-filters';
                 $args['render_callback'] = [$this, 'render_blog_filter_block'];
+            } elseif ($slug === 'booking-calendar') {
+                $args['script'] = 'wpbb-booking';
+                $args['render_callback'] = [$this, 'render_booking_calendar_block'];
             } else {
                 $args['render_callback'] = [$this, 'render_generic_block'];
             }
@@ -491,7 +513,7 @@ public function register_assets() {
             'file' => 'media-document',
             'inline-svg' => 'format-image',
             'tab-item' => 'editor-table',
-            'load-more' => 'plus-alt2','contact-links' => 'phone','events' => 'calendar-alt','testimonials' => 'format-quote','blog-filter' => 'filter',
+            'load-more' => 'plus-alt2','contact-links' => 'phone','events' => 'calendar-alt','testimonials' => 'format-quote','blog-filter' => 'filter','booking-calendar' => 'calendar-alt',
             'tabs' => 'index-card',
             'table' => 'table-col-after',
             'swiper' => 'images-alt2','weather' => 'cloud','varda-dienas' => 'calendar-alt','ajax-search' => 'search','pricecards' => 'index-card','catalogue' => 'screenoptions','code-display' => 'editor-code','countdown-timer' => 'clock','chart' => 'chart-bar','fun-fact' => 'star-filled','mailchimp' => 'email','bootstrap-div' => 'screenoptions',
@@ -666,6 +688,15 @@ public function register_assets() {
                     'buttonColor' => ['type' => 'string', 'default' => '#2563eb'],
                 ];
 
+
+            case 'booking-calendar':
+                return [
+                    'title' => ['type' => 'string', 'default' => 'Book a date'],
+                    'intro' => ['type' => 'string', 'default' => 'Choose an available day and send your booking request.'],
+                    'successMessage' => ['type' => 'string', 'default' => 'Thanks, your booking request has been received.'],
+                    'adminEmail' => ['type' => 'string', 'default' => get_option('admin_email')],
+                    'className' => ['type' => 'string', 'default' => ''],
+                ];
 case 'alert':
     return [
         'text' => ['type' => 'string', 'default' => 'Heads up! This is a fast, accessible alert block.'],
@@ -1706,18 +1737,29 @@ public function render_spinner_block($attributes, $content, $block) {
         $style = sanitize_html_class($attributes['stylePreset'] ?? 'default');
         $label_pos = sanitize_html_class($attributes['labelPosition'] ?? 'top');
         $gap = max(0, intval($attributes['gap'] ?? 3));
+        $enable_steps = !empty($attributes['enableSteps']);
+        $enable_conditional = !empty($attributes['enableConditional']);
         $fields = wpbb_parse_fields_json($attributes['fieldsJson'] ?? '');
         $hcaptcha_site_key = wpbb_get_option('hcaptcha_site_key', '');
         $recaptcha_site_key = wpbb_get_option('recaptcha_site_key', '');
 
         if (empty($fields)) {
             $fields = [
-                ['type' => 'text', 'name' => 'name', 'label' => 'Name', 'required' => true, 'width' => 6, 'placeholder' => ''],
-                ['type' => 'email', 'name' => 'email', 'label' => 'Email', 'required' => true, 'width' => 6, 'placeholder' => ''],
-                ['type' => 'phone', 'name' => 'phone', 'label' => 'Phone', 'required' => false, 'width' => 6, 'placeholder' => ''],
-                ['type' => 'select', 'name' => 'language', 'label' => 'Language', 'required' => false, 'width' => 6, 'placeholder' => '', 'options' => "English\nLatvian\nRussian"],
-                ['type' => 'textarea', 'name' => 'message', 'label' => 'Message', 'required' => true, 'width' => 12, 'placeholder' => ''],
+                ['type' => 'text', 'name' => 'name', 'label' => 'Name', 'required' => true, 'width' => 6, 'placeholder' => '', 'step' => 1],
+                ['type' => 'email', 'name' => 'email', 'label' => 'Email', 'required' => true, 'width' => 6, 'placeholder' => '', 'step' => 1],
+                ['type' => 'phone', 'name' => 'phone', 'label' => 'Phone', 'required' => false, 'width' => 6, 'placeholder' => '', 'step' => 1],
+                ['type' => 'select', 'name' => 'language', 'label' => 'Language', 'required' => false, 'width' => 6, 'placeholder' => '', 'options' => "English
+Latvian
+Russian", 'step' => 1],
+                ['type' => 'textarea', 'name' => 'message', 'label' => 'Message', 'required' => true, 'width' => 12, 'placeholder' => '', 'step' => 1],
             ];
+        }
+
+        $step_total = 1;
+        if ($enable_steps) {
+            foreach ($fields as $field) {
+                $step_total = max($step_total, max(1, intval($field['step'] ?? 1)));
+            }
         }
 
         ob_start(); ?>
@@ -1725,66 +1767,101 @@ public function render_spinner_block($attributes, $content, $block) {
             <?php if (!empty($attributes['showTitle'])): ?>
                 <h3 class="wpbb-form-title"><?php echo $title; ?></h3>
             <?php endif; ?>
-            <form class="<?php echo $form_class; ?> wpbb-dynamic-form" data-recipient="<?php echo $recipient; ?>" data-subject="<?php echo $subject; ?>" data-success="<?php echo $success; ?>" data-validation="<?php echo $validation; ?>">
-                <div class="row g-<?php echo $gap; ?>">
-                    <?php foreach ($fields as $field):
-                        $type = sanitize_key($field['type'] ?? 'text');
-                        $name = sanitize_key($field['name'] ?? 'field');
-                        $label = esc_html($field['label'] ?? $name);
-                        $required = !empty($field['required']);
-                        $placeholder = esc_attr($field['placeholder'] ?? '');
-                        $width = max(1, min(12, intval($field['width'] ?? 6)));
-                        $input_id = 'wpbb-' . $name . '-' . wp_unique_id();
-                        $options = isset($field['options']) ? preg_split('/\r\n|\r|\n/', (string) $field['options']) : [];
-                    ?>
-                    <div class="col-12 col-md-<?php echo $width; ?>">
-                        <div class="wpbb-field wpbb-field--<?php echo esc_attr($type); ?>">
-                            <?php if ($label_pos !== 'hidden'): ?>
-                                <label class="form-label" for="<?php echo esc_attr($input_id); ?>"><?php echo $label; ?><?php echo $required ? ' *' : ''; ?></label>
-                            <?php endif; ?>
-
-                            <?php if ($type === 'textarea'): ?>
-                                <textarea id="<?php echo esc_attr($input_id); ?>" class="form-control" name="<?php echo esc_attr($name); ?>" placeholder="<?php echo $placeholder; ?>" rows="4" <?php echo $required ? 'required' : ''; ?>></textarea>
-
-                            <?php elseif ($type === 'select'): ?>
-                                <select id="<?php echo esc_attr($input_id); ?>" class="form-select" name="<?php echo esc_attr($name); ?>" <?php echo $required ? 'required' : ''; ?>>
-                                    <option value=""><?php echo esc_html($placeholder ?: __('Select option', 'wp-bbuilder')); ?></option>
-                                    <?php foreach ($options as $option):
-                                        $option = trim($option);
-                                        if ($option === '') continue; ?>
-                                        <option value="<?php echo esc_attr($option); ?>"><?php echo esc_html($option); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-
-                            <?php else: ?>
-                                <input id="<?php echo esc_attr($input_id); ?>" class="form-control" type="<?php echo esc_attr($type === 'email' ? 'email' : ($type === 'phone' ? 'tel' : 'text')); ?>" name="<?php echo esc_attr($name); ?>" placeholder="<?php echo $placeholder; ?>" <?php echo $required ? 'required' : ''; ?>>
-                            <?php endif; ?>
-                        </div>
+            <form class="<?php echo $form_class; ?> wpbb-dynamic-form" data-recipient="<?php echo $recipient; ?>" data-subject="<?php echo $subject; ?>" data-success="<?php echo $success; ?>" data-validation="<?php echo $validation; ?>" data-steps="<?php echo esc_attr($enable_steps ? '1' : '0'); ?>" data-conditional="<?php echo esc_attr($enable_conditional ? '1' : '0'); ?>" enctype="multipart/form-data">
+                <?php if ($enable_steps && $step_total > 1): ?>
+                    <div class="wpbb-form-steps mb-3" data-total="<?php echo esc_attr($step_total); ?>">
+                        <?php for ($i = 1; $i <= $step_total; $i++): ?>
+                            <button type="button" class="wpbb-form-step-pill<?php echo $i === 1 ? ' is-active' : ''; ?>" data-step-target="<?php echo esc_attr($i); ?>"><?php echo esc_html($i); ?></button>
+                        <?php endfor; ?>
                     </div>
-                    <?php endforeach; ?>
+                <?php endif; ?>
+                <?php for ($step = 1; $step <= $step_total; $step++): ?>
+                <div class="wpbb-form-step-panel<?php echo $step === 1 ? ' is-active' : ''; ?>" data-step="<?php echo esc_attr($step); ?>">
+                    <div class="row g-<?php echo $gap; ?>">
+                        <?php foreach ($fields as $field):
+                            $field_step = max(1, intval($field['step'] ?? 1));
+                            if ($field_step !== $step) continue;
+                            $type = sanitize_key($field['type'] ?? 'text');
+                            if ($type === 'step') continue;
+                            $name = sanitize_key($field['name'] ?? 'field');
+                            $label = esc_html($field['label'] ?? $name);
+                            $required = !empty($field['required']);
+                            $placeholder = esc_attr($field['placeholder'] ?? '');
+                            $width = max(1, min(12, intval($field['width'] ?? 6)));
+                            $input_id = 'wpbb-' . $name . '-' . wp_unique_id();
+                            $options = isset($field['options']) ? preg_split('/
+|
+|
+/', (string) $field['options']) : [];
+                            $accept = esc_attr($field['accept'] ?? '');
+                            $conditional_field = sanitize_key($field['conditionalField'] ?? '');
+                            $conditional_value = esc_attr($field['conditionalValue'] ?? '');
+                        ?>
+                        <div class="col-12 col-md-<?php echo $width; ?>"<?php echo ($enable_conditional && $conditional_field) ? ' data-conditional-field="' . esc_attr($conditional_field) . '" data-conditional-value="' . $conditional_value . '"' : ''; ?>>
+                            <div class="wpbb-field wpbb-field--<?php echo esc_attr($type); ?>">
+                                <?php if ($label_pos !== 'hidden'): ?>
+                                    <label class="form-label" for="<?php echo esc_attr($input_id); ?>"><?php echo $label; ?><?php echo $required ? ' *' : ''; ?></label>
+                                <?php endif; ?>
 
-                    <?php if ($hcaptcha_site_key || $recaptcha_site_key): ?>
-                    <div class="col-12">
-                        <div class="wpbb-field wpbb-field--captcha">
-                            <div class="wpbb-captcha-note">
-                                <?php
-                                if ($hcaptcha_site_key && $recaptcha_site_key) {
-                                    esc_html_e('hCaptcha and reCAPTCHA configured in admin settings.', 'wp-bbuilder');
-                                } elseif ($hcaptcha_site_key) {
-                                    esc_html_e('hCaptcha configured in admin settings.', 'wp-bbuilder');
-                                } else {
-                                    esc_html_e('reCAPTCHA configured in admin settings.', 'wp-bbuilder');
-                                }
-                                ?>
+                                <?php if ($type === 'textarea'): ?>
+                                    <textarea id="<?php echo esc_attr($input_id); ?>" class="form-control" name="<?php echo esc_attr($name); ?>" placeholder="<?php echo $placeholder; ?>" rows="4" <?php echo $required ? 'required' : ''; ?>></textarea>
+                                <?php elseif ($type === 'select'): ?>
+                                    <select id="<?php echo esc_attr($input_id); ?>" class="form-select" name="<?php echo esc_attr($name); ?>" <?php echo $required ? 'required' : ''; ?>>
+                                        <option value=""><?php echo esc_html($placeholder ?: __('Select option', 'wp-bbuilder')); ?></option>
+                                        <?php foreach ($options as $option): $option = trim($option); if ($option === '') continue; ?>
+                                            <option value="<?php echo esc_attr($option); ?>"><?php echo esc_html($option); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                <?php elseif ($type === 'radio' || $type === 'checkbox'): ?>
+                                    <div class="wpbb-choice-group">
+                                        <?php foreach ($options as $idx => $option): $option = trim($option); if ($option === '') continue; $choice_id = $input_id . '-' . $idx; ?>
+                                            <label class="wpbb-choice-item" for="<?php echo esc_attr($choice_id); ?>">
+                                                <input id="<?php echo esc_attr($choice_id); ?>" type="<?php echo esc_attr($type); ?>" name="<?php echo esc_attr($type === 'checkbox' ? $name . '[]' : $name); ?>" value="<?php echo esc_attr($option); ?>" <?php echo $required && $idx === 0 ? 'required' : ''; ?>>
+                                                <span><?php echo esc_html($option); ?></span>
+                                            </label>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php elseif ($type === 'file'): ?>
+                                    <div class="wpbb-file-drop" data-file-drop>
+                                        <input id="<?php echo esc_attr($input_id); ?>" class="form-control" type="file" name="<?php echo esc_attr($name); ?>" <?php echo $accept ? 'accept="' . $accept . '"' : ''; ?> <?php echo $required ? 'required' : ''; ?>>
+                                        <div class="wpbb-file-drop__label"><?php echo esc_html($placeholder ?: __('Drop file here or click to upload', 'wp-bbuilder')); ?></div>
+                                        <div class="wpbb-file-drop__meta"></div>
+                                    </div>
+                                <?php elseif ($type === 'signature'): ?>
+                                    <div class="wpbb-signature" data-signature-wrap>
+                                        <canvas class="wpbb-signature__canvas" width="600" height="220"></canvas>
+                                        <input id="<?php echo esc_attr($input_id); ?>" type="hidden" name="<?php echo esc_attr($name); ?>" <?php echo $required ? 'required' : ''; ?>>
+                                        <div class="wpbb-signature__actions mt-2 d-flex gap-2">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" data-signature-clear><?php esc_html_e('Clear', 'wp-bbuilder'); ?></button>
+                                        </div>
+                                    </div>
+                                <?php else: ?>
+                                    <input id="<?php echo esc_attr($input_id); ?>" class="form-control" type="<?php echo esc_attr($type === 'email' ? 'email' : ($type === 'phone' ? 'tel' : ($type === 'number' ? 'number' : ($type === 'date' ? 'date' : 'text')))); ?>" name="<?php echo esc_attr($name); ?>" placeholder="<?php echo $placeholder; ?>" <?php echo $required ? 'required' : ''; ?>>
+                                <?php endif; ?>
                             </div>
-                            <input type="hidden" name="wpbb_captcha_enabled" value="1">
                         </div>
+                        <?php endforeach; ?>
+
+                        <?php if ($step === $step_total && ($hcaptcha_site_key || $recaptcha_site_key)): ?>
+                        <div class="col-12">
+                            <div class="wpbb-field wpbb-field--captcha">
+                                <div class="wpbb-captcha-note"><?php echo esc_html(($hcaptcha_site_key && $recaptcha_site_key) ? __('hCaptcha and reCAPTCHA configured in admin settings.', 'wp-bbuilder') : ($hcaptcha_site_key ? __('hCaptcha configured in admin settings.', 'wp-bbuilder') : __('reCAPTCHA configured in admin settings.', 'wp-bbuilder'))); ?></div>
+                                <input type="hidden" name="wpbb_captcha_enabled" value="1">
+                            </div>
+                        </div>
+                        <?php endif; ?>
                     </div>
-                    <?php endif; ?>
                 </div>
+                <?php endfor; ?>
 
                 <div class="wpbb-form-message mt-3" aria-live="polite"></div>
-                <button type="submit" class="<?php echo $btn_class; ?> mt-3"><?php echo $submit_text; ?></button>
+                <div class="wpbb-form-actions mt-3 d-flex flex-wrap gap-2 align-items-center">
+                    <?php if ($enable_steps && $step_total > 1): ?>
+                        <button type="button" class="btn btn-outline-secondary wpbb-step-prev" hidden><?php esc_html_e('Back', 'wp-bbuilder'); ?></button>
+                        <button type="button" class="btn btn-outline-primary wpbb-step-next"><?php esc_html_e('Next', 'wp-bbuilder'); ?></button>
+                    <?php endif; ?>
+                    <button type="submit" class="<?php echo $btn_class; ?><?php echo ($enable_steps && $step_total > 1) ? ' wpbb-submit-final' : ''; ?> mt-0"<?php echo ($enable_steps && $step_total > 1) ? ' hidden' : ''; ?>><?php echo $submit_text; ?></button>
+                </div>
             </form>
         </div>
         <?php
@@ -2294,7 +2371,12 @@ public function enqueue_frontend_assets() {
             'id' => $uid
         ]);
 
-        $row_html = '<div ' . $row_wrapper . '>' . $content . '</div>';
+        $processed_content = $content;
+        if (is_string($processed_content) && $processed_content !== '') {
+            $processed_content = do_blocks($processed_content);
+            $processed_content = do_shortcode($processed_content);
+        }
+        $row_html = '<div ' . $row_wrapper . '>' . $processed_content . '</div>';
 
         if (!empty($attributes['containerClass'])) {
             $container_tokens = array_values(array_unique(array_filter($this->wpbb_class_tokens_from_value($attributes['containerClass']))));
@@ -2332,6 +2414,7 @@ public function enqueue_frontend_assets() {
             $classes = array_merge($classes, $this->wpbb_class_tokens_from_value($attributes[$k]));
         }
         $classes = array_merge($classes, $this->wpbb_collect_spacing_classes($attributes));
+        if (!empty($attributes['verticalAlign']) || !empty($attributes['horizontalAlign'])) { $classes[] = 'd-flex'; $classes[] = 'flex-column'; }
         $uid = !empty($attributes['uniqueId']) ? sanitize_html_class((string)$attributes['uniqueId']) : sanitize_html_class('wpbb-col-' . wp_unique_id());
         $style = $this->wpbb_build_spacing_inline($attributes);
         if (!empty($attributes['backgroundColor'])) $style .= 'background:' . preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', (string)$attributes['backgroundColor']) . ';';
@@ -2343,6 +2426,10 @@ public function enqueue_frontend_assets() {
         $scssTag = !empty($attributes['customScss']) ? $this->wpbb_capture_style_tag($this->wpbb_compile_scoped_scss('#' . $uid, (string)$attributes['customScss'])) : '';
         $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_values(array_unique(array_filter($classes)))), 'style' => $style, 'id' => $uid]);
         $inner = $content;
+        if (is_string($inner) && $inner !== '') {
+            $inner = do_blocks($inner);
+            $inner = do_shortcode($inner);
+        }
         if (!empty($attributes['containerClass'])) {
             $container_class = implode(' ', $this->wpbb_class_tokens_from_value($attributes['containerClass']));
             $inner = '<div class="' . esc_attr($container_class) . '">' . $content . '</div>';
@@ -2867,4 +2954,101 @@ public function enqueue_frontend_assets() {
         return $this->rest_get_varda_dienas($request);
     }
 
+
+
+    private function wpbb_get_booked_dates() {
+        $posts = get_posts([
+            'post_type' => 'wpbb_booking',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'fields' => 'ids',
+        ]);
+        $dates = [];
+        foreach ($posts as $post_id) {
+            $date = get_post_meta($post_id, 'booking_date', true);
+            if ($date) $dates[] = $date;
+        }
+        $dates = array_values(array_unique(array_filter($dates)));
+        sort($dates);
+        return $dates;
+    }
+
+    public function ajax_submit_booking() {
+        check_ajax_referer('wpbb_booking_nonce', 'nonce');
+        $date = sanitize_text_field(wp_unslash($_POST['date'] ?? ''));
+        $name = sanitize_text_field(wp_unslash($_POST['name'] ?? ''));
+        $email = sanitize_email(wp_unslash($_POST['email'] ?? ''));
+        $phone = sanitize_text_field(wp_unslash($_POST['phone'] ?? ''));
+        $notes = sanitize_textarea_field(wp_unslash($_POST['notes'] ?? ''));
+        if (!$date || !$name || !$email) {
+            wp_send_json_error(['message' => __('Please complete the required booking fields.', 'wp-bbuilder')], 400);
+        }
+        if (in_array($date, $this->wpbb_get_booked_dates(), true)) {
+            wp_send_json_error(['message' => __('That date is already booked.', 'wp-bbuilder')], 409);
+        }
+        $post_id = wp_insert_post([
+            'post_type' => 'wpbb_booking',
+            'post_status' => 'publish',
+            'post_title' => sprintf(__('Booking %s - %s', 'wp-bbuilder'), $date, $name),
+        ], true);
+        if (is_wp_error($post_id)) {
+            wp_send_json_error(['message' => $post_id->get_error_message()], 500);
+        }
+        update_post_meta($post_id, 'booking_date', $date);
+        update_post_meta($post_id, 'client_name', $name);
+        update_post_meta($post_id, 'client_email', $email);
+        update_post_meta($post_id, 'client_phone', $phone);
+        update_post_meta($post_id, 'client_notes', $notes);
+        wp_mail(get_option('admin_email'), sprintf(__('New booking request: %s', 'wp-bbuilder'), $date), sprintf("Date: %s
+Name: %s
+Email: %s
+Phone: %s
+
+%s", $date, $name, $email, $phone, $notes));
+        wp_send_json_success(['message' => __('Booking request received.', 'wp-bbuilder')]);
+    }
+
+    public function render_booking_calendar_block($attributes = [], $content = '', $block = null) {
+        $booked_dates = $this->wpbb_get_booked_dates();
+        $title = esc_html($attributes['title'] ?? __('Book a date', 'wp-bbuilder'));
+        $intro = esc_html($attributes['intro'] ?? __('Choose an available day and send your booking request.', 'wp-bbuilder'));
+        $success = esc_attr($attributes['successMessage'] ?? __('Thanks, your booking request has been received.', 'wp-bbuilder'));
+        $classes = trim('wpbb-booking card border-0 shadow-sm ' . ($attributes['className'] ?? ''));
+        wp_enqueue_script('wpbb-booking');
+        ob_start(); ?>
+        <div class="<?php echo esc_attr($classes); ?>" data-booked='<?php echo wp_json_encode($booked_dates); ?>' data-success="<?php echo $success; ?>">
+            <div class="card-body p-4 p-lg-5">
+                <div class="row g-4 align-items-start">
+                    <div class="col-12 col-lg-5">
+                        <span class="wp-theme-demo-kicker"><?php esc_html_e('Booking', 'wp-bbuilder'); ?></span>
+                        <h2 class="h3 mb-3"><?php echo $title; ?></h2>
+                        <p class="text-secondary mb-4"><?php echo $intro; ?></p>
+                        <div class="wpbb-booking__availability">
+                            <strong class="d-block mb-2"><?php esc_html_e('Booked days', 'wp-bbuilder'); ?></strong>
+                            <div class="wpbb-booking__chips">
+                                <?php if ($booked_dates) : foreach ($booked_dates as $date) : ?>
+                                    <span class="wpbb-booking__chip"><?php echo esc_html($date); ?></span>
+                                <?php endforeach; else : ?>
+                                    <span class="text-muted"><?php esc_html_e('No booked days yet.', 'wp-bbuilder'); ?></span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-7">
+                        <form class="wpbb-booking__form" novalidate>
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6"><label class="form-label"><?php esc_html_e('Date', 'wp-bbuilder'); ?> *</label><input type="date" name="date" class="form-control" required></div>
+                                <div class="col-12 col-md-6"><label class="form-label"><?php esc_html_e('Name', 'wp-bbuilder'); ?> *</label><input type="text" name="name" class="form-control" required></div>
+                                <div class="col-12 col-md-6"><label class="form-label"><?php esc_html_e('Email', 'wp-bbuilder'); ?> *</label><input type="email" name="email" class="form-control" required></div>
+                                <div class="col-12 col-md-6"><label class="form-label"><?php esc_html_e('Phone', 'wp-bbuilder'); ?></label><input type="text" name="phone" class="form-control"></div>
+                                <div class="col-12"><label class="form-label"><?php esc_html_e('Client information', 'wp-bbuilder'); ?></label><textarea name="notes" class="form-control" rows="4" placeholder="<?php esc_attr_e('Tell us about the booking, preferred time, and any details.', 'wp-bbuilder'); ?>"></textarea></div>
+                                <div class="col-12 d-flex align-items-center gap-3"><button type="submit" class="btn btn-primary"><?php esc_html_e('Send booking request', 'wp-bbuilder'); ?></button><div class="wpbb-booking__message small"></div></div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php return ob_get_clean();
+    }
 }
