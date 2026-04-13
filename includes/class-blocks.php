@@ -1531,20 +1531,43 @@ public function render_navbar_block($attributes, $content, $block) {
     WPBBuilder_Bootstrap::enqueue_js_if_needed();
     $brand = esc_html($attributes['brand'] ?? 'BBuilder');
     $brand_url = esc_url($attributes['brandUrl'] ?? '/');
-    $expand = sanitize_html_class($attributes['expand'] ?? 'lg');
+    $expand = sanitize_html_class($attributes['expand'] ?? 'xl');
     $scheme = sanitize_html_class($attributes['scheme'] ?? 'light');
     $bg = sanitize_html_class($attributes['bgClass'] ?? 'bg-light');
+    $selected_menu = trim((string) ($attributes['wpMenu'] ?? ''));
     $items = wpbb_parse_fields_json($attributes['itemsJson'] ?? '[]');
     $id = 'wpbb-navbar-' . wp_generate_password(6, false, false);
     $links = '';
-    foreach ($items as $item) {
-        $label = esc_html($item['label'] ?? 'Link');
-        $url = esc_url($item['url'] ?? '#');
-        $active = !empty($item['active']) ? ' active' : '';
-        $links .= '<li class="nav-item"><a class="nav-link' . $active . '" href="' . $url . '">' . $label . '</a></li>';
+
+    if ($selected_menu !== '') {
+        $menu = is_numeric($selected_menu) ? wp_get_nav_menu_object((int) $selected_menu) : wp_get_nav_menu_object($selected_menu);
+        if (!$menu && !is_numeric($selected_menu)) {
+            $menu = wp_get_nav_menu_object(sanitize_title($selected_menu));
+        }
+        if ($menu) {
+            $links = wp_nav_menu([
+                'menu' => $menu->term_id,
+                'container' => false,
+                'echo' => false,
+                'fallback_cb' => false,
+                'menu_class' => 'navbar-nav ms-auto mb-2 mb-xl-0',
+                'depth' => 2,
+            ]);
+        }
     }
+
+    if ($links === '') {
+        foreach ($items as $item) {
+            $label = esc_html($item['label'] ?? 'Link');
+            $url = esc_url($item['url'] ?? '#');
+            $active = !empty($item['active']) ? ' active' : '';
+            $links .= '<li class="nav-item"><a class="nav-link' . $active . '" href="' . $url . '">' . $label . '</a></li>';
+        }
+        $links = '<ul class="navbar-nav ms-auto mb-2 mb-xl-0">' . $links . '</ul>';
+    }
+
     $wrapper = get_block_wrapper_attributes(['class' => 'wpbb-navbar']);
-    return '<nav ' . $wrapper . '><div class="navbar navbar-expand-' . $expand . ' navbar-' . $scheme . ' ' . $bg . ' rounded-4 px-3 py-2"><div class="container-fluid p-0"><a class="navbar-brand" href="' . $brand_url . '">' . $brand . '</a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#' . esc_attr($id) . '" aria-controls="' . esc_attr($id) . '" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="' . esc_attr($id) . '"><ul class="navbar-nav ms-auto mb-2 mb-lg-0">' . $links . '</ul></div></div></div></nav>';
+    return '<nav ' . $wrapper . '><div class="navbar navbar-expand-' . $expand . ' navbar-' . $scheme . ' ' . $bg . ' rounded-4 px-3 py-2"><div class="container-fluid p-0"><a class="navbar-brand" href="' . $brand_url . '">' . $brand . '</a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#' . esc_attr($id) . '" aria-controls="' . esc_attr($id) . '" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="' . esc_attr($id) . '">' . $links . '</div></div></div></nav>';
 }
 
 public function render_progress_block($attributes, $content, $block) {
@@ -2084,7 +2107,7 @@ public function enqueue_frontend_assets() {
         foreach ($cards as $card) {
             $featured = !empty($card['featured']) ? ' wpbb-pricecards__featured' : '';
             $period = !empty($card['period']) ? '<span class="wpbb-pricecards-period">' . esc_html($card['period']) . '</span>' : '';
-            $html .= '<div class="col-md-6 col-lg-4"><div class="card h-100' . $featured . '"><div class="card-body"><h4 class="card-title">' . esc_html($card['title'] ?? '') . '</h4><div class="wpbb-pricecards-price">' . $currency . esc_html($card['price'] ?? '') . $period . '</div><div class="card-text">' . esc_html($card['text'] ?? '') . '</div><a href="#" class="btn btn-primary">' . esc_html($card['button'] ?? 'Izvēlēties') . '</a></div></div></div>';
+            $html .= '<div class="col-12 col-lg-4"><div class="card h-100' . $featured . '"><div class="card-body"><h4 class="card-title">' . esc_html($card['title'] ?? '') . '</h4><div class="wpbb-pricecards-price">' . $currency . esc_html($card['price'] ?? '') . $period . '</div><div class="card-text">' . esc_html($card['text'] ?? '') . '</div><a href="#" class="btn btn-primary">' . esc_html($card['button'] ?? 'Izvēlēties') . '</a></div></div></div>';
         }
         $html .= '</div></div>';
         return $html;
@@ -2111,7 +2134,7 @@ public function enqueue_frontend_assets() {
             while ($q->have_posts()) {
                 $q->the_post();
                 $thumb = get_the_post_thumbnail_url(get_the_ID(), 'medium');
-                $html .= '<div class="col-md-6 col-lg-4"><div class="card h-100 wpbb-catalogue-card">';
+                $html .= '<div class="col-12 col-lg-4"><div class="card h-100 wpbb-catalogue-card">';
                 if ($showImage && $thumb) $html .= '<img class="card-img-top" src="' . esc_url($thumb) . '" alt="">';
                 $html .= '<div class="card-body"><h4 class="card-title">' . esc_html(get_the_title()) . '</h4>';
                 if ($showExcerpt) $html .= '<div class="card-text">' . esc_html(wp_trim_words(get_the_excerpt() ?: wp_strip_all_tags(get_the_content()), 20)) . '</div>';
@@ -2600,10 +2623,10 @@ public function enqueue_frontend_assets() {
         return '<div ' . $wrapper . '>' .
             ($title ? '<h3>' . $title . '</h3>' : '') .
             '<div class="row g-3">' .
-                '<div class="' . esc_attr($show_register ? 'col-md-6' : 'col-12') . '">' .
+                '<div class="' . esc_attr($show_register ? 'col-12 col-lg-5' : 'col-12') . '">' .
                     '<div class="wpbb-auth-card p-3"><h4>' . esc_html__('Login', 'wp-bbuilder') . '</h4>' . $login_form . '</div>' .
                 '</div>' .
-                ($show_register ? '<div class="col-md-6">' . $register_html . '</div>' : '') .
+                ($show_register ? '<div class="col-12 col-lg-5">' . $register_html . '</div>' : '') .
             '</div>' .
         '</div>';
     }
@@ -2684,7 +2707,7 @@ public function enqueue_frontend_assets() {
     }
 
     private function wpbb_render_post_card($post_id, $item_class = '') {
-        $item_class = trim($item_class ?: 'col-md-4');
+        $item_class = trim($item_class ?: 'col-12 col-lg-4');
         $thumb = get_the_post_thumbnail($post_id, 'medium', ['class' => 'card-img-top']);
         $permalink = get_permalink($post_id);
         $title = get_the_title($post_id);
@@ -2704,7 +2727,7 @@ public function enqueue_frontend_assets() {
             $query_args['category_name'] = $category;
         }
         $query = new WP_Query($query_args);
-        $item_class = sanitize_text_field($_POST['itemClass'] ?? 'col-md-4');
+        $item_class = sanitize_text_field($_POST['itemClass'] ?? 'col-12 col-lg-4');
         $html = '';
         if ($query->have_posts()) {
             while ($query->have_posts()) { $query->the_post(); $html .= $this->wpbb_render_post_card(get_the_ID(), $item_class); }
@@ -2737,7 +2760,7 @@ public function enqueue_frontend_assets() {
         $query = new WP_Query($args);
         $html = '<div class="row g-4">';
         if ($query->have_posts()) {
-            while ($query->have_posts()) { $query->the_post(); $html .= $this->wpbb_render_post_card(get_the_ID(), 'col-md-6 col-lg-4'); }
+            while ($query->have_posts()) { $query->the_post(); $html .= $this->wpbb_render_post_card(get_the_ID(), 'col-12 col-lg-4'); }
             wp_reset_postdata();
         } else {
             $html .= '<div class="col-12"><p>No posts found.</p></div>';
@@ -2753,7 +2776,7 @@ public function enqueue_frontend_assets() {
         $visible = max(1, intval($attributes['visibleItems'] ?? 6));
         $load = max(1, intval($attributes['loadItems'] ?? 3));
         $parent_class = trim((string)($attributes['parentClass'] ?? 'row'));
-        $item_class = trim((string)($attributes['itemClass'] ?? 'col-md-4'));
+        $item_class = trim((string)($attributes['itemClass'] ?? 'col-12 col-lg-4'));
         $button_class = trim((string)($attributes['buttonClass'] ?? 'btn btn-primary'));
         $button_text_raw = trim((string)($attributes['buttonText'] ?? 'Load more'));
         $button_text = esc_html($button_text_raw !== '' ? $button_text_raw : 'Load more');
@@ -2813,7 +2836,7 @@ public function enqueue_frontend_assets() {
         }
         $html .= '<div class="row g-4">';
         if ($query->have_posts()) {
-            while ($query->have_posts()) { $query->the_post(); $event_date = get_post_meta(get_the_ID(), 'event_date', true); $display_date = $event_date ? date_i18n(get_option('date_format'), strtotime($event_date)) : get_the_date('', get_the_ID()); $html .= '<article class="col-md-6 col-lg-4"><div class="card h-100"><div class="card-body"><div class="text-muted small mb-2">' . esc_html($display_date) . '</div><h3 class="h5"><a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a></h3><p>' . esc_html(wp_trim_words(wp_strip_all_tags(get_the_excerpt() ?: get_the_content()), 20)) . '</p></div></div></article>'; }
+            while ($query->have_posts()) { $query->the_post(); $event_date = get_post_meta(get_the_ID(), 'event_date', true); $display_date = $event_date ? date_i18n(get_option('date_format'), strtotime($event_date)) : get_the_date('', get_the_ID()); $html .= '<article class="col-12 col-lg-4"><div class="card h-100"><div class="card-body"><div class="text-muted small mb-2">' . esc_html($display_date) . '</div><h3 class="h5"><a href="' . esc_url(get_permalink()) . '">' . esc_html(get_the_title()) . '</a></h3><p>' . esc_html(wp_trim_words(wp_strip_all_tags(get_the_excerpt() ?: get_the_content()), 20)) . '</p></div></div></article>'; }
             wp_reset_postdata();
         } else {
             $html .= '<div class="col-12"><p>No events found.</p></div>';
@@ -2862,7 +2885,7 @@ public function enqueue_frontend_assets() {
         $button_style = $button_color !== '' ? ' style="background:' . esc_attr(preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', $button_color)) . ';border-color:' . esc_attr(preg_replace('/[^#(),.% 0-9a-zA-Z-]/', '', $button_color)) . ';"' : '';
         $html .= '<div><button type="button" class="btn btn-primary" data-wpbb-blog-submit' . $button_style . '>' . esc_html($attributes['buttonText'] ?? 'Filter') . '</button></div></div>';
         $html .= '<div data-wpbb-blog-results data-post-type="' . esc_attr($post_type) . '" data-taxonomy="' . esc_attr($taxonomy) . '" data-per-page="' . esc_attr($posts_to_show) . '"><div class="row g-4">';
-        if ($query->have_posts()) { while ($query->have_posts()) { $query->the_post(); $html .= $this->wpbb_render_post_card(get_the_ID(), 'col-md-6 col-lg-4'); } wp_reset_postdata(); } else { $html .= '<div class="col-12"><p>No posts found.</p></div>'; }
+        if ($query->have_posts()) { while ($query->have_posts()) { $query->the_post(); $html .= $this->wpbb_render_post_card(get_the_ID(), 'col-12 col-lg-4'); } wp_reset_postdata(); } else { $html .= '<div class="col-12"><p>No posts found.</p></div>'; }
         $html .= '</div></div></div>';
         return $html;
     }
@@ -3037,10 +3060,10 @@ Phone: %s
                     <div class="col-12 col-lg-7">
                         <form class="wpbb-booking__form" novalidate>
                             <div class="row g-3">
-                                <div class="col-12 col-md-6"><label class="form-label"><?php esc_html_e('Date', 'wp-bbuilder'); ?> *</label><input type="date" name="date" class="form-control" required></div>
-                                <div class="col-12 col-md-6"><label class="form-label"><?php esc_html_e('Name', 'wp-bbuilder'); ?> *</label><input type="text" name="name" class="form-control" required></div>
-                                <div class="col-12 col-md-6"><label class="form-label"><?php esc_html_e('Email', 'wp-bbuilder'); ?> *</label><input type="email" name="email" class="form-control" required></div>
-                                <div class="col-12 col-md-6"><label class="form-label"><?php esc_html_e('Phone', 'wp-bbuilder'); ?></label><input type="text" name="phone" class="form-control"></div>
+                                <div class="col-12 col-lg-4"><label class="form-label"><?php esc_html_e('Date', 'wp-bbuilder'); ?> *</label><input type="date" name="date" class="form-control" required></div>
+                                <div class="col-12 col-lg-4"><label class="form-label"><?php esc_html_e('Name', 'wp-bbuilder'); ?> *</label><input type="text" name="name" class="form-control" required></div>
+                                <div class="col-12 col-lg-4"><label class="form-label"><?php esc_html_e('Email', 'wp-bbuilder'); ?> *</label><input type="email" name="email" class="form-control" required></div>
+                                <div class="col-12 col-lg-4"><label class="form-label"><?php esc_html_e('Phone', 'wp-bbuilder'); ?></label><input type="text" name="phone" class="form-control"></div>
                                 <div class="col-12"><label class="form-label"><?php esc_html_e('Client information', 'wp-bbuilder'); ?></label><textarea name="notes" class="form-control" rows="4" placeholder="<?php esc_attr_e('Tell us about the booking, preferred time, and any details.', 'wp-bbuilder'); ?>"></textarea></div>
                                 <div class="col-12 d-flex align-items-center gap-3"><button type="submit" class="btn btn-primary"><?php esc_html_e('Send booking request', 'wp-bbuilder'); ?></button><div class="wpbb-booking__message small"></div></div>
                             </div>

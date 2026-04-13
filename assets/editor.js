@@ -337,7 +337,7 @@
     var colOptions = [
       'col', 'col-auto', 'col-1', 'col-2', 'col-3', 'col-4', 'col-5', 'col-6', 'col-7', 'col-8', 'col-9', 'col-10', 'col-11', 'col-12',
       'col-sm-auto', 'col-sm-1', 'col-sm-2', 'col-sm-3', 'col-sm-4', 'col-sm-5', 'col-sm-6', 'col-sm-7', 'col-sm-8', 'col-sm-9', 'col-sm-10', 'col-sm-11', 'col-sm-12',
-      'col-md-auto', 'col-md-1', 'col-md-2', 'col-md-3', 'col-md-4', 'col-md-5', 'col-md-6', 'col-md-7', 'col-md-8', 'col-md-9', 'col-md-10', 'col-md-11', 'col-md-12',
+      'col-md-auto', 'col-md-1', 'col-md-2', 'col-md-3', 'col-md-4', 'col-md-5', 'col-md-7', 'col-md-8', 'col-md-9', 'col-md-10', 'col-md-11', 'col-md-12',
       'col-lg-auto', 'col-lg-1', 'col-lg-2', 'col-lg-3', 'col-lg-4', 'col-lg-5', 'col-lg-6', 'col-lg-7', 'col-lg-8', 'col-lg-9', 'col-lg-10', 'col-lg-11', 'col-lg-12',
       'col-xl-auto', 'col-xl-1', 'col-xl-2', 'col-xl-3', 'col-xl-4', 'col-xl-5', 'col-xl-6', 'col-xl-7', 'col-xl-8', 'col-xl-9', 'col-xl-10', 'col-xl-11', 'col-xl-12',
       'col-xxl-auto', 'col-xxl-1', 'col-xxl-2', 'col-xxl-3', 'col-xxl-4', 'col-xxl-5', 'col-xxl-6', 'col-xxl-7', 'col-xxl-8', 'col-xxl-9', 'col-xxl-10', 'col-xxl-11', 'col-xxl-12',
@@ -1270,10 +1270,10 @@
       var fields = [];
       try { fields = JSON.parse(props.attributes.fieldsJson || '[]'); } catch(e) { fields = []; }
       if (!fields.length) fields = [
-        { type:'text', name:'name', label:'Name', required:true, width:6, placeholder:'', options:'', accept:'', conditionalField:'', conditionalValue:'', step:1 },
-        { type:'email', name:'email', label:'Email', required:true, width:6, placeholder:'', options:'', accept:'', conditionalField:'', conditionalValue:'', step:1 },
-        { type:'phone', name:'phone', label:'Phone', required:false, width:6, placeholder:'', options:'', accept:'', conditionalField:'', conditionalValue:'', step:1 },
-        { type:'select', name:'language', label:'Language', required:false, width:6, placeholder:'Select language', options:'English\nLatvian\nRussian', accept:'', conditionalField:'', conditionalValue:'', step:1 },
+        { type:'text', name:'name', label:'Name', required:true, width:4, placeholder:'', options:'', accept:'', conditionalField:'', conditionalValue:'', step:1 },
+        { type:'email', name:'email', label:'Email', required:true, width:4, placeholder:'', options:'', accept:'', conditionalField:'', conditionalValue:'', step:1 },
+        { type:'phone', name:'phone', label:'Phone', required:false, width:4, placeholder:'', options:'', accept:'', conditionalField:'', conditionalValue:'', step:1 },
+        { type:'select', name:'language', label:'Language', required:false, width:4, placeholder:'Select language', options:'English\nLatvian\nRussian', accept:'', conditionalField:'', conditionalValue:'', step:1 },
         { type:'textarea', name:'message', label:'Message', required:true, width:12, placeholder:'', options:'', accept:'', conditionalField:'', conditionalValue:'', step:1 }
       ];
       function saveFields(next){ props.setAttributes({ fieldsJson: JSON.stringify(next) }); }
@@ -1284,7 +1284,7 @@
       }
       function addField(){
         var next = fields.slice();
-        next.push({ type:'text', name:'field_' + (fields.length + 1), label:'New field', required:false, width:6, placeholder:'', options:'', accept:'', conditionalField:'', conditionalValue:'', step:1 });
+        next.push({ type:'text', name:'field_' + (fields.length + 1), label:'New field', required:false, width:4, placeholder:'', options:'', accept:'', conditionalField:'', conditionalValue:'', step:1 });
         saveFields(next);
       }
       function removeField(index){
@@ -1863,7 +1863,8 @@ registerBlockType('wpbb/navbar', {
   attributes:{
     brand:{type:'string',default:'BBuilder'},
     brandUrl:{type:'string',default:'/'},
-    expand:{type:'string',default:'lg'},
+    expand:{type:'string',default:'xl'},
+    wpMenu:{type:'string',default:''},
     scheme:{type:'string',default:'light'},
     bgClass:{type:'string',default:'bg-light'},
     itemsJson:{type:'string',default:'[{"label":"Home","url":"/","active":true},{"label":"Docs","url":"#"},{"label":"Pricing","url":"#"}]'}
@@ -1877,16 +1878,17 @@ registerBlockType('wpbb/navbar', {
         el(PanelBody,{title:'Navbar settings',initialOpen:true},[
           el(TextControl,{key:'brand',label:'Brand',value:props.attributes.brand||'',onChange:function(v){props.setAttributes({brand:v});}}),
           el(TextControl,{key:'brandUrl',label:'Brand URL',value:props.attributes.brandUrl||'/',onChange:function(v){props.setAttributes({brandUrl:v});}}),
-          el(SelectControl,{key:'expand',label:'Expand breakpoint',value:props.attributes.expand||'lg',options:[{label:'sm',value:'sm'},{label:'md',value:'md'},{label:'lg',value:'lg'},{label:'xl',value:'xl'}],onChange:function(v){props.setAttributes({expand:v});}}),
+          el(SelectControl,{key:'expand',label:'Expand breakpoint',value:props.attributes.expand||'xl',options:[{label:'sm',value:'sm'},{label:'md',value:'md'},{label:'lg',value:'lg'},{label:'xl',value:'xl'}],onChange:function(v){props.setAttributes({expand:v});}}),
+          el(TextControl,{key:'wpMenu',label:'WP menu slug or ID',help:'When set, the block renders that WordPress menu instead of the manual JSON list.',value:props.attributes.wpMenu||'',onChange:function(v){props.setAttributes({wpMenu:v});}}),
           el(SelectControl,{key:'scheme',label:'Color scheme',value:props.attributes.scheme||'light',options:[{label:'Light',value:'light'},{label:'Dark',value:'dark'}],onChange:function(v){props.setAttributes({scheme:v});}}),
           el(TextControl,{key:'bgClass',label:'Background class',value:props.attributes.bgClass||'bg-light',onChange:function(v){props.setAttributes({bgClass:v});}}),
           el(TextareaControl,{key:'items',label:'Items JSON',value:props.attributes.itemsJson||'',onChange:function(v){props.setAttributes({itemsJson:v});}})
         ])
       ),
-      el('div',useBlockProps({className:'navbar navbar-expand-' + (props.attributes.expand||'lg') + ' ' + (props.attributes.bgClass||'bg-light') + ' rounded-4 px-3 py-2'}),
+      el('div',useBlockProps({className:'navbar navbar-expand-' + (props.attributes.expand||'xl') + ' ' + (props.attributes.bgClass||'bg-light') + ' rounded-4 px-3 py-2'}),
         el('div',{className:'container-fluid p-0'}, [
           el('strong',{key:'brand',className:'navbar-brand m-0'}, props.attributes.brand||'BBuilder'),
-          el('ul',{key:'links',className:'navbar-nav ms-auto flex-row gap-3'},
+          props.attributes.wpMenu ? el('div',{key:'menuNotice',className:'small text-muted ms-auto'},'Using WordPress menu: ' + props.attributes.wpMenu) : el('ul',{key:'links',className:'navbar-nav ms-auto flex-row gap-3'},
             previewItems.map(function(item,index){
               return el('li',{key:index,className:'nav-item'}, el('span',{className:'nav-link' + (item.active ? ' active' : '')}, item.label || 'Link'));
             })
