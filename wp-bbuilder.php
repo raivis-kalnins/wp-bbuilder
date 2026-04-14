@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WP BBuilder
  * Description: Lightweight Bootstrap-oriented Gutenberg blocks optimized for Core Web Vitals and modular front-end loading.
- * Version: 5.0.6
+ * Version: 5.0.7
  * Author: Raivis Kalnins
  * Text Domain: wp-bbuilder
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('WPBB_VERSION', '5.0.6');
+define('WPBB_VERSION', '5.0.7');
 define('WPBB_PLUGIN_FILE', __FILE__);
 define('WPBB_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WPBB_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -24,6 +24,7 @@ require_once WPBB_PLUGIN_DIR . 'includes/class-form-handler.php';
 require_once WPBB_PLUGIN_DIR . 'includes/class-acf.php';
 require_once WPBB_PLUGIN_DIR . 'includes/class-whatsapp.php';
 require_once WPBB_PLUGIN_DIR . 'includes/class-cookie-consent.php';
+require_once WPBB_PLUGIN_DIR . 'includes/class-spellcheck.php';
 
 final class WP_BBuilder {
     private static $instance = null;
@@ -42,6 +43,7 @@ final class WP_BBuilder {
         WPBB_ACF::instance();
         WPBB_WhatsApp::instance();
         WPBB_Cookie_Consent::instance();
+        WPBB_Spellcheck::instance();
     }
 
     public function load_textdomain() {

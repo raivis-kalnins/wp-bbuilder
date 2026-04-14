@@ -1531,6 +1531,43 @@
     save:function(){ return null; }
   });
 
+
+  registerBlockType('wpbb/social-feeds', {
+    title:'Social Feeds', icon:'rss', category:'wpbb',
+    attributes:{ title:{type:'string',default:'Social feeds'}, intro:{type:'string',default:''}, layout:{type:'string',default:'grid'}, columns:{type:'number',default:2}, cardStyle:{type:'string',default:'card'}, showPlatformIcons:{type:'boolean',default:true}, openLinksInNewTab:{type:'boolean',default:true}, instagramEnabled:{type:'boolean',default:true}, instagramMethod:{type:'string',default:'shortcode'}, instagramSource:{type:'string',default:''}, instagramAcfField:{type:'string',default:''}, facebookEnabled:{type:'boolean',default:true}, facebookMethod:{type:'string',default:'shortcode'}, facebookSource:{type:'string',default:''}, facebookAcfField:{type:'string',default:''}, tiktokEnabled:{type:'boolean',default:true}, tiktokMethod:{type:'string',default:'embed'}, tiktokSource:{type:'string',default:''}, tiktokAcfField:{type:'string',default:''}, xEnabled:{type:'boolean',default:true}, xMethod:{type:'string',default:'shortcode'}, xSource:{type:'string',default:''}, xAcfField:{type:'string',default:''}, youtubeEnabled:{type:'boolean',default:true}, youtubeMethod:{type:'string',default:'embed'}, youtubeSource:{type:'string',default:''}, youtubeAcfField:{type:'string',default:''} },
+    edit:function(props){
+      function platformPanel(key,label,defaultMethod){
+        return el('div',{key:key,className:'wpbb-mini-card'},[
+          el(ToggleControl,{key:key+'Enabled',label:'Enable ' + label,checked:props.attributes[key+'Enabled']!==false,onChange:function(v){ var o={}; o[key+'Enabled']=v; props.setAttributes(o); }}),
+          el(SelectControl,{key:key+'Method',label:label + ' source type',value:props.attributes[key+'Method']||defaultMethod,options:[{label:'Shortcode',value:'shortcode'},{label:'Embed URL',value:'embed'},{label:'Raw HTML',value:'html'},{label:'Plain link',value:'link'}],onChange:function(v){ var o={}; o[key+'Method']=v; props.setAttributes(o); }}),
+          el(TextareaControl,{key:key+'Source',label:label + ' source / shortcode / URL',help:'Paste a shortcode, URL, raw HTML, or link depending on the source type.',value:props.attributes[key+'Source']||'',onChange:function(v){ var o={}; o[key+'Source']=v; props.setAttributes(o); }}),
+          el(TextControl,{key:key+'AcfField',label:label + ' ACF field fallback',help:'Optional. If source is empty, this ACF field name will be checked.',value:props.attributes[key+'AcfField']||'',onChange:function(v){ var o={}; o[key+'AcfField']=v; props.setAttributes(o); }})
+        ]);
+      }
+      return el(wp.element.Fragment,{}, el(InspectorControls,{},el(PanelBody,{title:'Social feeds settings',initialOpen:true},[
+        el(TextControl,{key:'title',label:'Title',value:props.attributes.title,onChange:function(v){props.setAttributes({title:v});}}),
+        el(TextareaControl,{key:'intro',label:'Intro text',value:props.attributes.intro||'',onChange:function(v){props.setAttributes({intro:v});}}),
+        el(SelectControl,{key:'layout',label:'Layout',value:props.attributes.layout||'grid',options:[{label:'Grid',value:'grid'},{label:'Stack',value:'stack'}],onChange:function(v){props.setAttributes({layout:v});}}),
+        el(RangeControl,{key:'columns',label:'Columns',value:props.attributes.columns||2,min:1,max:4,onChange:function(v){props.setAttributes({columns:v||2});}}),
+        el(SelectControl,{key:'cardStyle',label:'Card style',value:props.attributes.cardStyle||'card',options:[{label:'Card',value:'card'},{label:'Plain',value:'plain'}],onChange:function(v){props.setAttributes({cardStyle:v});}}),
+        el(ToggleControl,{key:'showPlatformIcons',label:'Show platform icons',checked:props.attributes.showPlatformIcons!==false,onChange:function(v){props.setAttributes({showPlatformIcons:v});}}),
+        el(ToggleControl,{key:'openLinksInNewTab',label:'Open links in new tab',checked:props.attributes.openLinksInNewTab!==false,onChange:function(v){props.setAttributes({openLinksInNewTab:v});}}),
+        platformPanel('instagram','Instagram','shortcode'),
+        platformPanel('facebook','Facebook','shortcode'),
+        platformPanel('tiktok','TikTok','embed'),
+        platformPanel('x','X','shortcode'),
+        platformPanel('youtube','YouTube','embed')
+      ])), el('div',useBlockProps({className:'wpbb-social-feeds wpbb-social-preview-card'}),[
+        label('SOCIAL FEEDS'),
+        el('strong',{key:'ttl'},props.attributes.title || 'Social feeds'),
+        props.attributes.intro ? el('div',{key:'intro',className:'small text-muted'},props.attributes.intro) : null,
+        el('div',{key:'icons',className:'wpbb-social-preview-icons'},[wpbbPreviewSocialIcon('instagram'),wpbbPreviewSocialIcon('facebook'),wpbbPreviewSocialIcon('tiktok'),wpbbPreviewSocialIcon('x'),wpbbPreviewSocialIcon('youtube')]),
+        el('div',{key:'hint',className:'small text-muted'},'Use shortcode mode for Meta or X feed plugins. Use embed URL mode for TikTok and YouTube when possible.')
+      ]));
+    },
+    save:function(){ return null; }
+  });
+
   registerBlockType('wpbb/video', {
     title:'Video', icon:'format-video', category:'wpbb',
     attributes:{ videoUrl:{type:'string',default:''}, ratioClass:{type:'string',default:'ratio ratio-16x9'}, poster:{type:'string',default:''} },

@@ -6,7 +6,7 @@ function wpbb_defaults() {
         'enabled_blocks' => [
             'accordion' => 1,'accordion-item' => 1,'alert' => 1,'badge' => 1,'breadcrumb' => 1,'button' => 1,'card' => 1,'cards' => 1,'column' => 1,
             'cta-card' => 1,'cta-section' => 1,'dynamic-form' => 1,'google-map' => 1,'list-group' => 1,'menu-option' => 1,'navbar' => 1,'progress' => 1,
-            'row' => 1,'section' => 1,'sitemap' => 1,'soc-follow-block' => 1,'soc-share' => 1,'spinner' => 1,
+            'row' => 1,'section' => 1,'sitemap' => 1,'soc-follow-block' => 1,'soc-share' => 1,'social-feeds' => 1,'spinner' => 1,
             'tab-item' => 1,'table' => 1,'tabs' => 1,'video' => 1,'file' => 1,'inline-svg' => 1,'swiper' => 1,
             'weather' => 1,'varda-dienas' => 1,'ajax-search' => 1,'pricecards' => 1,'catalogue' => 1,
             'code-display' => 1,'countdown-timer' => 1,'chart' => 1,'fun-fact' => 1,'mailchimp' => 1,'bootstrap-div' => 1,
@@ -52,6 +52,8 @@ function wpbb_defaults() {
         'weather_api_key' => '',
         'weather_units' => 'metric',
         'page_redirect_rules' => '[]',
+        'admin_spellcheck_enabled' => 0,
+        'admin_spellcheck_language' => 'en',
     ];
 }
 function wpbb_get_option($key, $default = null) {
@@ -67,7 +69,7 @@ function wpbb_is_block_enabled($slug) {
     return array_key_exists($slug, $enabled) ? !empty($enabled[$slug]) : $default_enabled;
 }
 function wpbb_get_blocks_list() {
-    return ['accordion','accordion-item','alert','badge','breadcrumb','button','card','cards','column','cta-card','cta-section','dynamic-form','google-map','list-group','menu-option','navbar','progress','row','section','sitemap','soc-follow-block','soc-share','spinner','tab-item','table','tabs','video','file','inline-svg','swiper','weather','varda-dienas','ajax-search','pricecards','catalogue','code-display','countdown-timer','chart','fun-fact','mailchimp','bootstrap-div','feature-list','timeline','custom-embed','ai-content','login-register','load-more','contact-links','events','testimonials','blog-filter','booking-calendar'];
+    return ['accordion','accordion-item','alert','badge','breadcrumb','button','card','cards','column','cta-card','cta-section','dynamic-form','google-map','list-group','menu-option','navbar','progress','row','section','sitemap','soc-follow-block','soc-share','social-feeds','spinner','tab-item','table','tabs','video','file','inline-svg','swiper','weather','varda-dienas','ajax-search','pricecards','catalogue','code-display','countdown-timer','chart','fun-fact','mailchimp','bootstrap-div','feature-list','timeline','custom-embed','ai-content','login-register','load-more','contact-links','events','testimonials','blog-filter','booking-calendar'];
 }
 function wpbb_get_acf_blocks_list() { return ['wpbb-hero','wpbb-gallery']; }
 function wpbb_parse_fields_json($json) {

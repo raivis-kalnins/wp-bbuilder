@@ -44,6 +44,7 @@ final class WPBB_Admin {
                 <a href="#core"><?php esc_html_e('Core blocks', 'wp-bbuilder'); ?></a>
                 <a href="#chat"><?php esc_html_e('WhatsApp chat', 'wp-bbuilder'); ?></a>
                 <a href="#cookie"><?php esc_html_e('Cookie consent', 'wp-bbuilder'); ?></a>
+                <a href="#spellcheck"><?php esc_html_e('Spellcheck', 'wp-bbuilder'); ?></a>
             </div>
             <form method="post" action="options.php">
                 <?php settings_fields('wpbb_settings_group'); ?>
@@ -126,6 +127,21 @@ final class WPBB_Admin {
                     <div class="wpbb-card" id="datatable-options">
                         <h2><?php esc_html_e('DataTables defaults', 'wp-bbuilder'); ?></h2>
                         <p class="description"><?php esc_html_e('Bootstrap Table block supports searching, paging, ordering and responsive wrapper from block settings.', 'wp-bbuilder'); ?></p>
+                    </div>
+
+                    <div class="wpbb-card" id="spellcheck">
+                        <h2><?php esc_html_e('Admin spellcheck', 'wp-bbuilder'); ?></h2>
+                        <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[admin_spellcheck_enabled]" value="1" <?php checked(!empty($opts['admin_spellcheck_enabled'])); ?>><span><?php esc_html_e('Enable admin-side spellcheck assistance', 'wp-bbuilder'); ?></span></label>
+                        <p class="description"><?php esc_html_e('Loads only in wp-admin for Gutenberg, ACF text fields, and visual editor content. Nothing is added to the frontend, keeping SEO and performance clean.', 'wp-bbuilder'); ?></p>
+                        <p><label><?php esc_html_e('Default admin spellcheck language', 'wp-bbuilder'); ?><br>
+                            <select name="wpbb_settings[admin_spellcheck_language]">
+                                <?php foreach (WPBB_Spellcheck::get_supported_languages() as $code => $label): ?>
+                                    <option value="<?php echo esc_attr($code); ?>" <?php selected(($opts['admin_spellcheck_language'] ?? 'en'), $code); ?>><?php echo esc_html($label); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </label></p>
+                        <p class="description"><?php esc_html_e('Supported languages: English, Latvian, Estonian, Lithuanian, Polish, German, French, Spanish, Italian, Swedish, Finnish, Norwegian, Danish, Icelandic, Russian.', 'wp-bbuilder'); ?></p>
+                        <p class="description"><?php esc_html_e('Uses browser and editor spellcheck support where available, with automatic lang and spellcheck attributes applied to admin-side fields.', 'wp-bbuilder'); ?></p>
                     </div>
 
                     <div class="wpbb-card" id="bootstrap-classes">

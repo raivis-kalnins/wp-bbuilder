@@ -61,6 +61,7 @@ final class WPBB_Blocks {
             'linkedin' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M6.94 8.5H4V20h2.94V8.5zM5.47 4A1.72 1.72 0 1 0 5.5 7.44 1.72 1.72 0 0 0 5.47 4zM20 12.9c0-3.1-1.66-4.54-3.88-4.54-1.8 0-2.6.99-3.05 1.68V8.5H10.1c.04 1 .04 11.5 0 11.5h2.97v-6.42c0-.34.02-.68.12-.92.27-.68.88-1.38 1.91-1.38 1.35 0 1.89 1.03 1.89 2.54V20H20v-7.1z"/></svg>',
             'x' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M18.24 2H21l-6.56 7.5L22 22h-5.93l-4.64-6.05L6.13 22H3.36l7.02-8.02L2 2h6.08l4.19 5.53L18.24 2zm-1.04 18h1.64L7.19 3.9H5.48L17.2 20z"/></svg>',
             'youtube' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M23 12s0-3.5-.45-5.2a2.7 2.7 0 0 0-1.9-1.9C18.9 4.4 12 4.4 12 4.4s-6.9 0-8.65.5a2.7 2.7 0 0 0-1.9 1.9C1 8.5 1 12 1 12s0 3.5.45 5.2a2.7 2.7 0 0 0 1.9 1.9c1.75.5 8.65.5 8.65.5s6.9 0 8.65-.5a2.7 2.7 0 0 0 1.9-1.9C23 15.5 23 12 23 12zM10 15.5v-7l6 3.5-6 3.5z"/></svg>',
+            'tiktok' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M14 3c.4 1.8 1.5 3.3 3.2 4.2 1 .5 2 .8 3.1.8v3.2c-1.5 0-3-.4-4.3-1.1v5.8c0 3.3-2.7 6.1-6.1 6.1S3.8 19.2 3.8 15.8 6.5 9.7 9.9 9.7c.3 0 .6 0 .9.1V13a3 3 0 0 0-.9-.1 2.9 2.9 0 0 0 0 5.8 2.9 2.9 0 0 0 2.9-2.9V3H14z"/></svg>',
             'whatsapp' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M16.6 14.3c-.3-.2-1.8-.9-2-.9-.3-.1-.4-.1-.6.2s-.7.9-.8 1c-.1.1-.3.2-.5.1-.3-.2-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.4-1.6-.1-.3 0-.4.1-.5l.4-.5.2-.4c.1-.1.1-.3 0-.4 0-.1-.6-1.5-.8-2-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.3-.8.8-.8 1.9s.8 2.1.9 2.3c.1.2 1.6 2.4 3.8 3.4 2.3 1 2.3.7 2.8.7.4-.1 1.5-.6 1.7-1.1.2-.6.2-1 .1-1.1-.1-.1-.3-.2-.6-.3zM12 2.2A9.8 9.8 0 0 0 3.7 17.3L2.2 21.8l4.6-1.5A9.8 9.8 0 1 0 12 2.2zm0 17.8c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-2.7.9.9-2.6-.2-.3A8 8 0 1 1 12 20z"/></svg>',
             'email' => '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M3 5h18a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zm0 2v.5l9 5.6 9-5.6V7H3zm18 10V9.8l-8.5 5.3a1 1 0 0 1-1 0L3 9.8V17h18z"/></svg>',
         ];
@@ -467,6 +468,8 @@ public function register_assets() {
                 $args['render_callback'] = [$this, 'render_social_follow_block'];
             } elseif ($slug === 'soc-share') {
                 $args['render_callback'] = [$this, 'render_social_share_block'];
+            } elseif ($slug === 'social-feeds') {
+                $args['render_callback'] = [$this, 'render_social_feeds_block'];
             } elseif ($slug === 'load-more') {
                 $args['script'] = 'wpbb-content-filters';
                 $args['render_callback'] = [$this, 'render_load_more_block'];
@@ -512,7 +515,7 @@ public function register_assets() {
             'list-group' => 'list-view',
             'navbar' => 'menu',
             'progress' => 'performance',
-            'row' => 'grid-view','cta-card' => 'megaphone','cta-section' => 'cover-image','google-map' => 'location-alt','menu-option' => 'menu','sitemap' => 'networking','soc-follow-block' => 'share','soc-share' => 'share-alt2',
+            'row' => 'grid-view','cta-card' => 'megaphone','cta-section' => 'cover-image','google-map' => 'location-alt','menu-option' => 'menu','sitemap' => 'networking','soc-follow-block' => 'share','soc-share' => 'share-alt2','social-feeds' => 'rss',
             'section' => 'cover-image',
             'spinner' => 'update',
             'file' => 'media-document',
@@ -2486,6 +2489,82 @@ public function enqueue_frontend_assets() {
         }
         if ($links === '') return '';
         return '<div ' . $wrapper . '>' . ($title ? '<' . $titleTag . ' class="wpbb-soc-title">' . $title . '</' . $titleTag . '>' : '') . '<div class="wpbb-soc-links">' . $links . '</div></div>';
+    }
+
+
+    private function wpbb_social_feed_source_value($attributes, $platform) {
+        $source = isset($attributes[$platform . 'Source']) ? trim((string) $attributes[$platform . 'Source']) : '';
+        if ($source !== '') return $source;
+        $acfField = isset($attributes[$platform . 'AcfField']) ? trim((string) $attributes[$platform . 'AcfField']) : '';
+        if ($acfField !== '' && function_exists('get_field')) {
+            $value = get_field($acfField);
+            if (is_string($value) && trim($value) !== '') return trim($value);
+        }
+        return '';
+    }
+
+    private function wpbb_social_feed_embed_markup($platform, $method, $source) {
+        $source = trim((string) $source);
+        if ($source === '') return '';
+
+        if ($method === 'shortcode') {
+            return do_shortcode($source);
+        }
+
+        if ($method === 'html') {
+            return wp_kses_post($source);
+        }
+
+        $embed = wp_oembed_get($source, ['width' => 1280]);
+        if ($embed) return $embed;
+
+        if ($method === 'link') {
+            return '<p><a href="' . esc_url($source) . '" target="_blank" rel="noopener noreferrer">' . esc_html__('Open feed', 'wp-bbuilder') . '</a></p>';
+        }
+
+        return '';
+    }
+
+    public function render_social_feeds_block($attributes, $content, $block) {
+        $title = esc_html($attributes['title'] ?? __('Social feeds', 'wp-bbuilder'));
+        $intro = wp_kses_post($attributes['intro'] ?? '');
+        $layout = in_array(($attributes['layout'] ?? 'grid'), ['grid','stack'], true) ? $attributes['layout'] : 'grid';
+        $columns = max(1, min(4, intval($attributes['columns'] ?? 2)));
+        $cardStyle = in_array(($attributes['cardStyle'] ?? 'card'), ['card','plain'], true) ? $attributes['cardStyle'] : 'card';
+        $showIcons = !empty($attributes['showPlatformIcons']);
+        $openNew = !empty($attributes['openLinksInNewTab']);
+        $platforms = [
+            'instagram' => 'Instagram',
+            'facebook' => 'Facebook',
+            'tiktok' => 'TikTok',
+            'x' => 'X',
+            'youtube' => 'YouTube',
+        ];
+
+        $cards = '';
+        foreach ($platforms as $slug => $label) {
+            if (empty($attributes[$slug . 'Enabled'])) continue;
+            $method = isset($attributes[$slug . 'Method']) ? (string) $attributes[$slug . 'Method'] : 'shortcode';
+            if (!in_array($method, ['shortcode','embed','html','link'], true)) $method = 'shortcode';
+            $source = $this->wpbb_social_feed_source_value($attributes, $slug);
+            if ($source === '') continue;
+            $embed = $this->wpbb_social_feed_embed_markup($slug, $method, $source);
+            if ($embed === '') continue;
+            $icon = $showIcons ? '<span class="wpbb-social-feeds__icon" aria-hidden="true">' . $this->wpbb_svg_icon($slug) . '</span>' : '';
+            $meta = '';
+            if ($method === 'link' || $method === 'embed' || $method === 'html') {
+                $meta = '<div class="wpbb-social-feeds__meta"><a href="' . esc_url($source) . '"' . ($openNew ? ' target="_blank" rel="noopener noreferrer"' : '') . '>' . ($method === 'link' ? esc_html($source) : esc_html__('Source', 'wp-bbuilder')) . '</a></div>';
+            }
+            $cards .= '<article class="wpbb-social-feeds__item ' . ($cardStyle === 'card' ? 'card shadow-sm' : '') . '"><div class="wpbb-social-feeds__header">' . $icon . '<div><h3 class="wpbb-social-feeds__title">' . esc_html($label) . '</h3></div></div><div class="wpbb-social-feeds__body">' . $embed . '</div>' . $meta . '</article>';
+        }
+
+        if ($cards === '') return '';
+
+        $wrapper_classes = ['wpbb-social-feeds', 'wpbb-social-feeds--' . sanitize_html_class($layout), 'wpbb-social-feeds--cols-' . $columns];
+        if (!empty($attributes['customClasses'])) $wrapper_classes[] = sanitize_html_class($attributes['customClasses']);
+        $wrapper = get_block_wrapper_attributes(['class' => implode(' ', array_filter($wrapper_classes))]);
+        $css = '<style>.wpbb-social-feeds{display:grid;gap:1rem}.wpbb-social-feeds__intro{margin:0 0 .5rem}.wpbb-social-feeds__grid{display:grid;gap:1rem}.wpbb-social-feeds--stack .wpbb-social-feeds__grid{grid-template-columns:1fr}.wpbb-social-feeds--grid.wpbb-social-feeds--cols-1 .wpbb-social-feeds__grid{grid-template-columns:1fr}.wpbb-social-feeds--grid.wpbb-social-feeds--cols-2 .wpbb-social-feeds__grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wpbb-social-feeds--grid.wpbb-social-feeds--cols-3 .wpbb-social-feeds__grid{grid-template-columns:repeat(3,minmax(0,1fr))}.wpbb-social-feeds--grid.wpbb-social-feeds--cols-4 .wpbb-social-feeds__grid{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:991px){.wpbb-social-feeds__grid{grid-template-columns:1fr 1fr !important}}@media(max-width:640px){.wpbb-social-feeds__grid{grid-template-columns:1fr !important}}.wpbb-social-feeds__item{padding:1rem;border-radius:1rem;background:#fff}.wpbb-social-feeds__header{display:flex;align-items:center;gap:.65rem;margin-bottom:.75rem}.wpbb-social-feeds__title{margin:0;font-size:1rem}.wpbb-social-feeds__icon{display:inline-flex;align-items:center;justify-content:center;width:2rem;height:2rem;border-radius:999px;background:#111827;color:#fff}.wpbb-social-feeds__body iframe{width:100%;max-width:100%}.wpbb-social-feeds__body .instagram-media,.wpbb-social-feeds__body .twitter-tweet,.wpbb-social-feeds__body .tiktok-embed,.wpbb-social-feeds__body iframe{margin-left:auto !important;margin-right:auto !important}.wpbb-social-feeds__meta{margin-top:.75rem;font-size:.875rem;opacity:.8}</style>';
+        return $css . '<section ' . $wrapper . '>' . ($title ? '<div class="wpbb-social-feeds__intro-wrap"><h2 class="wpbb-social-feeds__block-title">' . $title . '</h2>' . ($intro ? '<div class="wpbb-social-feeds__intro">' . $intro . '</div>' : '') . '</div>' : '') . '<div class="wpbb-social-feeds__grid">' . $cards . '</div></section>';
     }
 
     public function render_social_share_block($attributes, $content, $block) {

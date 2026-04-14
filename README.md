@@ -1,254 +1,239 @@
-# BBuilder – Lightweight Bootstrap Blocks for Gutenberg
+# WP BBuilder
 
-![Version](https://img.shields.io/badge/version-4.7.6-blue)
+![Version](https://img.shields.io/badge/version-5.0.7-blue)
 ![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-green)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple)
 ![License](https://img.shields.io/badge/license-GPLv2-blue)
 
-BBuilder is a lightweight Gutenberg block builder powered by Bootstrap 5.3 and focused on fast frontend output, flexible layout control, and clean admin tooling.
+WP BBuilder is a modular Gutenberg block builder for WordPress with Bootstrap-friendly layouts, server-side rendering, optional ACF integration, frontend-safe output, and admin-side editing helpers.
+
+It is built to give editors more useful blocks without turning the frontend into a heavy page builder.
+
+## What is included
+
+- Custom Gutenberg blocks for layout, content, data, forms, and integrations
+- Optional ACF-compatible workflows
+- Bootstrap-oriented structure and utility support
+- Dynamic frontend rendering where needed
+- Admin-side helpers that do **not** load on the frontend
+- Modular settings for enabling and disabling functionality
+
+## Highlights
+
+### Social Feeds block
+The plugin now includes a **Social Feeds** block for combining social sources in one content section.
+
+Supported platforms:
+- Instagram
+- Facebook
+- TikTok
+- X / Twitter
+- YouTube
+
+Per-platform source methods:
+- Shortcode
+- Embed URL
+- Raw HTML
+- Direct link
+- Optional ACF fallback field name
+
+This makes it suitable for direct embeds, feed plugin shortcodes, or flexible ACF-driven content builds.
+
+### Admin spellcheck helper
+The plugin also includes an optional **admin-only spellcheck system**.
+
+It is designed for content teams who want spelling assistance in the editor while keeping the frontend clean for performance and SEO.
+
+Supported admin editors:
+- Gutenberg text and rich text fields
+- ACF text and textarea fields
+- Classic editor / TinyMCE / visual editor
+
+Supported spellcheck languages:
+- English
+- Latvian
+- Estonian
+- Lithuanian
+- Polish
+- German
+- French
+- Spanish
+- Italian
+- Swedish
+- Finnish
+- Norwegian
+- Danish
+- Icelandic
+- Russian
 
 ## Installation
 
-1. Upload the plugin folder to `/wp-content/plugins/wp-bbuilder/` or install the ZIP from **Plugins → Add New → Upload Plugin**.
+1. Upload the plugin to `/wp-content/plugins/wp-bbuilder/` or install the ZIP via **Plugins -> Add New -> Upload Plugin**.
 2. Activate the plugin.
-3. Open **WP BBuilder Settings** and choose your Bootstrap loading mode.
-4. Start building with the **BBuilder** block category in Gutenberg.
+3. Open **WP BBuilder Settings** in the WordPress admin.
+4. Review Bootstrap loading, builder defaults, and optional admin helpers.
+5. Start building pages from the **BBuilder** block category in Gutenberg.
 
-## Builder structure
+## Builder settings overview
 
-```text
-wp-bbuilder/
-├── wp-bbuilder.php
-├── assets/
-│   ├── editor.js
-│   ├── editor.css
-│   ├── editor-enhancer.js
-│   ├── admin-builder.js
-│   ├── admin.css
-│   ├── shared.css
-│   └── chart-view.js
-├── includes/
-│   ├── class-admin.php
-│   ├── class-blocks.php
-│   └── helpers.php
-└── README.md
-```
+WP BBuilder settings are intended to keep the plugin flexible for different projects.
 
-## Block list
+Typical settings areas include:
+- Bootstrap CSS / JS loading controls
+- Shared CSS loading
+- Frontend rendering and utility options
+- Form defaults and behavior
+- Cookie consent and analytics options
+- Admin spellcheck enable / disable toggle
+- Admin spellcheck default language
 
-### Layout
-- **Row** — Bootstrap row wrapper with spacing, background, SCSS, and container controls.
-- **Column** — Responsive Bootstrap column with spacing, shadow, background, and SCSS.
-- **Section** — General content section wrapper for grouped layouts and background styling.
-- **Hero** — Large visual intro section for banners, page headers, and promotional content.
-- **Bootstrap Div** — Flexible Bootstrap-based wrapper for custom classes and nested content.
+### Admin spellcheck behavior
+When enabled:
+- loads only in `wp-admin`
+- adds `spellcheck="true"` where supported
+- applies the selected language via `lang`
+- watches dynamically added editor fields so Gutenberg and ACF repeaters continue to work
 
-### Content
-- **Button** — Standalone call-to-action button with Bootstrap styling options.
-- **Card** — Flexible Bootstrap card wrapper for text, media, and actions.
-- **Cards** — Repeating card layout for grids, services, or feature sets.
-- **Accordion** — Bootstrap accordion with editor preview and frontend collapse behavior.
-- **Tabs** — Tabbed content sections for structured layouts.
-- **Bootstrap Table** — Responsive table block with Bootstrap table styling.
-- **Alert** — Highlighted alert message box for notices, warnings, or success states.
-- **Badge** — Small label element for tags, statuses, and counters.
-- **Breadcrumb** — Breadcrumb navigation trail for page hierarchy.
-- **List Group** — Bootstrap list group for linked or static item lists.
-- **Navbar** — Navigation bar block for menu-style layouts.
-- **Progress** — Progress bar for percentages, steps, or completion states.
-- **Spinner** — Loading spinner for async states and placeholders.
-- **Feature List** — Marketing feature items with icon and text.
-- **Timeline** — Vertical or horizontal timeline for projects and case studies.
-- **Code Display** — Styled code block with frontend copy support.
-- **Countdown Timer** — Styled live countdown block with real-time frontend updates.
-- **Chart** — Chart.js-powered bar, line, pie, and doughnut charts.
-- **Fun Fact** — Metric or stat highlight block for counters and key numbers.
-- **Custom Embed** — URL or iframe embed wrapper for third-party integrations.
-- **AI Content** — Starter AI content block with endpoint connection guidance.
-- **Video** — Video embed/display block for media content.
-- **Swiper** — Slider wrapper block for carousel-style content areas.
-- **Gallery** — ACF gallery block for drag-and-drop images or videos.
-- **CTA Card** — Call-to-action card with strong visual emphasis.
-- **CTA Section** — Promotional section block for campaigns, offers, or lead capture.
-- **Google Map** — Map embed block for locations and contact pages.
-- **Menu Option** — Structured menu item block for service or navigation listings.
-- **Sitemap** — Visual sitemap/navigation helper block.
+Nothing from this helper is loaded on the frontend.
 
-### Forms and integrations
-- **Dynamic Form** — Flexible contact and lead form builder with validation, drag-and-drop file upload, signature, multi-step flow, conditional logic, and PDF summary support.
-- **MailChimp** — Newsletter signup form with MailChimp action URL support.
-- **Login / Register** — WordPress login and registration UI block.
-- **Ajax Search** — AJAX-powered live search block with configurable search modes.
-- **Catalogue** — Query-based catalogue/grid block for posts or custom post types.
-- **Load More** — AJAX post loader with configurable button text, color, and item classes.
-- **Blog Filter** — AJAX filter block for posts or CPTs with category, year, sort, and search controls.
-- **Events** — Events query block with event category filtering and calendar-focused output.
-- **Testimonials** — Swiper-powered testimonials slider with responsive item counts.
-- **Pricing Cards** — Pricing table cards with featured plan support.
-- **Email & Phone** — Contact links block with mailto/tel links and icon support.
-- **Social Follow** — Brand links with SVG icons for social profiles.
-- **Social Share** — Share buttons with clean SVG icons.
+## Block categories
 
-### Utility and data blocks
-- **Weather** — Live weather block with location support and free weather fallback.
-- **Name Days** — Automatically loads today’s Latvian name days from a free live JSON API, with local fallback support.
-- **Vārda dienas / Name Days** — Same block slug, now shown in English while still displaying Latvian names automatically by date.
-
-### ACF Blocks
-- **Hero** — Single hero and Swiper slider hero layouts.
-- **Gallery** — Drag-and-drop image or video gallery.
-- **CTA Card** — Call-to-action card with schema tag options.
-
-## Notes
-- Frontend container width can be controlled from **WP BBuilder Settings**.
-- Row and Column support custom SCSS with a native WordPress code editor.
-- Bootstrap assets can be force-enqueued if the theme does not provide Bootstrap.
-
-## License
-GPLv2 or later
-
-
-## REST API: Vārda dienas
-
-This plugin now exposes public REST endpoints for vārda dienas data from `assets/json/varda-dienas.json`.
-
-### Endpoints
-
-- `GET /wp-json/wpbb/v1/varda-dienas`
-- `GET /wp-json/wpbb/v1/varda-dienas?date=05-29`
-- `GET /wp-json/wpbb/v1/varda-dienas?date=2026-05-29`
-- `GET /wp-json/wpbb/v1/varda-dienas/today`
-
-### Example response
-
-```json
-{
-  "success": true,
-  "date": "2026-05-29",
-  "key": "05-29",
-  "today": true,
-  "names": ["Maksis", "Maksims", "Raivis", "Raivo"],
-  "count": 4
-}
-```
-
-
-## Container Width Theme Sync
-
-Builder no longer stores its own `Frontend container max width` setting.
-
-Container width now:
-- links admins to Theme Settings
-- reads width from the active theme
-- supports these sources in order:
-  - `wpbb_theme_container_width` filter
-  - `get_theme_mod('container_width')`
-  - `get_theme_mod('container_max_width')`
-  - `get_theme_mod('site_container_width')`
-  - `get_option('wpbb_theme_container_width')`
-  - `get_option('bbtheme_container_width')`
-
-You can also override the Theme Settings URL with:
-
-```php
-add_filter('wpbb_theme_settings_url', function () {
-    return admin_url('admin.php?page=wpbb-theme-settings');
-});
-```
-
-
-## Inspector Panel Style Fixes
-
-The editor keeps a more WordPress-native inspector look by removing extra borders from:
-- `.block-editor-block-inspector .components-panel__body`
-- `.block-editor-block-inspector .components-panel__body .wpbb-responsive-group`
-- `.block-editor-block-inspector .wpbb-responsive-side-field`
-
-
-## Current block list
-
-Custom WP BBuilder blocks currently included:
-
+### Layout and structure
+- Row
+- Column
+- Section
+- Hero
+- Bootstrap Div
+- Swiper
+- Tabs
+- Tab Item
 - Accordion
 - Accordion Item
-- Alert
-- Badge
-- Breadcrumb
+
+### Content and UI
 - Button
 - Card
 - Cards
-- Column
 - CTA Card
 - CTA Section
-- Dynamic Form
-- Google Map
+- Alert
+- Badge
+- Breadcrumb
 - List Group
-- Menu Option
 - Navbar
 - Progress
-- Row
-- Section
-- Sitemap
-- Social Follow
-- Social Share
 - Spinner
-- Tab Item
-- Table
-- Tabs
-- Video
-- File
-- Inline SVG
-- Swiper
-- Weather
-- Varda Dienas
-- Ajax Search
-- Pricecards
-- Catalogue
-- Code Display
-- Countdown Timer
-- Chart
-- Fun Fact
-- Mailchimp
-- Bootstrap Div
 - Feature List
 - Timeline
+- Code Display
+- Countdown Timer
+- Fun Fact
+- Table
+- Video
+- Gallery
 - Custom Embed
-- AI Content
-- Login Register
+- Inline SVG
+- File
+
+### Social and sharing
+- Social Follow
+- Social Share
+- Social Feeds
+
+### Forms, search, and marketing
+- Dynamic Form
+- Mailchimp
+- Login / Register
+- Ajax Search
 - Load More
-- Contact Links
+- Blog Filter
+- Catalogue
 - Events
 - Testimonials
-- Blog Filter
+- Pricing Cards
+- Contact Links
+- Booking Calendar
 
-Core Gutenberg blocks intentionally supported alongside builder blocks include Paragraph, Heading, List, Spacer, HTML, Shortcode, Code, Image, Gallery, Cover, Media & Text, Buttons, Button, Audio, File, and Query-related core blocks depending on settings.
+### Data and utility
+- Chart
+- Google Map
+- Weather
+- Varda Dienas / Name Days
+- Sitemap
+- Menu Option
+- AI Content
 
-### Not included as custom WP BBuilder blocks
+### ACF-related blocks
+- ACF Hero
+- ACF Gallery
+- ACF Card
 
-- Custom WP BBuilder Audio block removed. Use Core Audio block instead.
-- If a block is disabled in plugin settings, it will not appear in the inserter.
+## Quick usage notes
 
+### Social Feeds block
+Use this block when you want one section to hold multiple feed sources.
 
-## Responsive columns
-- Editor device preview buttons: Mobile / Tablet / Desktop / Wide
-- Quick width presets per breakpoint: Full / 1/2 / 1/3 / 1/4 / Auto
+Examples:
+- Instagram shortcode from a feed plugin
+- Facebook shortcode from a social feed plugin
+- TikTok embed URL
+- YouTube playlist or video URL
+- Raw HTML widget code where needed
 
-Column block supports Bootstrap responsive widths directly in the editor:
-- Mobile: `col-*`
-- Small tablet: `col-sm-*`
-- Tablet: `col-md-*`
-- Desktop: `col-lg-*`
-- Large desktop: `col-xl-*`
-- Wide desktop: `col-xxl-*`
+### Dynamic forms
+Use the Dynamic Form block for structured forms with project-specific settings. Keep styles centralized in plugin or theme CSS where possible.
 
-Example output: `col-12 col-md-6 col-lg-4`.
+### Layout blocks
+Use Row and Column for predictable Bootstrap-oriented structure instead of deeply nested ad hoc groups.
 
+### Charts and data blocks
+These blocks are useful for dashboards, campaign pages, case studies, and internal marketing content.
 
-## Polylang and multilingual themes
+## Documentation included in this package
 
-WP BBuilder works with Polylang-ready themes and translated pages. In the companion demo theme, multilingual menus can be assigned per language while block content remains editable on each translated page.
+- `docs/AVAILABLE-BLOCKS.md` — quick block catalogue with short explanations
+- `docs/ADMIN-HELPERS.md` — summary of admin-side helpers and how they work
+- `blocks/*/README.txt` — block-specific notes where available
 
+## Performance and SEO approach
 
-## Booking
-- Demo import now creates a Booking page.
-- Booking requests are stored in admin and shown in Theme Settings > Booking Dashboard.
+WP BBuilder is built with a practical separation between admin conveniences and frontend output.
+
+Frontend goals:
+- avoid loading unnecessary assets
+- keep rendering predictable
+- support server-side output where useful
+- keep helper systems out of the public site unless they are actually needed
+
+Admin goals:
+- make editing easier
+- allow optional enhancements
+- support Gutenberg and ACF workflows without forcing extra frontend code
+
+## Developer notes
+
+Typical extension flow:
+1. Create a block folder if needed.
+2. Register the block in the plugin block registry.
+3. Add editor controls and render logic.
+4. Keep frontend output minimal and escaped.
+5. Use admin-only scripts for editorial assistance.
+
+Recommended approach:
+- prefer server-side render callbacks for dynamic content
+- use `do_shortcode()` only for trusted shortcode integrations
+- use `wp_oembed_get()` for supported embed URLs
+- keep project styling in shared CSS or theme CSS rather than inline block-by-block duplication where possible
+
+## Changelog
+
+### 5.0.7
+- Added Social Feeds block
+- Added optional admin-only spellcheck helper
+- Added spellcheck language selection
+- Added support targeting Gutenberg, ACF fields, and TinyMCE/classic editor on admin side
+- Updated documentation and package help files
+
+## License
+
+GPLv2 or later

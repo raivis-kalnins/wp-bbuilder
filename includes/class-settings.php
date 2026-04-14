@@ -12,7 +12,7 @@ final class WPBB_Settings {
         $enabled = [];
         foreach (wpbb_get_blocks_list() as $slug) $enabled[$slug] = !empty($input['enabled_blocks'][$slug]) ? 1 : 0;
         $out['enabled_blocks'] = $enabled;
-        foreach (['disable_core_group','disable_core_columns','disable_core_column','disable_core_table','disable_core_embed','disable_core_gallery','disable_core_image','disable_core_cover','disable_core_media_text','disable_core_buttons','disable_core_button','disable_core_query','load_bootstrap_css','load_bootstrap_js','load_shared_css','load_bootstrap_editor_css','force_bootstrap_enqueue','save_entries','bootstrap_optimize_frontend','bootstrap_enable_utilities','bootstrap_allow_custom_classes','cookie_consent_enabled','google_analytics_enabled'] as $flag) {
+        foreach (['disable_core_group','disable_core_columns','disable_core_column','disable_core_table','disable_core_embed','disable_core_gallery','disable_core_image','disable_core_cover','disable_core_media_text','disable_core_buttons','disable_core_button','disable_core_query','load_bootstrap_css','load_bootstrap_js','load_shared_css','load_bootstrap_editor_css','force_bootstrap_enqueue','save_entries','bootstrap_optimize_frontend','bootstrap_enable_utilities','bootstrap_allow_custom_classes','cookie_consent_enabled','google_analytics_enabled','admin_spellcheck_enabled'] as $flag) {
             $out[$flag] = !empty($input[$flag]) ? 1 : 0;
         }
 
@@ -26,6 +26,9 @@ final class WPBB_Settings {
             }
             $out['bootstrap_css_components'] = array_values(array_unique($out['bootstrap_css_components']));
         }
+
+        $supported_spellcheck_languages = array_keys(WPBB_Spellcheck::get_supported_languages());
+        $out['admin_spellcheck_language'] = in_array(($input['admin_spellcheck_language'] ?? 'en'), $supported_spellcheck_languages, true) ? $input['admin_spellcheck_language'] : 'en';
 
         foreach (['default_recipient_email','default_success_message','default_error_message','default_validation_text','button_class','form_class','admin_max_width','hcaptcha_site_key','hcaptcha_secret_key','recaptcha_site_key','recaptcha_secret_key','whatsapp_phone','whatsapp_message','whatsapp_position','cookie_consent_text','cookie_accept_text','cookie_reject_text','cookie_policy_url','cookie_position'] as $field) {
             $out[$field] = sanitize_text_field($input[$field] ?? ($out[$field] ?? ''));
