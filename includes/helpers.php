@@ -17,7 +17,7 @@ function wpbb_defaults() {
         'disable_core_table' => 1,'disable_core_embed' => 0,'disable_core_gallery' => 0,
         'disable_core_image' => 0,'disable_core_cover' => 0,'disable_core_media_text' => 0,'disable_core_audio' => 0,'disable_core_file' => 0,
         'disable_core_buttons' => 0,'disable_core_button' => 0,'disable_core_query' => 0,
-        'load_bootstrap_css' => 1,'load_bootstrap_js' => 0,'force_bootstrap_enqueue' => 0,'save_entries' => 1,'show_entries_menu' => 0,
+        'load_bootstrap_css' => 1,'load_bootstrap_js' => 0,'load_shared_css' => 1,'load_bootstrap_editor_css' => 0,'force_bootstrap_enqueue' => 0,'save_entries' => 1,'show_entries_menu' => 0,
         'bootstrap_css_mode' => 'grid',
         'bootstrap_css_components' => ['reboot','grid','utilities'],
         'default_recipient_email' => get_option('admin_email'),

@@ -43,8 +43,13 @@ final class WPBBuilder_Bootstrap {
         self::enqueue_critical();
         if (!wpbb_get_option('load_bootstrap_css', 1)) return;
 
-        $mode = wpbb_get_option('bootstrap_css_mode', 'full');
-        if ($mode === 'custom' || $mode === 'grid') {
+        $mode = wpbb_get_option('bootstrap_css_mode', 'grid');
+        if ($mode === 'custom') {
+            $components = (array) wpbb_get_option('bootstrap_css_components', ['reboot','grid','utilities']);
+            if (in_array('reboot', $components, true)) wp_enqueue_style('wpbb-bootstrap-reboot');
+            if (in_array('grid', $components, true)) wp_enqueue_style('wpbb-bootstrap-grid');
+            if (in_array('utilities', $components, true)) wp_enqueue_style('wpbb-bootstrap-utilities');
+        } elseif ($mode === 'grid') {
             wp_enqueue_style('wpbb-bootstrap-reboot');
             wp_enqueue_style('wpbb-bootstrap-grid');
         } elseif ($mode === 'utilities') {

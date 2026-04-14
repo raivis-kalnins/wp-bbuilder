@@ -35,7 +35,7 @@ final class WPBB_Admin {
         $opts = wp_parse_args(get_option('wpbb_settings', []), wpbb_defaults());
         ?>
         <div class="wrap wpbb-admin-wrap">
-            <h1><?php esc_html_e('Builder Settings Settings', 'wp-bbuilder'); ?></h1>
+            <h1><?php esc_html_e('Builder Settings', 'wp-bbuilder'); ?></h1>
             <div class="wpbb-admin-nav">
                 <a href="#tools"><?php esc_html_e('BBuilder tools', 'wp-bbuilder'); ?></a>
                 <a href="#blocks"><?php esc_html_e('Blocks', 'wp-bbuilder'); ?></a>
@@ -165,23 +165,31 @@ final class WPBB_Admin {
                         ] as $setting => $label): ?>
                             <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[<?php echo esc_attr($setting); ?>]" value="1" <?php checked(!empty($opts[$setting])); ?>> <?php echo esc_html__('Disable ', 'wp-bbuilder') . esc_html($label); ?></label>
                         <?php endforeach; ?>
-                        <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[load_bootstrap_css]" value="1" <?php checked(!empty($opts['load_bootstrap_css'])); ?>> Load Bootstrap CSS</label>
+                        <h3><?php esc_html_e('Bootstrap optimization', 'wp-bbuilder'); ?></h3>
+                        <p class="description"><?php esc_html_e('Untick CSS you do not need to reduce frontend weight and improve SEO/PageSpeed scores.', 'wp-bbuilder'); ?></p>
+                        <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[load_bootstrap_css]" value="1" <?php checked(!empty($opts['load_bootstrap_css'])); ?>> <?php esc_html_e('Load Bootstrap CSS on frontend', 'wp-bbuilder'); ?></label>
                         <div class="wpbb-subsettings">
                             <p><label><?php esc_html_e('Bootstrap CSS mode', 'wp-bbuilder'); ?><br>
                                 <select name="wpbb_settings[bootstrap_css_mode]">
-                                    <option value="full" <?php selected(($opts['bootstrap_css_mode'] ?? 'full'), 'full'); ?>><?php esc_html_e('Full library', 'wp-bbuilder'); ?></option>
-                                    <option value="custom" <?php selected(($opts['bootstrap_css_mode'] ?? 'full'), 'custom'); ?>><?php esc_html_e('Only selected CSS parts', 'wp-bbuilder'); ?></option>
+                                    <option value="full" <?php selected(($opts['bootstrap_css_mode'] ?? 'grid'), 'full'); ?>><?php esc_html_e('Full library', 'wp-bbuilder'); ?></option>
+                                    <option value="grid" <?php selected(($opts['bootstrap_css_mode'] ?? 'grid'), 'grid'); ?>><?php esc_html_e('Grid only', 'wp-bbuilder'); ?></option>
+                                    <option value="utilities" <?php selected(($opts['bootstrap_css_mode'] ?? 'grid'), 'utilities'); ?>><?php esc_html_e('Utilities only', 'wp-bbuilder'); ?></option>
+                                    <option value="custom" <?php selected(($opts['bootstrap_css_mode'] ?? 'grid'), 'custom'); ?>><?php esc_html_e('Custom parts', 'wp-bbuilder'); ?></option>
                                 </select>
                             </label></p>
                             <div class="wpbb-setting-group">
-                                <strong><?php esc_html_e('Load Bootstrap CSS parts', 'wp-bbuilder'); ?></strong>
+                                <strong><?php esc_html_e('Custom Bootstrap CSS parts', 'wp-bbuilder'); ?></strong>
                                 <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[bootstrap_css_components][]" value="reboot" <?php checked(in_array('reboot', (array)($opts['bootstrap_css_components'] ?? []), true)); ?>> <?php esc_html_e('Reboot / base reset', 'wp-bbuilder'); ?></label>
                                 <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[bootstrap_css_components][]" value="grid" <?php checked(in_array('grid', (array)($opts['bootstrap_css_components'] ?? []), true)); ?>> <?php esc_html_e('Grid / containers / rows / columns', 'wp-bbuilder'); ?></label>
                                 <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[bootstrap_css_components][]" value="utilities" <?php checked(in_array('utilities', (array)($opts['bootstrap_css_components'] ?? []), true)); ?>> <?php esc_html_e('Utilities helpers', 'wp-bbuilder'); ?></label>
-                                <p class="description"><?php esc_html_e('Use custom mode to load only the Bootstrap CSS parts your site needs.', 'wp-bbuilder'); ?></p>
+                                <p class="description"><?php esc_html_e('Best for performance: keep only Grid + Utilities unless you need full Bootstrap component styling.', 'wp-bbuilder'); ?></p>
                             </div>
                         </div>
-                        <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[load_bootstrap_js]" value="1" <?php checked(!empty($opts['load_bootstrap_js'])); ?>> Load Bootstrap JS</label>
+                        <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[load_shared_css]" value="1" <?php checked(!empty($opts['load_shared_css'])); ?>> <?php esc_html_e('Load BBuilder shared block CSS', 'wp-bbuilder'); ?></label>
+                        <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[load_bootstrap_js]" value="1" <?php checked(!empty($opts['load_bootstrap_js'])); ?>> <?php esc_html_e('Load Bootstrap JS', 'wp-bbuilder'); ?></label>
+                        <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[load_bootstrap_editor_css]" value="1" <?php checked(!empty($opts['load_bootstrap_editor_css'])); ?>> <?php esc_html_e('Load Bootstrap CSS inside block editor', 'wp-bbuilder'); ?></label>
+                        <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[force_bootstrap_enqueue]" value="1" <?php checked(!empty($opts['force_bootstrap_enqueue'])); ?>> <?php esc_html_e('Force Bootstrap on all frontend pages', 'wp-bbuilder'); ?></label>
+                        <p class="description"><?php esc_html_e('Leave this off for best SEO/performance. Bootstrap will only load where BBuilder blocks need it.', 'wp-bbuilder'); ?></p>
                         <p><label>Admin max width<br><input type="text" name="wpbb_settings[admin_max_width]" value="<?php echo esc_attr($opts['admin_max_width']); ?>"></label></p>
                         <p><strong><?php esc_html_e('Container Width', 'wp-bbuilder'); ?></strong><br><span class="description"><?php esc_html_e('Container width is controlled by the active theme.', 'wp-bbuilder'); ?></span><br><a class="button button-secondary" href="<?php echo esc_url(wpbb_get_theme_settings_url()); ?>"><?php esc_html_e('Open Theme Settings', 'wp-bbuilder'); ?></a></p>
                     </div>
