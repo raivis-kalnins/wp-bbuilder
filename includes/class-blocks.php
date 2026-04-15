@@ -1750,6 +1750,7 @@ public function render_spinner_block($attributes, $content, $block) {
         $fields = wpbb_parse_fields_json($attributes['fieldsJson'] ?? '');
         $hcaptcha_site_key = wpbb_get_option('hcaptcha_site_key', '');
         $recaptcha_site_key = wpbb_get_option('recaptcha_site_key', '');
+        $honeypot_enabled = (bool) wpbb_get_option('form_honeypot_enabled', 1);
 
         if (empty($fields)) {
             $fields = [
@@ -1770,12 +1771,21 @@ Russian", 'step' => 1],
             }
         }
 
+        $honeypot_id = 'wpbb-website-' . wp_unique_id();
+
         ob_start(); ?>
         <div <?php echo get_block_wrapper_attributes(['class' => "wpbb-dynamic-form-wrap style-{$style} labels-{$label_pos}"]); ?>>
             <?php if (!empty($attributes['showTitle'])): ?>
                 <h3 class="wpbb-form-title"><?php echo $title; ?></h3>
             <?php endif; ?>
-            <form class="<?php echo $form_class; ?> wpbb-dynamic-form" data-recipient="<?php echo $recipient; ?>" data-subject="<?php echo $subject; ?>" data-success="<?php echo $success; ?>" data-validation="<?php echo $validation; ?>" data-steps="<?php echo esc_attr($enable_steps ? '1' : '0'); ?>" data-conditional="<?php echo esc_attr($enable_conditional ? '1' : '0'); ?>" enctype="multipart/form-data">
+            <form class="<?php echo $form_class; ?> wpbb-dynamic-form" data-recipient="<?php echo $recipient; ?>" data-subject="<?php echo $subject; ?>" data-success="<?php echo $success; ?>" data-validation="<?php echo $validation; ?>" data-steps="<?php echo esc_attr($enable_steps ? '1' : '0'); ?>" data-conditional="<?php echo esc_attr($enable_conditional ? '1' : '0'); ?>" data-honeypot="<?php echo esc_attr($honeypot_enabled ? '1' : '0'); ?>" enctype="multipart/form-data">
+                <?php if ($honeypot_enabled): ?>
+                    <div class="wpbb-form-bot-field" hidden aria-hidden="true">
+                        <label for="<?php echo esc_attr($honeypot_id); ?>"><?php esc_html_e('Leave this field empty', 'wp-bbuilder'); ?></label>
+                        <input id="<?php echo esc_attr($honeypot_id); ?>" type="text" name="website" value="" tabindex="-1" autocomplete="off">
+                        <input type="hidden" name="started_at" value="<?php echo esc_attr(time()); ?>">
+                    </div>
+                <?php endif; ?>
                 <?php if ($enable_steps && $step_total > 1): ?>
                     <div class="wpbb-form-steps mb-3" data-total="<?php echo esc_attr($step_total); ?>">
                         <?php for ($i = 1; $i <= $step_total; $i++): ?>
@@ -1864,7 +1874,7 @@ Russian", 'step' => 1],
 
                 <div class="wpbb-form-message mt-3" aria-live="polite"></div>
                 <div class="wpbb-form-actions mt-3 d-flex flex-wrap gap-2 align-items-center">
-                    <?php if ($enable_steps && $step_total > 1): ?>
+                <?php if ($enable_steps && $step_total > 1): ?>
                         <button type="button" class="btn btn-outline-secondary wpbb-step-prev" hidden><?php esc_html_e('Back', 'wp-bbuilder'); ?></button>
                         <button type="button" class="btn btn-outline-primary wpbb-step-next"><?php esc_html_e('Next', 'wp-bbuilder'); ?></button>
                     <?php endif; ?>

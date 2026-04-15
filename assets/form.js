@@ -196,6 +196,10 @@
       email_subject: form.dataset.subject || '',
       success_message: form.dataset.success || ''
     }));
+    var honeypot = form.querySelector('input[name="website"]');
+    var startedAt = form.querySelector('input[name="started_at"]');
+    if (honeypot) payload.append('website', honeypot.value || '');
+    if (startedAt) payload.append('started_at', startedAt.value || '');
     qsa(form, 'input[type="file"]').forEach(function (input) {
       if (input.files && input.files[0]) payload.append(input.name, input.files[0]);
     });

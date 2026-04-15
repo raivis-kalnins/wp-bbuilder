@@ -92,6 +92,30 @@ final class WPBB_Admin {
                         <p><label>hCaptcha secret key<br><input type="text" name="wpbb_settings[hcaptcha_secret_key]" value="<?php echo esc_attr($opts['hcaptcha_secret_key']); ?>"></label></p>
                         <p><label>reCAPTCHA site key<br><input type="text" name="wpbb_settings[recaptcha_site_key]" value="<?php echo esc_attr($opts['recaptcha_site_key']); ?>"></label></p>
                         <p><label>reCAPTCHA secret key<br><input type="text" name="wpbb_settings[recaptcha_secret_key]" value="<?php echo esc_attr($opts['recaptcha_secret_key']); ?>"></label></p>
+                        <h3><?php esc_html_e('SMTP delivery', 'wp-bbuilder'); ?></h3>
+                        <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[smtp_enabled]" value="1" <?php checked(!empty($opts['smtp_enabled'])); ?>><span><?php esc_html_e('Send form emails via SMTP', 'wp-bbuilder'); ?></span></label>
+                        <p class="description"><?php esc_html_e('Helps form submissions avoid spam folders by using authenticated SMTP instead of the default PHP mail transport.', 'wp-bbuilder'); ?></p>
+                        <p><label><?php esc_html_e('SMTP host', 'wp-bbuilder'); ?><br><input type="text" name="wpbb_settings[smtp_host]" value="<?php echo esc_attr($opts['smtp_host'] ?? ''); ?>"></label></p>
+                        <div class="wpbb-subsettings">
+                            <p><label><?php esc_html_e('SMTP port', 'wp-bbuilder'); ?><br><input type="text" name="wpbb_settings[smtp_port]" value="<?php echo esc_attr($opts['smtp_port'] ?? '587'); ?>"></label></p>
+                            <p><label><?php esc_html_e('Encryption', 'wp-bbuilder'); ?><br>
+                                <select name="wpbb_settings[smtp_encryption]">
+                                    <option value="tls" <?php selected(($opts['smtp_encryption'] ?? 'tls'), 'tls'); ?>>TLS</option>
+                                    <option value="ssl" <?php selected(($opts['smtp_encryption'] ?? 'tls'), 'ssl'); ?>>SSL</option>
+                                    <option value="none" <?php selected(($opts['smtp_encryption'] ?? 'tls'), 'none'); ?>><?php esc_html_e('None', 'wp-bbuilder'); ?></option>
+                                </select>
+                            </label></p>
+                        </div>
+                        <p><label><?php esc_html_e('SMTP username', 'wp-bbuilder'); ?><br><input type="text" name="wpbb_settings[smtp_username]" value="<?php echo esc_attr($opts['smtp_username'] ?? ''); ?>" autocomplete="off"></label></p>
+                        <p><label><?php esc_html_e('SMTP password', 'wp-bbuilder'); ?><br><input type="password" name="wpbb_settings[smtp_password]" value="<?php echo esc_attr($opts['smtp_password'] ?? ''); ?>" autocomplete="new-password"></label></p>
+                        <div class="wpbb-subsettings">
+                            <p><label><?php esc_html_e('From email', 'wp-bbuilder'); ?><br><input type="email" name="wpbb_settings[smtp_from_email]" value="<?php echo esc_attr($opts['smtp_from_email'] ?? ''); ?>"></label></p>
+                            <p><label><?php esc_html_e('From name', 'wp-bbuilder'); ?><br><input type="text" name="wpbb_settings[smtp_from_name]" value="<?php echo esc_attr($opts['smtp_from_name'] ?? ''); ?>"></label></p>
+                        </div>
+                        <h3><?php esc_html_e('Spam protection', 'wp-bbuilder'); ?></h3>
+                        <label class="wpbb-check"><input type="checkbox" name="wpbb_settings[form_honeypot_enabled]" value="1" <?php checked(!empty($opts['form_honeypot_enabled'])); ?>><span><?php esc_html_e('Enable hidden honeypot + time trap', 'wp-bbuilder'); ?></span></label>
+                        <p><label><?php esc_html_e('Minimum submit time (seconds)', 'wp-bbuilder'); ?><br><input type="number" min="0" step="1" name="wpbb_settings[form_min_submit_time]" value="<?php echo esc_attr($opts['form_min_submit_time'] ?? '3'); ?>"></label></p>
+                        <p><label><?php esc_html_e('Spam blocked message', 'wp-bbuilder'); ?><br><input type="text" name="wpbb_settings[form_spam_message]" value="<?php echo esc_attr($opts['form_spam_message'] ?? __('Your submission was blocked as spam. Please try again.', 'wp-bbuilder')); ?>"></label></p>
                         <h3><?php esc_html_e('Form colors', 'wp-bbuilder'); ?></h3>
                         <p><label>Label color<br><input type="color" name="wpbb_settings[default_label_color]" value="<?php echo esc_attr($opts['default_label_color']); ?>"></label></p>
                         <p><label>Input border color<br><input type="color" name="wpbb_settings[default_input_border_color]" value="<?php echo esc_attr($opts['default_input_border_color']); ?>"></label></p>

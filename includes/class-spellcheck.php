@@ -92,9 +92,13 @@ final class WPBB_Spellcheck {
                 '.acf-input input[type="text"]',
                 '.acf-input input:not([type])',
                 '.acf-input textarea',
+                '.acf-field[data-type="text"] input',
+                '.acf-field[data-type="textarea"] textarea',
                 '.acf-field[data-type="wysiwyg"] iframe',
                 '.mce-content-body',
+                'iframe',
             ],
+            'editorIframeSelectors' => ['iframe.editor-canvas__iframe', 'iframe[name="editor-canvas"]', 'iframe'],
             'notice' => sprintf(
                 __('Spellcheck is active in admin only (%s). Frontend stays untouched for SEO and performance.', 'wp-bbuilder'),
                 self::get_supported_languages()[$this->get_language()] ?? 'English'
