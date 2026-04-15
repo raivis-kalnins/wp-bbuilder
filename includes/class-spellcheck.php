@@ -50,17 +50,25 @@ final class WPBB_Spellcheck {
             return false;
         }
 
-        $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+        if (!function_exists('get_current_screen')) {
+            return true;
+        }
+
+        $screen = get_current_screen();
         if (!$screen) {
             return true;
         }
 
-        $allowed_bases = ['post', 'site-editor', 'widgets', 'appearance_page_gutenberg-edit-site'];
-        if (in_array($screen->base, $allowed_bases, true)) {
+        if (!empty($screen->is_block_editor)) {
             return true;
         }
 
-        return !empty($screen->is_block_editor);
+        $blocked_bases = ['upload', 'media', 'users'];
+        if (in_array($screen->base, $blocked_bases, true)) {
+            return false;
+        }
+
+        return true;
     }
 
     public function enqueue_admin_assets() {
@@ -96,9 +104,10 @@ final class WPBB_Spellcheck {
                 '.acf-field[data-type="textarea"] textarea',
                 '.acf-field[data-type="wysiwyg"] iframe',
                 '.mce-content-body',
-                'iframe',
-            ],
-            'editorIframeSelectors' => ['iframe.editor-canvas__iframe', 'iframe[name="editor-canvas"]', 'iframe'],
+                            ],
+            'editorIframeSelectors' => ['iframe.editor-canvas__iframe', 'iframe[name="editor-canvas"]', '.acf-editor-wrap iframe', 'iframe[id$="_ifr"]', '.mce-edit-area iframe'],
+            'activeFieldNotice' => __('Spellcheck attached to active field.', 'wp-bbuilder'),
+            'selectionNotice' => __('Selected text is ready for your browser spellcheck suggestions.', 'wp-bbuilder'),
             'notice' => sprintf(
                 __('Spellcheck is active in admin only (%s). Frontend stays untouched for SEO and performance.', 'wp-bbuilder'),
                 self::get_supported_languages()[$this->get_language()] ?? 'English'
