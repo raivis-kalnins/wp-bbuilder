@@ -1,0 +1,10 @@
+{
+  "name": "acf/wpbb-card",
+  "title": "Boot Card",
+  "category": "wpbb",
+  "icon": "id",
+  "acf": {
+    "mode": "preview",
+    "renderTemplate": "render.php"
+  }
+}

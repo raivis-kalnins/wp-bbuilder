@@ -1,0 +1,6 @@
+.column-wpbb_order_handle{width:44px;text-align:center}
+.wpbb-order-drag-handle{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;color:#64748b;cursor:grab;border:1px solid #dcdcde;background:#fff}
+.wpbb-order-drag-handle:active{cursor:grabbing}
+.wpbb-sortable-list tr.ui-sortable-helper{background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.16)}
+.wpbb-order-placeholder{height:54px;background:#fff8e5!important;outline:2px dashed #dba617;outline-offset:-5px}
+.wpbb-ordering-notice{margin-top:12px}

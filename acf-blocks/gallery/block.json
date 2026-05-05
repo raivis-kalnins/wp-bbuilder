@@ -1,0 +1,10 @@
+{
+  "name": "acf/wpbb-gallery",
+  "title": "Gallery",
+  "category": "wpbb",
+  "icon": "format-gallery",
+  "acf": {
+    "mode": "preview",
+    "renderTemplate": "render.php"
+  }
+}
