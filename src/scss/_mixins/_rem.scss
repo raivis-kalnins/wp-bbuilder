@@ -1,0 +1,11 @@
+@function calculateRem($size) {
+	$bodySize: 16px;
+	$remSize: calc( $size / $bodySize ); // Body size 16px
+	@return #{$remSize}rem;
+}
+
+// Mixin
+@mixin fontRemSize($size) {
+	font-size: $size; //Fallback in px
+	font-size: calculateRem($size);
+}

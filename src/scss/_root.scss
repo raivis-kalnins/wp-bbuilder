@@ -1,0 +1,39 @@
+:root {
+  --wp-brand-color: #{$brandcolor};
+  --wp-accent-color: #{$accent-color};
+  --wp-text-color: #{$grey-txt};
+  --wp-heading-color: #{$darkest};
+  --wp-background-color: #{$acf-background-color};
+  --wp-light-bg-color: #{$light-bg};
+  --wp-surface-alt-color: #{$acf-surface-alt};
+  --wp-border-color: #{$acf-border-color};
+  --wp-grey-dark-color: #{$grey-dark};
+  --wp-grey-light-color: #{$grey-light};
+  --wp-green-color: #{$green};
+  --wp-warning-color: #{$acf-warning};
+  --wp-red-color: #{$red};
+  --wp-info-color: #{$acf-info};
+  --wp-link-color: #{$acf-link-color};
+  --wp-link-hover-color: #{$acf-link-hover-color};
+
+  --wp-body-font: #{$body-font};
+  --wp-body-size: #{$body-size};
+  --wp-font-size-medium: #{$large};
+  --wp-font-size-small: #{$small};
+  --wp-heading-font: #{$headings-font};
+  --wp-ui-font: #{$acf-ui-font};
+
+  --wp-h1-font-size: #{$h1-font-size};
+  --wp-h2-font-size: #{$h2-font-size};
+  --wp-h3-font-size: #{$h3-font-size};
+  --wp-h4-font-size: #{$h4-font-size};
+  --wp-h5-font-size: #{$h5-font-size};
+  --wp-h6-font-size: #{$h6-font-size};
+
+  --wp-container-width: #{$container-width};
+  --wp-content-width: #{$content-width};
+  --wp-wide-width: #{$wide-width};
+  --wp-gutter-width: #{$grid-gutter-width};
+  --wp-section-spacing: #{$acf-section-spacing};
+  --wp-theme-radius: #{$acf-radius};
+}

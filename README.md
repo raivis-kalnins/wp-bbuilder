@@ -1,239 +1,153 @@
-# WP BBuilder
+# WP BBTheme
 
-![Version](https://img.shields.io/badge/version-5.0.7-blue)
-![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-green)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple)
-![License](https://img.shields.io/badge/license-GPLv2-blue)
+WP BBTheme is a modular WordPress parent theme built to work with the WP BBTheme child theme and WP BBuilder plugin. Most functionality is optional and controlled from **Theme Settings -> WP Options**.
 
-WP BBuilder is a modular Gutenberg block builder for WordPress with Bootstrap-friendly layouts, server-side rendering, optional ACF integration, frontend-safe output, and admin-side editing helpers.
+## Main Features
 
-It is built to give editors more useful blocks without turning the frontend into a heavy page builder.
+- Optional CPT controls with on/off switches
+- Booking system with admin dashboard and cleanup tools
+- Event CPT with custom fields and single template
+- Custom login slug and logged-out `/wp-admin` redirect
+- Main menu extras with conditional output
+- Developer tools for visual QA and design inspection
+- SMTP-ready form delivery through the builder plugin
+- Compact Theme Settings control panel with shortcut buttons
 
-## What is included
+## Theme Settings -> General
 
-- Custom Gutenberg blocks for layout, content, data, forms, and integrations
-- Optional ACF-compatible workflows
-- Bootstrap-oriented structure and utility support
-- Dynamic frontend rendering where needed
-- Admin-side helpers that do **not** load on the frontend
-- Modular settings for enabling and disabling functionality
+Everything is off by default unless noted otherwise.
 
-## Highlights
+### Optional CPTs
+- Booking
+- Event
+- Products
+- Case Study
+- Testimonial
+- Megamenu
 
-### Social Feeds block
-The plugin now includes a **Social Feeds** block for combining social sources in one content section.
+When enabled, the matching CPT becomes available in admin. Megamenu is shown under **Appearance**.
 
-Supported platforms:
-- Instagram
-- Facebook
-- TikTok
-- X / Twitter
-- YouTube
+### General Shortcuts
+The General tab includes quick links to common admin areas such as Bookings, Events, Products, Case Studies, Testimonials, and Megamenu.
 
-Per-platform source methods:
-- Shortcode
-- Embed URL
-- Raw HTML
-- Direct link
-- Optional ACF fallback field name
+## Theme Settings -> Bookings
 
-This makes it suitable for direct embeds, feed plugin shortcodes, or flexible ACF-driven content builds.
+### Booking System
+The theme can run a lightweight booking flow tied to events.
 
-### Admin spellcheck helper
-The plugin also includes an optional **admin-only spellcheck system**.
+### Features
+- Booking dashboard
+- Calendar/table view helpers
+- Reply tools
+- Active and canceled booking statuses
+- Manual delete actions
+- Automatic cleanup options
 
-It is designed for content teams who want spelling assistance in the editor while keeping the frontend clean for performance and SEO.
+### Cleanup Controls
+- Delete canceled bookings
+- Delete old bookings
+- Old after X days
+- Delete canceled now
+- Delete old now
 
-Supported admin editors:
-- Gutenberg text and rich text fields
-- ACF text and textarea fields
-- Classic editor / TinyMCE / visual editor
+## Event CPT
 
-Supported spellcheck languages:
-- English
-- Latvian
-- Estonian
-- Lithuanian
-- Polish
-- German
-- French
-- Spanish
-- Italian
-- Swedish
-- Finnish
-- Norwegian
-- Danish
-- Icelandic
-- Russian
+When enabled, the theme registers an Event CPT and event category taxonomy.
 
-## Installation
+### Event Fields
+- Event Name
+- Event Date
+- Event Time
+- Location
+- Short Description
+- Event Details
 
-1. Upload the plugin to `/wp-content/plugins/wp-bbuilder/` or install the ZIP via **Plugins -> Add New -> Upload Plugin**.
-2. Activate the plugin.
-3. Open **WP BBuilder Settings** in the WordPress admin.
-4. Review Bootstrap loading, builder defaults, and optional admin helpers.
-5. Start building pages from the **BBuilder** block category in Gutenberg.
+### Single Event Template
+The single event template can output:
+- Title or Event Name
+- Date
+- Time
+- Location
+- Short Description
+- Event Details
+- Featured image
+- Main content
 
-## Builder settings overview
+## Theme Settings -> Developer Tools
 
-WP BBuilder settings are intended to keep the plugin flexible for different projects.
+All developer tools are optional and off by default.
 
-Typical settings areas include:
-- Bootstrap CSS / JS loading controls
-- Shared CSS loading
-- Frontend rendering and utility options
-- Form defaults and behavior
-- Cookie consent and analytics options
-- Admin spellcheck enable / disable toggle
-- Admin spellcheck default language
+### Available Tools
+- Show Borders
+- Show Margins and Paddings
+- Typography Inspector
+- Color Codes
+- Pixel Perfect Overlay
+- Mockup image upload
+- Mockup opacity
 
-### Admin spellcheck behavior
-When enabled:
-- loads only in `wp-admin`
-- adds `spellcheck="true"` where supported
-- applies the selected language via `lang`
-- watches dynamically added editor fields so Gutenberg and ACF repeaters continue to work
+### Purpose
+Use these tools during design QA to inspect spacing, typography, colors, and layout alignment against a mockup.
 
-Nothing from this helper is loaded on the frontend.
+## Main Menu Extras
 
-## Block categories
+The theme supports conditional header extras, including:
+- Search Bar
+- Customer Account
+- Mini Cart
+- Wishlist
+- Mega Menu
+- Last Button
+- Light/Dark switch
+- Language Bar
+- Sticky Header
 
-### Layout and structure
-- Row
-- Column
-- Section
-- Hero
-- Bootstrap Div
-- Swiper
-- Tabs
-- Tab Item
-- Accordion
-- Accordion Item
+These should only render when switched on in the available settings and matching functionality exists.
 
-### Content and UI
-- Button
-- Card
-- Cards
-- CTA Card
-- CTA Section
-- Alert
-- Badge
-- Breadcrumb
-- List Group
-- Navbar
-- Progress
-- Spinner
-- Feature List
-- Timeline
-- Code Display
-- Countdown Timer
-- Fun Fact
-- Table
-- Video
-- Gallery
-- Custom Embed
-- Inline SVG
-- File
+## Booking + Events Flow
 
-### Social and sharing
-- Social Follow
-- Social Share
-- Social Feeds
+Recommended setup:
+1. Enable Booking
+2. Enable Event
+3. Create Events
+4. Use the event and booking templates/blocks on the frontend
+5. Manage requests from Theme Settings -> Bookings
 
-### Forms, search, and marketing
-- Dynamic Form
-- Mailchimp
-- Login / Register
-- Ajax Search
-- Load More
-- Blog Filter
-- Catalogue
-- Events
-- Testimonials
-- Pricing Cards
-- Contact Links
-- Booking Calendar
+## Builder Plugin Notes
 
-### Data and utility
-- Chart
-- Google Map
-- Weather
-- Varda Dienas / Name Days
-- Sitemap
-- Menu Option
-- AI Content
+WP BBuilder provides companion functionality for:
+- form blocks
+- SMTP delivery settings
+- booking-related blocks
+- events-related blocks
 
-### ACF-related blocks
-- ACF Hero
-- ACF Gallery
-- ACF Card
+If using form submissions, configure the builder SMTP settings first.
 
-## Quick usage notes
+## Layout Notes
 
-### Social Feeds block
-Use this block when you want one section to hold multiple feed sources.
+The project prefers 12-column based layouts and avoids `col-md-6` defaults where possible.
 
-Examples:
-- Instagram shortcode from a feed plugin
-- Facebook shortcode from a social feed plugin
-- TikTok embed URL
-- YouTube playlist or video URL
-- Raw HTML widget code where needed
+Recommended classes:
+- `col-12`
+- `col-12 col-lg-4`
+- `col-12 col-lg-3`
+- `col-12 col-lg-5`
 
-### Dynamic forms
-Use the Dynamic Form block for structured forms with project-specific settings. Keep styles centralized in plugin or theme CSS where possible.
+## Installation Order
 
-### Layout blocks
-Use Row and Column for predictable Bootstrap-oriented structure instead of deeply nested ad hoc groups.
+1. Install parent theme
+2. Install child theme
+3. Activate child theme
+4. Install builder plugin
+5. Configure Theme Settings
 
-### Charts and data blocks
-These blocks are useful for dashboards, campaign pages, case studies, and internal marketing content.
+## Best Practices
 
-## Documentation included in this package
+- Keep optional features off until needed
+- Use Event CPT for event-driven booking flows
+- Keep developer tools disabled on normal usage
+- Save permalinks after enabling new CPTs
 
-- `docs/AVAILABLE-BLOCKS.md` — quick block catalogue with short explanations
-- `docs/ADMIN-HELPERS.md` — summary of admin-side helpers and how they work
-- `blocks/*/README.txt` — block-specific notes where available
+## Documentation in Admin
 
-## Performance and SEO approach
-
-WP BBuilder is built with a practical separation between admin conveniences and frontend output.
-
-Frontend goals:
-- avoid loading unnecessary assets
-- keep rendering predictable
-- support server-side output where useful
-- keep helper systems out of the public site unless they are actually needed
-
-Admin goals:
-- make editing easier
-- allow optional enhancements
-- support Gutenberg and ACF workflows without forcing extra frontend code
-
-## Developer notes
-
-Typical extension flow:
-1. Create a block folder if needed.
-2. Register the block in the plugin block registry.
-3. Add editor controls and render logic.
-4. Keep frontend output minimal and escaped.
-5. Use admin-only scripts for editorial assistance.
-
-Recommended approach:
-- prefer server-side render callbacks for dynamic content
-- use `do_shortcode()` only for trusted shortcode integrations
-- use `wp_oembed_get()` for supported embed URLs
-- keep project styling in shared CSS or theme CSS rather than inline block-by-block duplication where possible
-
-## Changelog
-
-### 5.0.7
-- Added Social Feeds block
-- Added optional admin-only spellcheck helper
-- Added spellcheck language selection
-- Added support targeting Gutenberg, ACF fields, and TinyMCE/classic editor on admin side
-- Updated documentation and package help files
-
-## License
-
-GPLv2 or later
+A Documentation screen is available from Theme Settings so project editors can review the current feature set without opening theme files.

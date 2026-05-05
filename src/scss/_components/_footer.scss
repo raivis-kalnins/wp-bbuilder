@@ -1,0 +1,43 @@
+.wp-site-blocks>footer {
+    --bs-link-hover-color-rgb: #000;
+	--bs-link-color-rgb: #000;	
+	padding: 40px 0;
+	max-width: 100vw;
+	overflow: hidden;		
+
+	p, li, span, address {
+		color: var(--wp-text-color);
+	}
+
+	.h4 {
+		font-weight: $weight-bold;
+		font-size: 16px;
+	}
+
+	.wp-block-wp-soc-follow-block.soc-follow-block__content,
+	.col-md-2 .h4 {
+		float: right;
+
+		@include media-breakpoint-down(sm) {
+			float: unset;
+		}
+	}
+
+	.wp-social-link-instagram {
+		margin-right: 0 !important;
+	}
+
+	.foo-copy {
+		max-width: fit-content;
+		white-space: nowrap;
+		padding-right: 20px;
+		position: relative;
+
+		@include media-breakpoint-down(sm) {
+			font-size: var(--bs-font-size-small);
+			white-space: wrap;
+			max-width: 270px;
+			float: unset;
+		}
+	}
+}

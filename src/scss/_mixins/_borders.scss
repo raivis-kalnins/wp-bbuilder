@@ -1,0 +1,12 @@
+@mixin one-chonk-corner($r, $corner: tr, $ratio: 7.5) {
+  $big: $r * $ratio;
+  @if $corner == tr {
+    border-radius: $r $big $r $r;
+  } @else if $corner == br {
+    border-radius: $r $r $big $r;
+  } @else if $corner == bl {
+    border-radius: $r $r $r $big;
+  } @else { // tl
+    border-radius: $big $r $r $r;
+  }
+}
