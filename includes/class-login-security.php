@@ -87,14 +87,26 @@ final class WPBB_Login_Security {
     }
 
     public function handle_login_security() {
-        if (is_user_logged_in()) {
-            return;
-        }
-
         $request_uri = isset($_SERVER['REQUEST_URI']) ? (string) $_SERVER['REQUEST_URI'] : '';
         $request_path = (string) wp_parse_url($request_uri, PHP_URL_PATH);
         $request_path = trim($request_path, '/');
         $custom_login = $this->custom_login_enabled();
+
+        /*
+         * The custom login slug must load wp-login.php even for logged-in users.
+         * WordPress uses wp-login.php?action=logout&_wpnonce=... to log users out;
+         * our site_url filter rewrites that URL to the custom slug. If we return
+         * early for logged-in users, the rewritten logout URL becomes a normal
+         * frontend request and can 404 without clearing the auth cookies.
+         */
+        if ($custom_login && $this->is_custom_login_request()) {
+            require_once ABSPATH . 'wp-login.php';
+            exit;
+        }
+
+        if (is_user_logged_in()) {
+            return;
+        }
 
         if ($request_path !== '' && strpos($request_path, 'wp-admin') === 0) {
             $allowed = [
@@ -110,11 +122,6 @@ final class WPBB_Login_Security {
 
         if (!$custom_login) {
             return;
-        }
-
-        if ($this->is_custom_login_request()) {
-            require_once ABSPATH . 'wp-login.php';
-            exit;
         }
 
         if ($this->is_direct_wp_login_request()) {
