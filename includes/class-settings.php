@@ -73,7 +73,7 @@ final class WPBB_Settings {
         $out['smtp_port'] = preg_replace('/[^0-9]/', '', (string) ($input['smtp_port'] ?? ($out['smtp_port'] ?? '587')));
         $out['form_min_submit_time'] = preg_replace('/[^0-9]/', '', (string) ($input['form_min_submit_time'] ?? ($out['form_min_submit_time'] ?? '3')));
         $out['smtp_password'] = isset($input['smtp_password']) ? (string) wp_unslash($input['smtp_password']) : ($out['smtp_password'] ?? '');
-        foreach (['google_analytics_head','custom_scss','compiled_css','meta_header_code','global_footer_code','page_redirect_rules'] as $field) {
+        foreach (['google_analytics_head','custom_scss','compiled_css','admin_scss','admin_compiled_css','meta_header_code','global_footer_code','page_redirect_rules'] as $field) {
             $out[$field] = isset($input[$field]) ? (string) wp_unslash($input[$field]) : ($out[$field] ?? '');
         }
         foreach (['default_label_color','default_input_border_color','default_button_bg','default_button_text','whatsapp_bg','whatsapp_text','cookie_bg','cookie_text_color','cookie_button_bg','cookie_button_text'] as $field) {
